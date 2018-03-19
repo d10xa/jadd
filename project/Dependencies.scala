@@ -1,0 +1,6 @@
+import sbt._
+
+object Dependencies {
+  lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.0.3"
+  lazy val scalaXml = "org.scala-lang.modules" %% "scala-xml" % "1.1.0"
+}

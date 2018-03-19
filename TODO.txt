@@ -1,0 +1,17 @@
+
+https://mvnrepository.com/artifact/org.spockframework/spock-core
+Versions of spock looks like (1.1-groovy-2.4, 1.1-groovy-2.4-rc-4)
+Need to understand what to do with that
+
+Add Support different repositories
+For example: https://dl.bintray.com/groovy/maven/org/codehaus/groovy/groovy-eclipse-batch/2.4.14-01/groovy-eclipse-batch-2.4.14-01.pom
+
+Add flags:
+    -q --quiet
+    --dry-run
+    --debug
+
+Don't add same dependency twice
+
+Add ability to customize addition of dependencies with comments:
+// jadd --relative-position=up --format='libraryDependencies += "${groupId}" %% "${artifactId}" % "${version}"'

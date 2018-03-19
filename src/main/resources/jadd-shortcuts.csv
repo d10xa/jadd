@@ -1,0 +1,10 @@
+scala-xml,org.scala-lang.modules:scala-xml%%
+scala-async,org.scala-lang.modules:scala-async%%
+circe-core,io.circe:circe-core%%
+circe-generic,io.circe:circe-generic%%
+junit4,junit:junit
+spring-boot-starter-web,org.springframework.boot:spring-boot-starter-web
+cats-core,org.typelevel:cats-core%%
+groovy-all,org.codehaus.groovy:groovy-all
+scopt,com.github.scopt:scopt%%
+akka-http,com.typesafe.akka:akka-http%%

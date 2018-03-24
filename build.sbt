@@ -14,4 +14,5 @@ lazy val root = (project in file(".")).
 assemblyJarName in assembly := "jadd.jar"
 
 libraryDependencies += scalaXml
+libraryDependencies += scopt
 libraryDependencies += scalaTest % Test

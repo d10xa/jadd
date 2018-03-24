@@ -8,7 +8,7 @@ import scala.xml.XML
 object Utils {
 
   def excludeNonRelease(versions: Seq[String]): Seq[String] = {
-    val exclude = Seq("rc", "alpha", "beta", "m")//, ".r")
+    val exclude = Seq("rc", "alpha", "beta", "m") //, ".r")
     versions.filter { version => !exclude.exists(version.toLowerCase.contains(_)) }
   }
 
@@ -43,4 +43,22 @@ object Utils {
     newArtifact.withVersion(Utils.excludeNonRelease(versions).head)
   }
 
+  def mkArtifact(raw: String): ArtifactWithoutVersion = {
+    val Array(a, b) = raw.split(':')
+    ArtifactWithoutVersion(a, b)
+  }
+
+  def unshortAll(rawDependencies: List[String], unshort: String => Option[String]): List[ArtifactWithoutVersion] =
+    rawDependencies
+      .map(raw => unshort(raw).getOrElse(raw))
+      .map(mkArtifact)
+
+  def shortcutLineToArtifact(line: String): (String, ArtifactWithoutVersion) = {
+    line.split(',') match {
+      case Array(short, full) =>
+        val Array(a, b) = full.split(":")
+        short -> ArtifactWithoutVersion(a, b)
+      case wrongArray => throw new IllegalArgumentException(s"wrong array $wrongArray")
+    }
+  }
 }

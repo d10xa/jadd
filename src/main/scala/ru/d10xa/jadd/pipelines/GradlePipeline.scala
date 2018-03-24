@@ -23,7 +23,7 @@ class GradlePipeline(ctx: Ctx) extends Pipeline {
 
     val artifactsWithVersions = artifacts.map(Utils.loadLatestVersion)
     val strings = artifactsWithVersions
-      .map { a => s"""compile "${a.groupId}:${a.artifactId}:${a.version}""""}
+      .map { a => s"""compile "${a.groupId}:${a.artifactId}:${a.version}"""" }
       .toList
 
     val lines = Source.fromFile(buildFile).getLines().toList

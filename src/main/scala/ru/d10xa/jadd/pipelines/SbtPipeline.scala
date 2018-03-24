@@ -19,7 +19,7 @@ class SbtPipeline(ctx: Ctx) extends Pipeline {
 
     val artifactsWithVersions = artifacts.map(Utils.loadLatestVersion)
     val strings = artifactsWithVersions
-      .map { a => s"""libraryDependencies += "${a.groupId}" % "${a.artifactId}" % "${a.version}""""}
+      .map { a => s"""libraryDependencies += "${a.groupId}" % "${a.artifactId}" % "${a.version}"""" }
       .toList
     strings.foreach(println)
   }

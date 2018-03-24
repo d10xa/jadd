@@ -2,18 +2,30 @@ package ru.d10xa.jadd.pipelines
 
 import java.io.File
 
-class SbtPipeline(userDir: File) extends Pipeline {
+import ru.d10xa.jadd.ArtifactWithoutVersion
+import ru.d10xa.jadd.Ctx
+import ru.d10xa.jadd.Utils
+import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
 
-  lazy val buildFile = new File(userDir, "build.sbt")
+class SbtPipeline(ctx: Ctx) extends Pipeline {
+
+  lazy val buildFile = new File(ctx.config.projectDir, "build.sbt")
 
   override def applicable: Boolean = buildFile.exists()
 
   override def run(): Unit = {
+    val artifacts: Seq[ArtifactWithoutVersion] =
+      Utils.unshortAll(ctx.config.artifacts.toList, new ArtifactShortcuts().unshort)
 
+    val artifactsWithVersions = artifacts.map(Utils.loadLatestVersion)
+    val strings = artifactsWithVersions
+      .map { a => s"""libraryDependencies += "${a.groupId}" % "${a.artifactId}" % "${a.version}""""}
+      .toList
+    strings.foreach(println)
   }
 
 }
 
 object SbtPipeline {
-  def apply(userDir: File): SbtPipeline = new SbtPipeline(userDir)
+  def apply(ctx: Ctx): Pipeline = new SbtPipeline(ctx)
 }

@@ -2,9 +2,11 @@ package ru.d10xa.jadd.pipelines
 
 import java.io.File
 
-class MavenPipeline(userDir: File) extends Pipeline {
+import ru.d10xa.jadd.Ctx
 
-  lazy val buildFile = new File(userDir, "pom.xml")
+class MavenPipeline(ctx: Ctx) extends Pipeline {
+
+  lazy val buildFile = new File(ctx.config.projectDir, "pom.xml")
 
   override def applicable: Boolean = buildFile.exists()
 
@@ -15,5 +17,5 @@ class MavenPipeline(userDir: File) extends Pipeline {
 }
 
 object MavenPipeline {
-  def apply(userDir: File): MavenPipeline = new MavenPipeline(userDir)
+  def apply(ctx: Ctx): Pipeline = new MavenPipeline(ctx)
 }

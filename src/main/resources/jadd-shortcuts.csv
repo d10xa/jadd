@@ -8,3 +8,5 @@ cats-core,org.typelevel:cats-core%%
 groovy-all,org.codehaus.groovy:groovy-all
 scopt,com.github.scopt:scopt%%
 akka-http,com.typesafe.akka:akka-http%%
+logback-classic,ch.qos.logback:logback-classic
+scala-logging,com.typesafe.scala-logging:scala-logging%%

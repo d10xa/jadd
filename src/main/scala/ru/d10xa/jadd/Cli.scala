@@ -9,6 +9,7 @@ object Cli {
   )
   val parser: OptionParser[Config] = new scopt.OptionParser[Config]("jadd") {
     head("jadd", "SNAPSHOT")
+    help("help").text("prints this usage text")
     arg[String]("<artifact>...").unbounded().optional().action((x, c) =>
       c.copy(artifacts = c.artifacts :+ x)).text("unbounded args")
     opt[String]('p', "project-dir").action((x, c) =>

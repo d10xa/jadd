@@ -27,8 +27,11 @@ class GradlePipeline(ctx: Ctx) extends Pipeline {
       .toList
 
     val lines = Source.fromFile(buildFile).getLines().toList
-    val newContent = new GradleFileAppender().append(lines, strings)
-    new SafeFileWriter().write(buildFile, newContent.mkString("\n") + "\n")
+    val newContent =
+      new GradleFileAppender()
+        .append(lines, strings)
+        .mkString("\n") + "\n"
+    new SafeFileWriter().write(buildFile, newContent)
   }
 }
 

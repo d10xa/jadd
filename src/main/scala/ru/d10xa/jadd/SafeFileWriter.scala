@@ -5,8 +5,11 @@ import java.io.File
 import java.io.FileWriter
 
 class SafeFileWriter {
+
+  private val canWriteTo = Set("build.gradle", "build.sbt")
+
   def write(file: File, content: String): Unit = {
-    require(file.getName == "build.gradle")
+    require(canWriteTo.contains(file.getName))
     val w = new BufferedWriter(new FileWriter(file))
     w.write(content)
     w.close()

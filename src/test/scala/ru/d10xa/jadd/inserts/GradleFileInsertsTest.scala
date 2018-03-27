@@ -1,9 +1,9 @@
-package ru.d10xa.jadd
+package ru.d10xa.jadd.inserts
 
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers
 
-class BuildGradleDependencyAdderTest extends FlatSpec with Matchers {
+class GradleFileInsertsTest extends FlatSpec with Matchers {
   "build file with nonempty dependencies block" should "successfully add dependency" in {
 
     def buildFileLines = List(
@@ -16,7 +16,7 @@ class BuildGradleDependencyAdderTest extends FlatSpec with Matchers {
       "}"
     )
 
-    val result = new GradleFileAppender().append(
+    val result = new GradleFileInserts().append(
       buildFileLines,
       List(
         "compile 'org.codehaus.groovy:groovy-all:2.4.14'",
@@ -49,7 +49,7 @@ class BuildGradleDependencyAdderTest extends FlatSpec with Matchers {
       """.stripMargin
     )
 
-    val newContent = new GradleFileAppender()
+    val newContent = new GradleFileInserts()
       .append(content.split("\n").toList, List("compile 'org.codehaus.groovy:groovy-all:2.4.14'"))
 
     newContent should contain ("\tcompile 'org.codehaus.groovy:groovy-all:2.4.14'")

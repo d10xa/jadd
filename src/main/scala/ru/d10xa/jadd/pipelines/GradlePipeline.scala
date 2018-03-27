@@ -4,9 +4,9 @@ import java.io.File
 
 import ru.d10xa.jadd.ArtifactWithoutVersion
 import ru.d10xa.jadd.Ctx
-import ru.d10xa.jadd.GradleFileAppender
 import ru.d10xa.jadd.SafeFileWriter
 import ru.d10xa.jadd.Utils
+import ru.d10xa.jadd.inserts.GradleFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
 
 import scala.io.Source
@@ -28,7 +28,7 @@ class GradlePipeline(ctx: Ctx) extends Pipeline {
 
     val lines = Source.fromFile(buildFile).getLines().toList
     val newContent =
-      new GradleFileAppender()
+      new GradleFileInserts()
         .append(lines, strings)
         .mkString("\n") + "\n"
     new SafeFileWriter().write(buildFile, newContent)

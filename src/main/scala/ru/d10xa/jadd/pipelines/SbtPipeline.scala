@@ -25,6 +25,7 @@ class SbtPipeline(ctx: Ctx) extends Pipeline {
     val strings = artifactsWithVersions
       .map { a => s"""libraryDependencies += "${a.groupId}" % "${a.artifactId}" % "${a.version}"""" }
       .toList
+
     strings.foreach(println)
 
     val lines = Source.fromFile(buildFile).getLines().toList
@@ -32,7 +33,9 @@ class SbtPipeline(ctx: Ctx) extends Pipeline {
       new SbtFileInserts()
         .append(lines, strings)
         .mkString("\n") + "\n"
-    new SafeFileWriter().write(buildFile, newContent)
+    if (!ctx.config.dryRun) {
+      new SafeFileWriter().write(buildFile, newContent)
+    }
   }
 
 }

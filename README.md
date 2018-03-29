@@ -1,4 +1,4 @@
-# jadd
+# jadd [![Build Status](https://travis-ci.org/d10xa/jadd.svg?branch=master)](https://travis-ci.org/d10xa/jadd)
 
 Tool for adding dependencies to gradle/maven/sbt build files
 

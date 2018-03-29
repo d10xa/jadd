@@ -1,30 +1,31 @@
 package ru.d10xa.jadd.inserts
 
+import ru.d10xa.jadd.Indent
 import ru.d10xa.jadd.Indentation
 
 object MavenFileInserts {
 
-  def append(fileLines: List[String], dependencies: List[List[String]]): List[String] = {
-    val withIndex = fileLines.zipWithIndex
-    val (c, i) = Indentation.predictIndentation(fileLines)
-    val dependenciesLineInfo: Option[(String, Int, String)] =
-      withIndex
-        .filter { case (line, index) => line.trim.equals("<dependencies>") }
-        .map { case (line, index) => (line, index, line.takeWhile(c => c == ' ' || c == '\t')) }
-        .sortBy(_._3.length)
-        .headOption
+  def append(fileLines: Seq[String], dependencies: Seq[Seq[String]], indent: Indent): Seq[String] = {
+    def isSuitableDependenciesTag(line: String): Boolean =
+      line.trim.equals("<dependencies>") && Indentation.lineIndentation(line).exists(_.size == indent.size)
 
-    dependenciesLineInfo match {
-      case None =>
-        val d: List[String] = dependencies.flatMap(dependencyRows => dependencyRows.map(r => s"${c.toString * i}$r"))
-        val deps = s"${c.toString * i}<dependencies>" +: d :+ s"${c.toString * i}</dependencies>"
-        MiddleInsert.insert(fileLines, deps, -1)
-      case Some((_, index, indentChars)) =>
-        val d: List[String] = dependencies.flatMap(dependencyRows => dependencyRows.map(r => {
-          val str: String = c.toString * (i + indentChars.length)
-          s"$str$r"
+    val optLineIndex: Option[Int] = fileLines
+      .zipWithIndex
+      .collectFirst {
+        case (line, index) if isSuitableDependenciesTag(line) => index
+      }
+
+    optLineIndex match {
+      case Some(index) =>
+        val d: Seq[String] = dependencies.flatMap(dependencyRows => dependencyRows.map(r => {
+          s"${indent.take(2)}$r"
         }))
         MiddleInsert.insert(fileLines, d, index + 1)
+      case None =>
+        val d: Seq[String] = dependencies.flatten.map(d => s"${indent.take()}$d")
+        val deps: Seq[String] =
+          s"<dependencies>" +: d :+ s"</dependencies>"
+        MiddleInsert.insert(fileLines, deps.map(d => s"${indent.take()}$d"), -1)
     }
 
   }

@@ -26,12 +26,17 @@ class GradlePipeline(ctx: Ctx) extends Pipeline {
       .map { a => s"""compile "${a.groupId}:${a.artifactId}:${a.version}"""" }
       .toList
 
+    strings.foreach(println)
+
     val lines = Source.fromFile(buildFile).getLines().toList
+
     val newContent =
       new GradleFileInserts()
         .append(lines, strings)
         .mkString("\n") + "\n"
-    new SafeFileWriter().write(buildFile, newContent)
+    if (!ctx.config.dryRun) {
+      new SafeFileWriter().write(buildFile, newContent)
+    }
   }
 }
 

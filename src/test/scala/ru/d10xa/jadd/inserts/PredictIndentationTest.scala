@@ -2,15 +2,17 @@ package ru.d10xa.jadd.inserts
 
 import org.scalatest.FunSuite
 import org.scalatest.Matchers
+import ru.d10xa.jadd.Indent
 import ru.d10xa.jadd.Indentation
 
 class PredictIndentationTest extends FunSuite with Matchers {
 
   test("single line indentation") {
     import Indentation._
-    lineIndentation("   42") shouldEqual Some(' ' -> 3)
-    lineIndentation("    42") shouldEqual Some(' ' -> 4)
-    lineIndentation("\t\t\t42") shouldEqual Some('\t' -> 3)
+    import Indent._
+    lineIndentation("   42") shouldEqual Some(space(3))
+    lineIndentation("    42") shouldEqual Some(space(4))
+    lineIndentation("\t\t\t42") shouldEqual Some(tab(3))
     lineIndentation("    ") shouldEqual None
     lineIndentation("\t") shouldEqual None
   }
@@ -32,10 +34,10 @@ class PredictIndentationTest extends FunSuite with Matchers {
         |</project>
         |""".stripMargin
 
-    val (character, count) = Indentation.predictIndentation(content.split("\n").toList)
+    val Indent(style, size) = Indentation.predictIndentation(content.split("\n").toList)
 
-    character shouldEqual ' '
-    count shouldEqual 2
+    style shouldEqual ' '
+    size shouldEqual 2
   }
 
   test("4 spaces and some 2-space indents") {
@@ -55,10 +57,10 @@ class PredictIndentationTest extends FunSuite with Matchers {
         |</project>
         |""".stripMargin
 
-    val (character, count) = Indentation.predictIndentation(content.split("\n").toList)
+    val Indent(style, size) = Indentation.predictIndentation(content.split("\n").toList)
 
-    character shouldEqual ' '
-    count shouldEqual 4
+    style shouldEqual ' '
+    size shouldEqual 4
   }
 
   test("2 tabs") {
@@ -79,10 +81,10 @@ class PredictIndentationTest extends FunSuite with Matchers {
         |""".stripMargin
     )
 
-    val (character, count) = Indentation.predictIndentation(content.split("\n").toList)
+    val Indent(style, size) = Indentation.predictIndentation(content.split("\n").toList)
 
-    character shouldEqual '\t'
-    count shouldEqual 2
+    style shouldEqual '\t'
+    size shouldEqual 2
   }
 
   test("no indents") {
@@ -97,10 +99,31 @@ class PredictIndentationTest extends FunSuite with Matchers {
         |""".stripMargin
     )
 
-    val (character, count) = Indentation.predictIndentation(content.split("\n").toList)
+    val Indent(style, size) = Indentation.predictIndentation(content.split("\n").toList)
 
     // some defaults
-    character shouldEqual ' '
-    count shouldEqual 4
+    style shouldEqual ' '
+    size shouldEqual 4
+  }
+
+  test("one level indent"){
+    val content =
+      """<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        |  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+        |  <modelVersion>4.0.0</modelVersion>
+        |  <groupId>com.example</groupId>
+        |  <artifactId>example-mvn</artifactId>
+        |  <packaging>jar</packaging>
+        |  <version>1.0-SNAPSHOT</version>
+        |  <name>example-mvn</name>
+        |  <url>http://maven.apache.org</url>
+        |</project>
+        |""".stripMargin
+
+    val Indent(style, size) = Indentation.predictIndentation(content.split("\n").toList)
+
+    // some defaults
+    style shouldEqual ' '
+    size shouldEqual 2
   }
 }

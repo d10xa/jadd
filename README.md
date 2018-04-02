@@ -9,6 +9,10 @@ Tool for adding dependencies to gradle/maven/sbt build files
 ## installation (macOS)
 
     brew install d10xa/jadd/jadd
+    
+## update version (macOS)
+
+    brew upgrade jadd
 
 ## installation (other OS)
 

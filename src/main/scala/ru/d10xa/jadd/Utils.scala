@@ -1,41 +1,89 @@
 package ru.d10xa.jadd
 
-import java.net.URL
+import java.io.File
+import java.net.URI
 
 import scala.util.Try
 import scala.xml.XML
 
 object Utils {
 
+  sealed trait MetadataUri {
+    def uri: URI
+  }
+  final case class ScalaMetadataUri(
+    artifact: ArtifactWithoutVersion,
+    scalaVersion: String,
+    repo: String
+  ) extends MetadataUri {
+    override def uri: URI = {
+      val a = artifact.resolveScalaVersion(scalaVersion)
+      new URI(s"""$repo/${a.asPath}/maven-metadata.xml""")
+    }
+  }
+  final case class SimpleMetadataUri(
+    repo: String,
+    artifact: Artifact
+  ) extends MetadataUri {
+    override def uri: URI = {
+      new URI(s"$repo/${artifact.asPath}/maven-metadata.xml")
+    }
+  }
+
+  final case class LocalMetadataUri(
+    repo: File,
+    artifact: Artifact
+  ) extends MetadataUri {
+    override def uri: URI = {
+      new File(repo, s"${artifact.asPath}/maven-metadata-local.xml").toURI
+    }
+  }
+
   def excludeNonRelease(versions: Seq[String]): Seq[String] = {
-    val exclude = Seq("rc", "alpha", "beta", "m") //, ".r")
+    val exclude = Seq("rc", "alpha", "beta", "m")
     versions.filter { version => !exclude.exists(version.toLowerCase.contains(_)) }
   }
 
-  def loadVersions(artifact: ArtifactWithoutVersion): (ArtifactWithoutVersion, Seq[String]) = {
-    val groupIdPath = artifact.groupId.replace('.', '/')
-    val needScalaVersionResolving = artifact.artifactId.contains("%%")
+  def collectMetadataUris(
+    artifact: ArtifactWithoutVersion,
+    remoteRepo: String,
+    localRepo: => File
+  ): Stream[URI] = {
 
-    if (!needScalaVersionResolving) {
-      val artifactId = artifact.artifactId
-      val url = new URL(s"""https://jcenter.bintray.com/$groupIdPath/$artifactId/maven-metadata.xml""")
-      println(s"load $url")
-      val elem = XML.load(url)
-      artifact -> MavenMetadataVersionsRawReader.versionsDesc(elem)
-    } else {
-      val scalaVersions = Seq("2.12", "2.11")
-      def urlWithVersion(v: String): String = {
-        val artifactWithVersion = artifact.artifactId.replace("%%", s"_$v")
-        s"""https://jcenter.bintray.com/$groupIdPath/$artifactWithVersion/maven-metadata.xml"""
+    val metadataUris: Stream[MetadataUri] =
+      if (artifact.needScalaVersionResolving) {
+        Seq("2.12", "2.11")
+          .toStream
+          .map(ScalaMetadataUri(artifact, _, remoteRepo))
+      } else {
+        Seq(
+          SimpleMetadataUri(remoteRepo, artifact),
+          LocalMetadataUri(localRepo, artifact)
+        ).toStream
       }
+    metadataUris.map(_.uri)
+  }
 
-      val (scalaVersion, versions) = scalaVersions
-        .map { v: String => Try(v -> MavenMetadataVersionsRawReader.versionsDesc(XML.load(urlWithVersion(v)))) }
-        .reduce(_ orElse _)
-        .get
+  def loadVersions(artifact: ArtifactWithoutVersion): (ArtifactWithoutVersion, Seq[String]) = {
+    // TODO get repository path from ~/.m2/settings.xml or use default
+    val uris: Stream[URI] = collectMetadataUris(
+      artifact,
+      "https://jcenter.bintray.com",
+      new File(s"${System.getProperty("user.home")}/.m2/repository")
+    )
 
-      artifact.copy(artifactId = artifact.artifactId.replace("%%", s"_$scalaVersion")) -> versions
+    val opt: Option[(ArtifactWithoutVersion, Seq[String])] = uris.map { uri =>
+      Try {
+        val versions = MavenMetadataVersionsRawReader.versionsDesc(XML.load(uri.toURL))
+        println(uri)
+        versions
+      }
+        .toOption
+        .map { versions => artifact -> versions }
+    }.collectFirst {
+      case Some(t) => t
     }
+    opt.get // TODO refactoring
   }
 
   def loadLatestVersion(artifact: ArtifactWithoutVersion): ArtifactWithVersion = {
@@ -45,7 +93,7 @@ object Utils {
 
   def mkArtifact(raw: String): ArtifactWithoutVersion = {
     val Array(a, b) = raw.split(':')
-    ArtifactWithoutVersion(a, b)
+    new ArtifactWithoutVersion(a, b)
   }
 
   def unshortAll(rawDependencies: List[String], unshort: String => Option[String]): List[ArtifactWithoutVersion] =
@@ -57,7 +105,7 @@ object Utils {
     line.split(',') match {
       case Array(short, full) =>
         val Array(a, b) = full.split(":")
-        short -> ArtifactWithoutVersion(a, b)
+        short -> new ArtifactWithoutVersion(a, b)
       case wrongArray => throw new IllegalArgumentException(s"wrong array $wrongArray")
     }
   }

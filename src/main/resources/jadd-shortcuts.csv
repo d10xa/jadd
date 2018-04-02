@@ -8,6 +8,8 @@ gson,com.google.code.gson:gson
 joda-time,joda-time:joda-time
 junit,junit:junit
 logback-classic,ch.qos.logback:logback-classic
+mysql,mysql:mysql-connector-java
+postgresql,org.postgresql:postgresql
 scala-async,org.scala-lang.modules:scala-async%%
 scala-logging,com.typesafe.scala-logging:scala-logging%%
 scala-xml,org.scala-lang.modules:scala-xml%%

@@ -2,7 +2,7 @@ package ru.d10xa.jadd.pipelines
 
 import java.io.File
 
-import ru.d10xa.jadd.ArtifactWithoutVersion
+import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.Indent
 import ru.d10xa.jadd.Indentation
@@ -20,7 +20,7 @@ class MavenPipeline(ctx: Ctx) extends Pipeline {
   override def applicable: Boolean = buildFile.exists()
 
   override def run(): Unit = {
-    val artifacts: Seq[ArtifactWithoutVersion] =
+    val artifacts: Seq[Artifact] =
       Utils.unshortAll(ctx.config.artifacts.toList, new ArtifactShortcuts().unshort)
 
     val lines: Seq[String] = Source.fromFile(buildFile).getLines().toSeq
@@ -29,12 +29,13 @@ class MavenPipeline(ctx: Ctx) extends Pipeline {
 
     val artifactsWithVersions = artifacts.map(Utils.loadLatestVersion)
 
+    // TODO fix get
     val strings = artifactsWithVersions
       .map { a =>
         s"""<dependency>
         |$indentString<groupId>${a.groupId}</groupId>
         |$indentString<artifactId>${a.artifactId}</artifactId>
-        |$indentString<version>${a.version}</version>
+        |$indentString<version>${a.maybeVersion.get}</version>
         |</dependency>""".stripMargin
       }
 

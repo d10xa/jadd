@@ -42,7 +42,9 @@ object Utils {
 
   def excludeNonRelease(versions: Seq[String]): Seq[String] = {
     val exclude = Seq("rc", "alpha", "beta", "m")
-    versions.filter { version => !exclude.exists(version.toLowerCase.contains(_)) }
+    val filteredVersions =
+      versions.filter { version => !exclude.exists(version.toLowerCase.contains(_)) }
+    if (filteredVersions.isEmpty) versions else filteredVersions
   }
 
   def collectMetadataUris(

@@ -38,3 +38,4 @@ spock-spring,org.spockframework:spock-spring
 spring-boot-starter-web,org.springframework.boot:spring-boot-starter-web
 testcontainers,org.testcontainers:testcontainers
 testcontainers-scala,com.dimafeng:testcontainers-scala%%
+testng,org.testng:testng

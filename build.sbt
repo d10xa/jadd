@@ -31,3 +31,5 @@ libraryDependencies += scopt
 libraryDependencies += scalaTest % Test
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"
 libraryDependencies += "com.typesafe.scala-logging" % "scala-logging_2.12" % "3.8.0"
+libraryDependencies += "io.circe" % "circe-parser_2.12" % "0.9.2"
+libraryDependencies += "io.circe" % "circe-generic_2.12" % "0.9.3"

@@ -6,7 +6,7 @@ class MavenMetadataVersionsRawReaderTest extends FlatSpec with Matchers {
 
   "parse xml" should "not fail" in {
     val resource = getClass.getResourceAsStream("/maven-metadata/scala-maven-metadata.xml")
-    val text = io.Source.fromInputStream(resource).mkString
+    val text = scala.io.Source.fromInputStream(resource).mkString
 
     val exclude = Seq("rc", "alpha", "beta", "m", ".r")
 

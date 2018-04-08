@@ -5,13 +5,14 @@ import java.io.File
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.SafeFileWriter
+import ru.d10xa.jadd.Scope.Test
 import ru.d10xa.jadd.Utils
 import ru.d10xa.jadd.inserts.GradleFileInserts
-import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
+import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 
 import scala.io.Source
 
-class GradlePipeline(ctx: Ctx) extends Pipeline {
+class GradlePipeline(ctx: Ctx)(implicit artifactInfoFinder: ArtifactInfoFinder) extends Pipeline {
 
   lazy val buildFile = new File(ctx.config.projectDir, "build.gradle")
 
@@ -19,11 +20,14 @@ class GradlePipeline(ctx: Ctx) extends Pipeline {
 
   override def run(): Unit = {
     val artifacts: Seq[Artifact] =
-      Utils.unshortAll(ctx.config.artifacts.toList, new ArtifactShortcuts().unshort)
+      Utils.unshortAll(ctx.config.artifacts.toList, artifactInfoFinder)
 
     val artifactsWithVersions = artifacts.map(Utils.loadLatestVersion)
     val strings = artifactsWithVersions
-      .map { a => s"""compile "${a.groupId}:${a.artifactId}:${a.maybeVersion.get}"""" } // TODO get
+      .map {
+        case a if a.scope.contains(Test) => s"""testCompile "${a.groupId}:${a.artifactId}:${a.maybeVersion.get}""""
+        case a => s"""compile "${a.groupId}:${a.artifactId}:${a.maybeVersion.get}""""
+      } // TODO get
       .toList
 
     strings.foreach(println)
@@ -38,8 +42,4 @@ class GradlePipeline(ctx: Ctx) extends Pipeline {
       new SafeFileWriter().write(buildFile, newContent)
     }
   }
-}
-
-object GradlePipeline {
-  def apply(ctx: Ctx): Pipeline = new GradlePipeline(ctx)
 }

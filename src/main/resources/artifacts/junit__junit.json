@@ -1,0 +1,5 @@
+{
+  "groupId": "junit",
+  "artifactId": "junit",
+  "scope": "test"
+}

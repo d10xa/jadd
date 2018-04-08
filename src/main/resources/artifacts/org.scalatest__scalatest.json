@@ -1,0 +1,5 @@
+{
+  "groupId": "org.scalatest",
+  "artifactId": "scalatest%%",
+  "scope": "test"
+}

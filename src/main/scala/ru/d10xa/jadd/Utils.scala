@@ -10,14 +10,15 @@ object Utils {
 
   sealed trait MetadataUri {
     def uri: URI
+    def artifact: Artifact
   }
   final case class ScalaMetadataUri(
-    artifact: ArtifactWithoutVersion,
+    artifact: Artifact,
     scalaVersion: String,
     repo: String
   ) extends MetadataUri {
     override def uri: URI = {
-      val a = artifact.resolveScalaVersion(scalaVersion)
+      val a = artifact.copy(maybeScalaVersion = Some(scalaVersion))
       new URI(s"""$repo/${a.asPath}/maven-metadata.xml""")
     }
   }
@@ -41,71 +42,74 @@ object Utils {
 
   def excludeNonRelease(versions: Seq[String]): Seq[String] = {
     val exclude = Seq("rc", "alpha", "beta", "m")
-    versions.filter { version => !exclude.exists(version.toLowerCase.contains(_)) }
+    val filteredVersions =
+      versions.filter { version => !exclude.exists(version.toLowerCase.contains(_)) }
+    if (filteredVersions.isEmpty) versions else filteredVersions
   }
 
   def collectMetadataUris(
-    artifact: ArtifactWithoutVersion,
+    artifact: Artifact,
     remoteRepo: String,
     localRepo: => File
-  ): Stream[URI] = {
+  ): Stream[MetadataUri] = {
 
     val metadataUris: Stream[MetadataUri] =
       if (artifact.needScalaVersionResolving) {
         Seq("2.12", "2.11")
           .toStream
-          .map(ScalaMetadataUri(artifact, _, remoteRepo))
+          .map(v => ScalaMetadataUri(artifact.copy(maybeScalaVersion = Some(v)), v, remoteRepo))
       } else {
         Seq(
           SimpleMetadataUri(remoteRepo, artifact),
           LocalMetadataUri(localRepo, artifact)
         ).toStream
       }
-    metadataUris.map(_.uri)
+    metadataUris
   }
 
-  def loadVersions(artifact: ArtifactWithoutVersion): (ArtifactWithoutVersion, Seq[String]) = {
+  def loadVersions(artifact: Artifact): (Artifact, Seq[String]) = {
     // TODO get repository path from ~/.m2/settings.xml or use default
-    val uris: Stream[URI] = collectMetadataUris(
+    val uris: Stream[MetadataUri] = collectMetadataUris(
       artifact,
       "https://jcenter.bintray.com",
       new File(s"${System.getProperty("user.home")}/.m2/repository")
     )
 
-    val opt: Option[(ArtifactWithoutVersion, Seq[String])] = uris.map { uri =>
+    val opt: Option[(Artifact, Seq[String])] = uris.map { uri =>
       Try {
-        val versions = MavenMetadataVersionsRawReader.versionsDesc(XML.load(uri.toURL))
-        println(uri)
+        val elem = XML.load(uri.uri.toURL)
+        val versions = MavenMetadataVersionsRawReader.versionsDesc(elem)
+        println(uri.uri)
         versions
       }
         .toOption
-        .map { versions => artifact -> versions }
+        .map { versions => uri.artifact -> versions }
     }.collectFirst {
       case Some(t) => t
     }
     opt.get // TODO refactoring
   }
 
-  def loadLatestVersion(artifact: ArtifactWithoutVersion): ArtifactWithVersion = {
+  def loadLatestVersion(artifact: Artifact): Artifact = {
     val (newArtifact, versions) = Utils.loadVersions(artifact)
-    newArtifact.withVersion(Utils.excludeNonRelease(versions).head)
+    newArtifact.copy(maybeVersion = Utils.excludeNonRelease(versions).headOption)
   }
 
-  def mkArtifact(raw: String): ArtifactWithoutVersion = {
+  def mkArtifact(raw: String): Artifact = {
     val Array(a, b) = raw.split(':')
-    new ArtifactWithoutVersion(a, b)
+    Artifact(a, b, maybeVersion = None, maybeScalaVersion = None)
   }
 
-  def unshortAll(rawDependencies: List[String], unshort: String => Option[String]): List[ArtifactWithoutVersion] =
+  def unshortAll(rawDependencies: List[String], unshort: String => Option[String]): List[Artifact] =
     rawDependencies
       .map(raw => unshort(raw).getOrElse(raw))
       .map(mkArtifact)
 
-  def shortcutLineToArtifact(line: String): (String, ArtifactWithoutVersion) = {
+  def shortcutLineToArtifact(line: String): (String, Artifact) = {
     line.split(',') match {
       case Array(short, full) =>
         val Array(a, b) = full.split(":")
-        short -> new ArtifactWithoutVersion(a, b)
+        short -> Artifact(a, b, maybeVersion = None, maybeScalaVersion = None)
       case wrongArray => throw new IllegalArgumentException(s"wrong array $wrongArray")
     }
   }

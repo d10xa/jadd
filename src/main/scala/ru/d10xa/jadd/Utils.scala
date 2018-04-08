@@ -3,6 +3,10 @@ package ru.d10xa.jadd
 import java.io.File
 import java.net.URI
 
+import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
+
+import scala.io.BufferedSource
+import scala.io.Source
 import scala.util.Try
 import scala.xml.XML
 
@@ -95,22 +99,12 @@ object Utils {
     newArtifact.copy(maybeVersion = Utils.excludeNonRelease(versions).headOption)
   }
 
-  def mkArtifact(raw: String): Artifact = {
-    val Array(a, b) = raw.split(':')
-    Artifact(a, b, maybeVersion = None, maybeScalaVersion = None)
-  }
-
-  def unshortAll(rawDependencies: List[String], unshort: String => Option[String]): List[Artifact] =
+  def unshortAll(rawDependencies: List[String], artifactInfoFinder: ArtifactInfoFinder): List[Artifact] =
     rawDependencies
-      .map(raw => unshort(raw).getOrElse(raw))
-      .map(mkArtifact)
+      .map(raw => artifactInfoFinder.artifactFromString(raw))
 
-  def shortcutLineToArtifact(line: String): (String, Artifact) = {
-    line.split(',') match {
-      case Array(short, full) =>
-        val Array(a, b) = full.split(":")
-        short -> Artifact(a, b, maybeVersion = None, maybeScalaVersion = None)
-      case wrongArray => throw new IllegalArgumentException(s"wrong array $wrongArray")
-    }
-  }
+  def sourceFromSpringUri(string: String): BufferedSource =
+    if(string.startsWith("classpath:")) Source.fromResource(string.drop(10))
+    else Source.fromURL(string)
+
 }

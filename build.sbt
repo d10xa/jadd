@@ -5,7 +5,7 @@ lazy val root = (project in file(".")).
     inThisBuild(List(
       organization := "ru.d10xa",
       scalaVersion := "2.12.5",
-      version      := "0.1.2",
+      version      := "0.1.3",
       mainClass in Compile := Some("ru.d10xa.jadd.Main")
     )),
     name := "jadd"
@@ -31,3 +31,5 @@ libraryDependencies += scopt
 libraryDependencies += scalaTest % Test
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"
 libraryDependencies += "com.typesafe.scala-logging" % "scala-logging_2.12" % "3.8.0"
+libraryDependencies += "io.circe" % "circe-parser_2.12" % "0.9.2"
+libraryDependencies += "io.circe" % "circe-generic_2.12" % "0.9.3"

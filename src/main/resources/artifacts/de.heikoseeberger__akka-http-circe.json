@@ -1,0 +1,6 @@
+{
+  "groupId": "de.heikoseeberger",
+  "artifactId": "akka-http-circe%%",
+  "hasScalaSuffix": true,
+  "repository": "bintray/hseeberger/maven"
+}

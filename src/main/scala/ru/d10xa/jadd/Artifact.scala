@@ -3,7 +3,9 @@ package ru.d10xa.jadd
 final case class Artifact(
   groupId: String,
   artifactId: String,
-  maybeVersion: Option[String],
+  maybeVersion: Option[String] = None, // TODO list of versions
+  shortcut: Option[String] = None,
+  scope: Option[Scope] = None,
   maybeScalaVersion: Option[String] = None
 ) {
 
@@ -12,7 +14,7 @@ final case class Artifact(
   def asPath: String = {
     val groupIdPath = groupId.replace('.', '/')
     val art =
-      if(needScalaVersionResolving && maybeScalaVersion.isDefined) artifactIdWithScalaVersion(maybeScalaVersion.get)
+      if (needScalaVersionResolving && maybeScalaVersion.isDefined) artifactIdWithScalaVersion(maybeScalaVersion.get)
       else artifactId
     val l: Seq[String] = groupIdPath :: art :: Nil
     maybeVersion

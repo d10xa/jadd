@@ -3,15 +3,16 @@ package ru.d10xa.jadd.pipelines
 import java.io.File
 
 import ru.d10xa.jadd.inserts.SbtFileInserts
-import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
+import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.SafeFileWriter
+import ru.d10xa.jadd.Scope.Test
 import ru.d10xa.jadd.Utils
 
 import scala.io.Source
 
-class SbtPipeline(ctx: Ctx) extends Pipeline {
+class SbtPipeline(ctx: Ctx)(implicit artifactInfoFinder: ArtifactInfoFinder) extends Pipeline {
 
   lazy val buildFile = new File(ctx.config.projectDir, "build.sbt")
 
@@ -19,7 +20,7 @@ class SbtPipeline(ctx: Ctx) extends Pipeline {
 
   override def run(): Unit = {
     val artifacts: Seq[Artifact] =
-      Utils.unshortAll(ctx.config.artifacts.toList, new ArtifactShortcuts().unshort)
+      Utils.unshortAll(ctx.config.artifacts.toList, artifactInfoFinder)
 
     val artifactsWithVersions: Seq[Artifact] = artifacts.map(Utils.loadLatestVersion)
 
@@ -27,7 +28,14 @@ class SbtPipeline(ctx: Ctx) extends Pipeline {
       val artifactId = a.maybeScalaVersion
         .map { v => a.artifactIdWithScalaVersion(v) }
         .getOrElse(a.artifactId)
-      s"""libraryDependencies += "${a.groupId}" % "$artifactId" % "${a.maybeVersion.get}"""" // TODO get
+      val groupId = a.groupId
+      val version = a.maybeVersion.get // TODO get
+      a.scope match {
+        case Some(Test) =>
+          s"""libraryDependencies += "$groupId" % "$artifactId" % "$version" % Test"""
+        case _ =>
+          s"""libraryDependencies += "$groupId" % "$artifactId" % "$version""""
+      }
     }
 
     val artifactStrings = artifactsWithVersions
@@ -46,8 +54,4 @@ class SbtPipeline(ctx: Ctx) extends Pipeline {
     }
   }
 
-}
-
-object SbtPipeline {
-  def apply(ctx: Ctx): Pipeline = new SbtPipeline(ctx)
 }

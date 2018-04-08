@@ -1,0 +1,5 @@
+{
+  "groupId": "org.spockframework",
+  "artifactId": "spock-core",
+  "scope": "test"
+}

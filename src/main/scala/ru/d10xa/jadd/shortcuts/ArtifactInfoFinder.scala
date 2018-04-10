@@ -14,6 +14,8 @@ class ArtifactInfoFinder(
   artifactInfoBasePath: String = "classpath:artifacts/"
 ) {
 
+  import ArtifactInfoFinder._
+
   lazy val shortcuts: Map[String, String] = {
     val lines = source
       .getLines()
@@ -72,10 +74,23 @@ class ArtifactInfoFinder(
       shortcutToArtifact getOrElse fullToArtifact
 
     val artifactString = s"${artifact.groupId}:${artifact.artifactId}"
-    val scope: Option[Scope] =
-      findArtifactInfo(artifactString).flatMap(_.scope).map(Scope.scope)
+    val maybeInfo: Option[ArtifactInfo] = findArtifactInfo(artifactString)
 
-    artifact.copy(scope = scope)
+    val scope: Option[Scope] =
+      maybeInfo.flatMap(_.scope).map(Scope.scope)
+
+    val repositoryPath: Option[String] =
+      maybeInfo
+        .flatMap(_.repository)
+        .map(unshortRepository)
+
+    artifact.copy(scope = scope, repositoryPath = repositoryPath)
   }
 
+}
+
+object ArtifactInfoFinder {
+  def unshortRepository(repo: String): String = {
+    if(repo.startsWith("bintray/")) s"https://dl.bintray.com/${repo.drop(8)}" else repo
+  }
 }

@@ -53,18 +53,20 @@ object Utils {
 
   def collectMetadataUris(
     artifact: Artifact,
-    remoteRepo: String,
+    defaultRemoteRepo: String,
     localRepo: => File
   ): Stream[MetadataUri] = {
+
+    val repo = artifact.repositoryPath.getOrElse(defaultRemoteRepo)
 
     val metadataUris: Stream[MetadataUri] =
       if (artifact.needScalaVersionResolving) {
         Seq("2.12", "2.11")
           .toStream
-          .map(v => ScalaMetadataUri(artifact.copy(maybeScalaVersion = Some(v)), v, remoteRepo))
+          .map(v => ScalaMetadataUri(artifact.copy(maybeScalaVersion = Some(v)), v, repo))
       } else {
         Seq(
-          SimpleMetadataUri(remoteRepo, artifact),
+          SimpleMetadataUri(repo, artifact),
           LocalMetadataUri(localRepo, artifact)
         ).toStream
       }

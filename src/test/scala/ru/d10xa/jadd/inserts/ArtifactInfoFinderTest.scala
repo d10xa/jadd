@@ -27,11 +27,14 @@ class ArtifactInfoFinderTest extends FunSuite with Matchers {
       .unshort("unknown") shouldBe None
   }
 
-  test("a"){
+  test("sourceFromSpringUri"){
 
     // TODO add tests
-    sourceFromSpringUri("classpath:jadd-repositories.csv").mkString
-    sourceFromSpringUri("https://github.com/d10xa/jadd/raw/master/src/main/resources/jadd-shortcuts.csv").mkString
+    sourceFromSpringUri("classpath:jadd-repositories.csv")
+      .mkString shouldNot be(empty)
+
+    sourceFromSpringUri("https://github.com/d10xa/jadd/raw/master/src/main/resources/jadd-shortcuts.csv")
+      .mkString shouldNot be(empty)
   }
 
 }

@@ -1,5 +1,3 @@
 {
-  "groupId": "com.typesafe.akka",
-  "artifactId": "akka-testkit%%",
   "scope": "test"
 }

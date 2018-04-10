@@ -6,6 +6,7 @@ final case class Artifact(
   maybeVersion: Option[String] = None, // TODO list of versions
   shortcut: Option[String] = None,
   scope: Option[Scope] = None,
+  repositoryPath: Option[String] = None,
   maybeScalaVersion: Option[String] = None
 ) {
 

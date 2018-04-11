@@ -43,6 +43,7 @@ scala-compiler,org.scala-lang:scala-compiler
 scala-library,org.scala-lang:scala-library
 scala-logging,com.typesafe.scala-logging:scala-logging%%
 scala-xml,org.scala-lang.modules:scala-xml%%
+scalacheck,org.scalacheck:scalacheck%%
 scalatest,org.scalatest:scalatest%%
 scopt,com.github.scopt:scopt%%
 slf4j-api,org.slf4j:slf4j-api

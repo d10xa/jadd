@@ -38,6 +38,7 @@ play-test,com.typesafe.play:play-test%%
 postgresql,org.postgresql:postgresql
 quicklens,com.softwaremill.quicklens:quicklens%%
 rest-assured,io.rest-assured:rest-assured
+retrofit,com.squareup.retrofit2:retrofit
 scala-async,org.scala-lang.modules:scala-async%%
 scala-compiler,org.scala-lang:scala-compiler
 scala-library,org.scala-lang:scala-library
@@ -55,3 +56,4 @@ testcontainers,org.testcontainers:testcontainers
 testcontainers-scala,com.dimafeng:testcontainers-scala%%
 testng,org.testng:testng
 utest,com.lihaoyi:utest%%
+commons-lang3,org.apache.commons:commons-lang3

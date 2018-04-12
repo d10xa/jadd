@@ -5,6 +5,7 @@ import java.io.File
 import ru.d10xa.jadd.inserts.SbtFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.Artifact
+import ru.d10xa.jadd.Cli.Install
 import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.SafeFileWriter
 import ru.d10xa.jadd.Scope.Test
@@ -49,7 +50,7 @@ class SbtPipeline(ctx: Ctx)(implicit artifactInfoFinder: ArtifactInfoFinder) ext
       new SbtFileInserts()
         .append(lines, artifactStrings)
         .mkString("\n") + "\n"
-    if (!ctx.config.dryRun) {
+    if (ctx.config.command == Install && !ctx.config.dryRun) {
       new SafeFileWriter().write(buildFile, newContent)
     }
   }

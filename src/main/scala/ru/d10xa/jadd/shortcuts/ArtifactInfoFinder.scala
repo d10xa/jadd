@@ -68,9 +68,7 @@ class ArtifactInfoFinder(
       }
     }
 
-    /**
-     * find file by $groupId:$artifactId.json and then $groupId.json
-     */
+    // find file by $groupId:$artifactId.json and then $groupId.json
     val primary: Option[ArtifactInfo] = readFile(fullArtifact.replaceFirst(":", "__")
       .replaceFirst("%%", "") + ".json")
 

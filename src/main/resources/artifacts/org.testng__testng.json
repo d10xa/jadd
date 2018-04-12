@@ -1,5 +1,3 @@
 {
-  "groupId": "org.testng",
-  "artifactId": "testng",
   "scope": "test"
 }

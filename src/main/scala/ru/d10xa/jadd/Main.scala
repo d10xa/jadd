@@ -1,6 +1,7 @@
 package ru.d10xa.jadd
 
 import ru.d10xa.jadd.Cli.Config
+import ru.d10xa.jadd.Cli.Help
 import ru.d10xa.jadd.pipelines.GradlePipeline
 import ru.d10xa.jadd.pipelines.MavenPipeline
 import ru.d10xa.jadd.pipelines.Pipeline
@@ -26,6 +27,8 @@ object Main {
 
   def main(args: Array[String]): Unit = {
     Cli.parser.parse(args, Cli.Config()) match {
+      case Some(config) if config.command == Help =>
+        Cli.parser.showUsage()
       case Some(config) =>
         run(config)
       case None =>

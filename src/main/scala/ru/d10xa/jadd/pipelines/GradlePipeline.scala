@@ -3,6 +3,7 @@ package ru.d10xa.jadd.pipelines
 import java.io.File
 
 import ru.d10xa.jadd.Artifact
+import ru.d10xa.jadd.Cli.Install
 import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.SafeFileWriter
 import ru.d10xa.jadd.Scope.Test
@@ -38,7 +39,7 @@ class GradlePipeline(ctx: Ctx)(implicit artifactInfoFinder: ArtifactInfoFinder) 
       new GradleFileInserts()
         .append(lines, strings)
         .mkString("\n") + "\n"
-    if (!ctx.config.dryRun) {
+    if (ctx.config.command == Install && !ctx.config.dryRun) {
       new SafeFileWriter().write(buildFile, newContent)
     }
   }

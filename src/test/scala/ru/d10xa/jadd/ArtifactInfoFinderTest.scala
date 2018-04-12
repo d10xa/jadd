@@ -21,10 +21,25 @@ class ArtifactInfoFinderTest extends FunSuite with Matchers {
 
   test("find existent artifact info") {
     findArtifactInfo("junit:junit") shouldEqual Some(ArtifactInfo(
-      groupId = "junit",
-      artifactId = "junit",
-      scope = Some("test")
+      scope = Some("test"),
+      repository = None
     ))
+  }
+
+  test("find artifactInfo with bintray repository") {
+    findArtifactInfo("de.heikoseeberger:akka-http-circe%%") shouldEqual Some(ArtifactInfo(
+      scope = None,
+      repository = Some("bintray/hseeberger/maven")
+    ))
+  }
+
+  test("find artifact with bintray repository") {
+    artifactFromString("de.heikoseeberger:akka-http-circe%%") shouldEqual Artifact(
+      groupId = "de.heikoseeberger",
+      artifactId = "akka-http-circe%%",
+      scope = None,
+      repositoryPath = Some("https://dl.bintray.com/hseeberger/maven")
+    )
   }
 
   test("find non-existent artifact info") {

@@ -38,9 +38,8 @@ class ArtifactInfoFinder(
 
   def findArtifactInfo(fullArtifact: String): Option[ArtifactInfo] = {
 
-    /**
-     * if left field is empty then try to add it from right
-     */
+
+    // if left field is empty then try to add it from right
     def combineEmptyFields(a: ArtifactInfo, b: ArtifactInfo): ArtifactInfo = {
       a.copy(
         repository = a.repository match {

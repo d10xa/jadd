@@ -31,7 +31,7 @@ class MavenPipeline(ctx: Ctx)(implicit artifactInfoFinder: ArtifactInfoFinder) e
 
     // TODO reduce copy/paste
     def inlineScalaVersion(artifact: Artifact): Artifact = {
-      artifact.maybeScalaVersion.map {v =>
+      artifact.maybeScalaVersion.map { v =>
         artifact.copy(artifactId = artifact.artifactIdWithScalaVersion(v))
       }.getOrElse(artifact)
     }
@@ -39,7 +39,8 @@ class MavenPipeline(ctx: Ctx)(implicit artifactInfoFinder: ArtifactInfoFinder) e
     val artifactsWithVersions: Seq[Artifact] =
       artifacts
         .map(Utils.loadLatestVersion)
-        .map(inlineScalaVersion)
+        .map(x => x.map((y: Artifact) => inlineScalaVersion(y)))
+        .collect { case Right(v) => v } // TODO refactoring
 
     // TODO fix maybeVersion.get
     val strings = artifactsWithVersions

@@ -23,7 +23,9 @@ class SbtPipeline(ctx: Ctx)(implicit artifactInfoFinder: ArtifactInfoFinder) ext
     val artifacts: Seq[Artifact] =
       Utils.unshortAll(ctx.config.artifacts.toList, artifactInfoFinder)
 
-    val artifactsWithVersions: Seq[Artifact] = artifacts.map(Utils.loadLatestVersion)
+    val artifactsWithVersions: Seq[Artifact] =
+      artifacts.map(Utils.loadLatestVersion)
+        .collect { case Right(v) => v } // TODO refactoring
 
     def toVersionString(a: Artifact): String = {
       val artifactId = a.maybeScalaVersion

@@ -4,9 +4,10 @@ Tool for adding dependencies to gradle/maven/sbt build files
 
 ## usage
 
-    jadd install logback-classic gson commons-io io.grpc:grpc-protobuf
+    jadd i logback-classic gson commons-io io.grpc:grpc-protobuf
     jadd i mongodb h2 postgresql mysql rest-assured
-    
+    jadd s scopt
+
 ## commands
 
 install
@@ -17,7 +18,6 @@ help
 
 i - install
 s - search
-
 
 ## installation (macOS)
 
@@ -42,7 +42,7 @@ update snapshot
     cd ~/.jadd_snapshot
     git pull
     sbt assembly
-    
+
 
 ## examples
 
@@ -50,18 +50,19 @@ update snapshot
 
     mvn archetype:generate -DgroupId=com.example -DartifactId=example-mvn -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
     cd example-mvn
-    jadd install logback-classic
+    jadd i logback-classic
 
 ### gradle
 
     mkdir example-gradle
     cd example-gradle
     gradle init --type java-application
-    jadd install mysql
+    jadd i mysql
 
 ### sbt
 
     sbt new scala/scala-seed.g8
     # name [Scala Seed Project]: example-sbt
     cd example-sbt
-    jadd install akka-http
+    jadd i akka-http
+

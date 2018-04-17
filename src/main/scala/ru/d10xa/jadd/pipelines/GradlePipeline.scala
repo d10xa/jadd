@@ -10,6 +10,7 @@ import ru.d10xa.jadd.Scope.Test
 import ru.d10xa.jadd.Utils
 import ru.d10xa.jadd.inserts.GradleFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
+import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder.ArtifactTrouble
 
 import scala.io.Source
 
@@ -23,24 +24,34 @@ class GradlePipeline(ctx: Ctx)(implicit artifactInfoFinder: ArtifactInfoFinder) 
     val artifacts: Seq[Artifact] =
       Utils.unshortAll(ctx.config.artifacts.toList, artifactInfoFinder)
 
-    val artifactsWithVersions = artifacts.map(Utils.loadLatestVersion)
-    val strings = artifactsWithVersions
-      .map {
-        case a if a.scope.contains(Test) => s"""testCompile "${a.groupId}:${a.artifactId}:${a.maybeVersion.get}""""
-        case a => s"""compile "${a.groupId}:${a.artifactId}:${a.maybeVersion.get}""""
-      } // TODO get
-      .toList
+    val artifactsWithVersions: Seq[Either[ArtifactTrouble, Artifact]] =
+      artifacts.map(Utils.loadLatestVersion)
 
-    strings.foreach(println)
+    def artifactToString(a: Artifact): String =
+      if (a.scope.contains(Test)) s"""testCompile "${a.groupId}:${a.artifactId}:${a.maybeVersion.get}""""
+      else s"""compile "${a.groupId}:${a.artifactId}:${a.maybeVersion.get}""""
 
-    val lines = Source.fromFile(buildFile).getLines().toList
+    val strings: Seq[Either[ArtifactTrouble, String]] =
+      for {
+        a: Either[ArtifactTrouble, Artifact] <- artifactsWithVersions
+      } yield a match {
+        case Left(trouble) => Left(trouble)
+        case Right(artifact) => Right(artifactToString(artifact))
+      }
 
-    val newContent =
+    def readLines = Source.fromFile(buildFile).getLines().toList
+
+    def newContent(lines: List[String], dependencies: List[String]): String =
       new GradleFileInserts()
-        .append(lines, strings)
+        .append(lines, dependencies)
         .mkString("\n") + "\n"
-    if (ctx.config.command == Install && !ctx.config.dryRun) {
-      new SafeFileWriter().write(buildFile, newContent)
+
+    def needWrite = ctx.config.command == Install && !ctx.config.dryRun
+
+    if (needWrite) {
+      val c = newContent(readLines, strings.collect { case Right(v) => v }.toList)
+      new SafeFileWriter().write(buildFile, c)
     }
+
   }
 }

@@ -1,7 +1,9 @@
 package ru.d10xa.jadd.inserts
 
 class GradleFileInserts {
-  def append(fileLines: List[String], dependencies: List[String]): List[String] = {
+  def append(buildFileSource: String, dependencies: Seq[String]): Seq[String] = {
+    val fileLines = buildFileSource.split('\n')
+
     val index = fileLines indexWhere (_.startsWith("dependencies {"))
     val (a, b) = fileLines splitAt index + 1
     val indent =

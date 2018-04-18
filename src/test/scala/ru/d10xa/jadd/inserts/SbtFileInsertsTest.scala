@@ -11,7 +11,7 @@ class SbtFileInsertsTest extends FlatSpec with Matchers {
         |libraryDependencies += scalaTest % Test""".stripMargin
 
     val result = new SbtFileInserts().append(
-      content.split("/n").toList,
+      content,
       List(
         "libraryDependencies += \"ch.qos.logback\" % \"logback-classic\" % \"1.2.3\""
       )

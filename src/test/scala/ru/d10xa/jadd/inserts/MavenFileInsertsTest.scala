@@ -41,7 +41,7 @@ class MavenFileInsertsTest extends FunSuite with Matchers {
 
     val lines = content.split('\n')
     val result = MavenFileInserts.append(
-      lines,
+      content,
       List(dependency.split('\n')),
       Indentation.predictIndentation(lines)
     ).mkString("\n")
@@ -99,7 +99,7 @@ class MavenFileInsertsTest extends FunSuite with Matchers {
 
     val lines = content.split('\n')
     val result = MavenFileInserts.append(
-      lines,
+      content,
       List(dependency.split('\n')),
       Indentation.predictIndentation(lines)
     ).mkString("\n")
@@ -149,7 +149,7 @@ class MavenFileInsertsTest extends FunSuite with Matchers {
 
     val lines = content.split('\n')
     val result = MavenFileInserts.append(
-      lines,
+      content,
       List(dependency.split('\n')),
       Indentation.predictIndentation(lines)
     ).mkString("\n")

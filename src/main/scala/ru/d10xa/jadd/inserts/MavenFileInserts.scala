@@ -5,9 +5,11 @@ import ru.d10xa.jadd.Indentation
 
 object MavenFileInserts {
 
-  def append(fileLines: Seq[String], dependencies: Seq[Seq[String]], indent: Indent): Seq[String] = {
+  def append(buildFileSource: String, dependencies: Seq[Seq[String]], indent: Indent): Seq[String] = {
     def isSuitableDependenciesTag(line: String): Boolean =
       line.trim.equals("<dependencies>") && Indentation.lineIndentation(line).exists(_.size == indent.size)
+
+    val fileLines = buildFileSource.split('\n')
 
     val optLineIndex: Option[Int] = fileLines
       .zipWithIndex

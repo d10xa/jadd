@@ -6,18 +6,18 @@ import org.scalatest.Matchers
 class GradleFileInsertsTest extends FlatSpec with Matchers {
   "build file with nonempty dependencies block" should "successfully add dependency" in {
 
-    def buildFileLines = List(
-      "apply plugin: 'java'",
-      "repositories {",
-      "    jcenter()",
-      "}",
-      "dependencies {",
-      "    testCompile 'junit:junit:4.12'",
-      "}"
-    )
+    def buildFileSource =
+   """|apply plugin: 'java'
+      |repositories {
+      |    jcenter()
+      |}
+      |dependencies {
+      |    testCompile 'junit:junit:4.12'
+      |}
+      |""".stripMargin
 
     val result = new GradleFileInserts().append(
-      buildFileLines,
+      buildFileSource,
       List(
         "compile 'org.codehaus.groovy:groovy-all:2.4.14'",
         "compile 'org.springframework.boot:spring-boot-starter-web:2.0.0.RELEASE'"
@@ -50,7 +50,7 @@ class GradleFileInsertsTest extends FlatSpec with Matchers {
     )
 
     val newContent = new GradleFileInserts()
-      .append(content.split("\n").toList, List("compile 'org.codehaus.groovy:groovy-all:2.4.14'"))
+      .append(content, List("compile 'org.codehaus.groovy:groovy-all:2.4.14'"))
 
     newContent should contain ("\tcompile 'org.codehaus.groovy:groovy-all:2.4.14'")
   }

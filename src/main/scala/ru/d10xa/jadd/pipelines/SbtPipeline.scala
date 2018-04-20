@@ -2,11 +2,12 @@ package ru.d10xa.jadd.pipelines
 
 import java.io.File
 
-import ru.d10xa.jadd.inserts.SbtFileInserts
-import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.SafeFileWriter
+import ru.d10xa.jadd.inserts.SbtFileInserts
+import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
+import ru.d10xa.jadd.troubles.handleTroubles
 import ru.d10xa.jadd.view.SbtArtifactView
 
 import scala.io.Source
@@ -26,26 +27,28 @@ class SbtPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: ArtifactIn
       .toList
 
     artifactStrings.foreach(println)
+
     makeNewContentWithStrings(buildFileSource, artifactStrings)
   }
 
   def makeNewContentWithStrings(buildFileSource: String, artifactStrings: Seq[String]): String = {
-      new SbtFileInserts()
-        .append(buildFileSource, artifactStrings)
-        .mkString("\n") + "\n"
+    new SbtFileInserts()
+      .append(buildFileSource, artifactStrings)
+      .mkString("\n") + "\n"
+  }
+
+  def buildFileSource: String = Source.fromFile(buildFile).mkString
+
+  def handleArtifacts(artifacts: Seq[Artifact]): Unit = {
+    if (this.needWrite) {
+      new SafeFileWriter().write(buildFile, makeNewContent(buildFileSource, artifacts))
+    }
   }
 
   override def run(): Unit = {
-
-    val artifactsWithVersions: Seq[Artifact] =
-      loadAllArtifacts()
-        .collect { case Right(v) => v } // TODO refactoring
-
-    def buildFileSource: String = Source.fromFile(buildFile).mkString
-
-    if (this.needWrite) {
-      new SafeFileWriter().write(buildFile, makeNewContent(buildFileSource, artifactsWithVersions))
-    }
+    val artifacts = loadAllArtifacts()
+    handleArtifacts(artifacts.collect { case Right(v) => v })
+    handleTroubles(artifacts.collect { case Left(v) => v }, println)
   }
 
 }

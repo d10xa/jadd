@@ -10,6 +10,7 @@ import ru.d10xa.jadd.SafeFileWriter
 import ru.d10xa.jadd.Scope.Test
 import ru.d10xa.jadd.inserts.MavenFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
+import ru.d10xa.jadd.troubles._
 
 import scala.io.Source
 
@@ -25,13 +26,13 @@ class MavenPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: Artifact
     val indent @ Indent(spaceOrTabChar, count) = Indentation.predictIndentation(source.split('\n'))
     val indentString = spaceOrTabChar.toString * count
 
-    val artifactsWithVersions: Seq[Artifact] =
+    val artifactsWithVersions: Seq[Either[ArtifactTrouble, Artifact]] =
       loadAllArtifacts
         .map(_.map(inlineScalaVersion))
-        .collect { case Right(v) => v } // TODO refactoring
 
     // TODO fix maybeVersion.get
-    val strings = artifactsWithVersions
+    val strings = artifactsWithVersions.collect { case Right(v) => v } // TODO refactoring
+
       .map {
         case a if a.scope.contains(Test) =>
           s"""<dependency>
@@ -49,6 +50,7 @@ class MavenPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: Artifact
       }
 
     strings.foreach(println)
+    handleTroubles(artifactsWithVersions.collect { case Left(trouble) => trouble }, println)
 
     def newContent =
       MavenFileInserts

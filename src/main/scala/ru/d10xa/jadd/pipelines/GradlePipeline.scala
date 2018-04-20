@@ -8,7 +8,8 @@ import ru.d10xa.jadd.SafeFileWriter
 import ru.d10xa.jadd.Scope.Test
 import ru.d10xa.jadd.inserts.GradleFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
-import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder.ArtifactTrouble
+import ru.d10xa.jadd.troubles.ArtifactTrouble
+import ru.d10xa.jadd.troubles._
 
 import scala.io.Source
 
@@ -28,14 +29,6 @@ class GradlePipeline(override val ctx: Ctx)(implicit artifactInfoFinder: Artifac
       loadAllArtifacts()
         .map(_.map(inlineScalaVersion))
 
-    val strings: Seq[Either[ArtifactTrouble, String]] =
-      for {
-        a: Either[ArtifactTrouble, Artifact] <- allArtifacts
-      } yield a match {
-        case Left(trouble) => Left(trouble)
-        case Right(artifact) => Right(artifactToString(artifact))
-      }
-
     val source = Source.fromFile(buildFile).mkString
 
     def newContent(source: String, dependencies: List[String]): String =
@@ -43,8 +36,14 @@ class GradlePipeline(override val ctx: Ctx)(implicit artifactInfoFinder: Artifac
         .append(source, dependencies)
         .mkString("\n") + "\n"
 
+
+    val strings = allArtifacts.collect { case Right(v) => artifactToString(v) }.toList
+
+    strings.foreach(println)
+    handleTroubles(allArtifacts.collect { case Left(trouble) => trouble }, println)
+
     if (this.needWrite) {
-      val c = newContent(source, strings.collect { case Right(v) => v }.toList)
+      val c = newContent(source, strings)
       new SafeFileWriter().write(buildFile, c)
     }
 

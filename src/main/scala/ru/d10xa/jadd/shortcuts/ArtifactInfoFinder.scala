@@ -16,6 +16,7 @@ class ArtifactInfoFinder(
 ) {
 
   import ArtifactInfoFinder._
+  import ru.d10xa.jadd.troubles._
 
   lazy val shortcuts: Map[String, String] = {
     val lines = source
@@ -102,7 +103,7 @@ class ArtifactInfoFinder(
 
     val artifact: Either[ArtifactTrouble, Artifact] =
       if (artifactRaw.contains(":")) fullToArtifact
-      else Either.fromOption(shortcutToArtifact, ArtifactNotFoundByAlias)
+      else Either.fromOption(shortcutToArtifact, ArtifactNotFoundByAlias(artifactRaw))
 
     def addInfoToArtifact(a: Artifact): Artifact = {
       val artifactString = s"${a.groupId}:${a.artifactId}"
@@ -124,15 +125,6 @@ class ArtifactInfoFinder(
 }
 
 object ArtifactInfoFinder {
-
-  sealed abstract class ArtifactTrouble
-
-  case object ArtifactNotFoundByAlias extends ArtifactTrouble
-
-  case object WrongArtifactRaw extends ArtifactTrouble
-
-  case object LoadVersionsTrouble extends ArtifactTrouble
-
   def unshortRepository(repo: String): String = {
     if (repo.startsWith("bintray/")) s"https://dl.bintray.com/${repo.drop(8)}"
     else if (repo == "mavenCentral") "http://central.maven.org/maven2"

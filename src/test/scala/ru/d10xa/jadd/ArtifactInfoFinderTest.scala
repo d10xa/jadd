@@ -3,7 +3,7 @@ package ru.d10xa.jadd
 import org.scalatest.FunSuite
 import org.scalatest.Matchers
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
-import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder.ArtifactNotFoundByAlias
+import ru.d10xa.jadd.troubles.ArtifactNotFoundByAlias
 
 class ArtifactInfoFinderTest extends FunSuite with Matchers {
 
@@ -48,7 +48,7 @@ class ArtifactInfoFinderTest extends FunSuite with Matchers {
   }
 
   test("unknown shortcut"){
-    artifactFromString("safojasfoi").left.get shouldEqual ArtifactNotFoundByAlias
+    artifactFromString("safojasfoi").left.get shouldEqual ArtifactNotFoundByAlias("safojasfoi")
   }
 
 }

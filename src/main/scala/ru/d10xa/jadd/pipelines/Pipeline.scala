@@ -5,7 +5,7 @@ import ru.d10xa.jadd.Cli.Install
 import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.Utils
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
-import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder.ArtifactTrouble
+import ru.d10xa.jadd.troubles.ArtifactTrouble
 
 trait Pipeline {
   def applicable: Boolean

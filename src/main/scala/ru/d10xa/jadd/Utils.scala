@@ -3,17 +3,16 @@ package ru.d10xa.jadd
 import java.io.File
 import java.net.URI
 
+import cats.syntax.either._
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
-import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder.ArtifactNotFoundByAlias
-import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder.ArtifactTrouble
+import ru.d10xa.jadd.troubles.ArtifactNotFoundByAlias
+import ru.d10xa.jadd.troubles.ArtifactTrouble
+import ru.d10xa.jadd.troubles.LoadVersionsTrouble
 
 import scala.io.BufferedSource
 import scala.io.Source
-import scala.xml.XML
-import cats.syntax.either._
-import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder.LoadVersionsTrouble
-
 import scala.util.Try
+import scala.xml.XML
 
 object Utils {
 
@@ -96,12 +95,10 @@ object Utils {
     val opt: Seq[Either[ArtifactTrouble, Artifact]] = uris.map { uri =>
       Try(readVersions(uri))
         .toEither
-        .leftMap(_ => LoadVersionsTrouble)
+        .leftMap(e => LoadVersionsTrouble(uri, e.toString))
         .map { versions => uri.artifact.copy(availableVersions = versions) }
     }
-    opt.collectFirst {
-      case r @ Right(_) => r
-    }.getOrElse(LoadVersionsTrouble.asLeft)
+    opt.head // TODO head may throw exception
   }
 
   def loadLatestVersion(artifact: Artifact): Either[ArtifactTrouble, Artifact] = {
@@ -116,7 +113,7 @@ object Utils {
     rawDependencies
       .flatMap(raw => artifactInfoFinder.artifactFromString(raw) match {
         case Right(artifact) => artifact :: Nil
-        case Left(ArtifactNotFoundByAlias) =>
+        case Left(_: ArtifactNotFoundByAlias) =>
           println(s"$raw - artifact not found by shortcut")
           Nil
         case Left(trouble) =>

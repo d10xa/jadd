@@ -3,6 +3,7 @@ package ru.d10xa.jadd
 import org.scalatest.FunSuite
 import org.scalatest.Matchers
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
+import ru.d10xa.jadd.troubles.ArtifactNotFoundByAlias
 
 class ArtifactInfoFinderTest extends FunSuite with Matchers {
 
@@ -11,7 +12,7 @@ class ArtifactInfoFinderTest extends FunSuite with Matchers {
   import artifactInfoFinder._
 
   test("with scope") {
-    artifactFromString("junit") shouldEqual Artifact(
+    artifactFromString("junit").right.get shouldEqual Artifact(
       groupId = "junit",
       artifactId = "junit",
       shortcut = Some("junit"),
@@ -34,7 +35,7 @@ class ArtifactInfoFinderTest extends FunSuite with Matchers {
   }
 
   test("find artifact with bintray repository") {
-    artifactFromString("de.heikoseeberger:akka-http-circe%%") shouldEqual Artifact(
+    artifactFromString("de.heikoseeberger:akka-http-circe%%").right.get shouldEqual Artifact(
       groupId = "de.heikoseeberger",
       artifactId = "akka-http-circe%%",
       scope = None,
@@ -44,6 +45,10 @@ class ArtifactInfoFinderTest extends FunSuite with Matchers {
 
   test("find non-existent artifact info") {
     findArtifactInfo("com.example:example") shouldEqual None
+  }
+
+  test("unknown shortcut"){
+    artifactFromString("safojasfoi").left.get shouldEqual ArtifactNotFoundByAlias("safojasfoi")
   }
 
 }

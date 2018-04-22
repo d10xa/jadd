@@ -7,7 +7,8 @@ final case class Artifact(
   shortcut: Option[String] = None,
   scope: Option[Scope] = None,
   repositoryPath: Option[String] = None,
-  maybeScalaVersion: Option[String] = None
+  maybeScalaVersion: Option[String] = None,
+  availableVersions: Seq[String] = Seq.empty
 ) {
 
   def needScalaVersionResolving: Boolean = artifactId.contains("%%")

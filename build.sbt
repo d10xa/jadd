@@ -5,7 +5,7 @@ lazy val root = (project in file(".")).
     inThisBuild(List(
       organization := "ru.d10xa",
       scalaVersion := "2.12.5",
-      version      := "0.1.4",
+      version      := "0.1.5",
       mainClass in Compile := Some("ru.d10xa.jadd.Main")
     )),
     name := "jadd"

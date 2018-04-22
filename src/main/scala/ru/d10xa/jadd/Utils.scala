@@ -3,7 +3,11 @@ package ru.d10xa.jadd
 import java.io.File
 import java.net.URI
 
+import cats.syntax.either._
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
+import ru.d10xa.jadd.troubles.ArtifactNotFoundByAlias
+import ru.d10xa.jadd.troubles.ArtifactTrouble
+import ru.d10xa.jadd.troubles.LoadVersionsTrouble
 
 import scala.io.BufferedSource
 import scala.io.Source
@@ -73,7 +77,7 @@ object Utils {
     metadataUris
   }
 
-  def loadVersions(artifact: Artifact): (Artifact, Seq[String]) = {
+  def loadVersions(artifact: Artifact): Either[ArtifactTrouble, Artifact] = {
     // TODO get repository path from ~/.m2/settings.xml or use default
     val uris: Stream[MetadataUri] = collectMetadataUris(
       artifact,
@@ -81,32 +85,44 @@ object Utils {
       new File(s"${System.getProperty("user.home")}/.m2/repository")
     )
 
-    val opt: Option[(Artifact, Seq[String])] = uris.map { uri =>
-      Try {
-        val elem = XML.load(uri.uri.toURL)
-        val versions = MavenMetadataVersionsRawReader.versionsDesc(elem)
-        println(uri.uri)
-        versions
-      }
-        .toOption
-        .map { versions => uri.artifact -> versions }
-    }.collectFirst {
-      case Some(t) => t
+    def readVersions(uri: MetadataUri): Seq[String] = {
+      val elem = XML.load(uri.uri.toURL)
+      val versions = MavenMetadataVersionsRawReader.versionsDesc(elem)
+      println(uri.uri)
+      versions
     }
-    opt.get // TODO refactoring
+
+    val opt: Seq[Either[ArtifactTrouble, Artifact]] = uris.map { uri =>
+      Try(readVersions(uri))
+        .toEither
+        .leftMap(e => LoadVersionsTrouble(uri, e.toString))
+        .map { versions => uri.artifact.copy(availableVersions = versions) }
+    }
+    opt.head // TODO head may throw exception
   }
 
-  def loadLatestVersion(artifact: Artifact): Artifact = {
-    val (newArtifact, versions) = Utils.loadVersions(artifact)
-    newArtifact.copy(maybeVersion = Utils.excludeNonRelease(versions).headOption)
+  def loadLatestVersion(artifact: Artifact): Either[ArtifactTrouble, Artifact] = {
+    def initLatestVersion(a: Artifact): Artifact =
+      a.copy(maybeVersion = Utils.excludeNonRelease(a.availableVersions).headOption)
+    Utils
+      .loadVersions(artifact)
+      .map(initLatestVersion)
   }
 
   def unshortAll(rawDependencies: List[String], artifactInfoFinder: ArtifactInfoFinder): List[Artifact] =
     rawDependencies
-      .map(raw => artifactInfoFinder.artifactFromString(raw))
+      .flatMap(raw => artifactInfoFinder.artifactFromString(raw) match {
+        case Right(artifact) => artifact :: Nil
+        case Left(_: ArtifactNotFoundByAlias) =>
+          println(s"$raw - artifact not found by shortcut")
+          Nil
+        case Left(trouble) =>
+          println(s"some error occurred $trouble")
+          Nil
+      })
 
   def sourceFromSpringUri(string: String): BufferedSource =
-    if(string.startsWith("classpath:")) Source.fromResource(string.drop(10))
+    if (string.startsWith("classpath:")) Source.fromResource(string.drop(10))
     else Source.fromURL(string)
 
 }

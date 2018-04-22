@@ -12,7 +12,6 @@ class UnshortRepositoryTest extends FunSuite with Matchers {
 
   test("as is"){
     unshortRepository("https://dl.bintray.com/groovy/maven") shouldEqual "https://dl.bintray.com/groovy/maven"
-
   }
 
 }

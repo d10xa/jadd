@@ -1,5 +1,6 @@
 package ru.d10xa.jadd.shortcuts
 
+import cats.syntax.either._
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.ArtifactInfo
 import ru.d10xa.jadd.Scope
@@ -15,6 +16,7 @@ class ArtifactInfoFinder(
 ) {
 
   import ArtifactInfoFinder._
+  import ru.d10xa.jadd.troubles._
 
   lazy val shortcuts: Map[String, String] = {
     val lines = source
@@ -37,7 +39,6 @@ class ArtifactInfoFinder(
     shortcuts.get(rawArtifact)
 
   def findArtifactInfo(fullArtifact: String): Option[ArtifactInfo] = {
-
 
     // if left field is empty then try to add it from right
     def combineEmptyFields(a: ArtifactInfo, b: ArtifactInfo): ArtifactInfo = {
@@ -79,41 +80,46 @@ class ArtifactInfoFinder(
     }
   }
 
-  def artifactFromString(artifactRaw: String): Artifact = {
+  def artifactFromString(artifactRaw: String): Either[ArtifactTrouble, Artifact] = {
     require(!artifactRaw.contains("("), "artifact contain illegal symbol (")
 
     def shortcutToArtifact: Option[Artifact] =
       unshort(artifactRaw)
-        .map(s => s.split(":"))
+        .map(_.split(':'))
         .collect {
           case Array(a, b) =>
             Artifact(groupId = a, artifactId = b, shortcut = Some(artifactRaw))
         }
 
-    def fullToArtifact: Artifact =
+    def fullToArtifact: Either[ArtifactTrouble, Artifact] =
       artifactRaw.split(":") match {
         case Array(a, b) =>
           Artifact(
             groupId = a,
             artifactId = b
-          )
+          ).asRight
+        case _ => WrongArtifactRaw.asLeft
       }
 
-    val artifact =
-      shortcutToArtifact getOrElse fullToArtifact
+    val artifact: Either[ArtifactTrouble, Artifact] =
+      if (artifactRaw.contains(":")) fullToArtifact
+      else Either.fromOption(shortcutToArtifact, ArtifactNotFoundByAlias(artifactRaw))
 
-    val artifactString = s"${artifact.groupId}:${artifact.artifactId}"
-    val maybeInfo: Option[ArtifactInfo] = findArtifactInfo(artifactString)
+    def addInfoToArtifact(a: Artifact): Artifact = {
+      val artifactString = s"${a.groupId}:${a.artifactId}"
+      val maybeInfo: Option[ArtifactInfo] = findArtifactInfo(artifactString)
 
-    val scope: Option[Scope] =
-      maybeInfo.flatMap(_.scope).map(Scope.scope)
+      val scope: Option[Scope] =
+        maybeInfo.flatMap(_.scope).map(Scope.scope)
 
-    val repositoryPath: Option[String] =
-      maybeInfo
-        .flatMap(_.repository)
-        .map(unshortRepository)
+      val repositoryPath: Option[String] =
+        maybeInfo
+          .flatMap(_.repository)
+          .map(unshortRepository)
+      a.copy(scope = scope, repositoryPath = repositoryPath)
+    }
 
-    artifact.copy(scope = scope, repositoryPath = repositoryPath)
+    artifact.map(addInfoToArtifact)
   }
 
 }

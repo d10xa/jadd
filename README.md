@@ -43,7 +43,6 @@ update snapshot
     git pull
     sbt assembly
 
-
 ## examples
 
 ### maven
@@ -65,4 +64,3 @@ update snapshot
     # name [Scala Seed Project]: example-sbt
     cd example-sbt
     jadd i akka-http
-

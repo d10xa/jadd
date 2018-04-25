@@ -2,7 +2,7 @@ package ru.d10xa.jadd
 
 import org.scalatest.FunSuite
 import org.scalatest.Matchers
-import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder.unshortRepository
+import ru.d10xa.jadd.shortcuts.RepositoryShortcutsImpl.unshortRepository
 
 class UnshortRepositoryTest extends FunSuite with Matchers {
 

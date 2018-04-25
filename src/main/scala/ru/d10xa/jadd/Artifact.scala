@@ -1,12 +1,16 @@
 package ru.d10xa.jadd
 
+import ru.d10xa.jadd.troubles.ArtifactTrouble
+import ru.d10xa.jadd.troubles.WrongArtifactRaw
+
 final case class Artifact(
   groupId: String,
   artifactId: String,
-  maybeVersion: Option[String] = None, // TODO list of versions
+  maybeVersion: Option[String] = None,
   shortcut: Option[String] = None,
   scope: Option[Scope] = None,
-  repositoryPath: Option[String] = None,
+  repository: Option[String] = None,
+  metadataUrl: Option[String] = None,
   maybeScalaVersion: Option[String] = None,
   availableVersions: Seq[String] = Seq.empty
 ) {
@@ -30,4 +34,19 @@ final case class Artifact(
     artifactId.replace("%%", s"_$v")
   }
 
+}
+
+object Artifact {
+
+  def fromString(artifactRaw: String): Either[ArtifactTrouble, Artifact] = {
+    import cats.syntax.either._
+    artifactRaw.split(":") match {
+      case Array(a, b) =>
+        Artifact(
+          groupId = a,
+          artifactId = b
+        ).asRight
+      case _ => WrongArtifactRaw.asLeft
+    }
+  }
 }

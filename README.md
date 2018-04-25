@@ -64,3 +64,8 @@ update snapshot
     # name [Scala Seed Project]: example-sbt
     cd example-sbt
     jadd i akka-http
+
+## analyze dependency
+
+    # only full artifactId supported. shortcuts not available
+    jadd analyze --repository=bintray/groovy/maven org.codehaus.groovy:groovy-eclipse-compiler

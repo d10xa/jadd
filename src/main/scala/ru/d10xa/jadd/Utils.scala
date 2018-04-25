@@ -115,7 +115,7 @@ object Utils {
         .leftMap(e => LoadVersionsTrouble(uri, e.toString))
         .map { versions => uri.artifact.copy(availableVersions = versions) }
     }
-    opt.head // TODO head may throw exception
+    opt.find(_.isRight).getOrElse(opt.head) // TODO head may throw exception
   }
 
   def loadLatestVersion(artifact: Artifact): Either[ArtifactTrouble, Artifact] = {

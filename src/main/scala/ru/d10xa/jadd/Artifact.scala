@@ -10,7 +10,7 @@ final case class Artifact(
   shortcut: Option[String] = None,
   scope: Option[Scope] = None,
   repository: Option[String] = None,
-  metadataUrl: Option[String] = None,
+  mavenMetadata: Option[MavenMetadata] = None,
   maybeScalaVersion: Option[String] = None,
   availableVersions: Seq[String] = Seq.empty
 ) {
@@ -32,6 +32,13 @@ final case class Artifact(
   def artifactIdWithScalaVersion(v: String): String = {
     require(artifactId.contains("%%"), "scala version resolving require placeholder %%")
     artifactId.replace("%%", s"_$v")
+  }
+
+  def withMetadataUrl(url: String): Artifact = {
+    val newMeta: Option[MavenMetadata] =
+      mavenMetadata.map(meta => meta.copy(url = Some(url)))
+        .orElse(Some(MavenMetadata(url = Some(url))))
+    this.copy(mavenMetadata = newMeta)
   }
 
 }

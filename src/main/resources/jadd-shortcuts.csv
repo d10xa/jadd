@@ -41,6 +41,18 @@ play-test,com.typesafe.play:play-test%%
 poi,org.apache.poi:poi
 postgresql,org.postgresql:postgresql
 quicklens,com.softwaremill.quicklens:quicklens%%
+quill,io.getquill:quill%%
+quill-async,io.getquill:quill-async%%
+quill-async-mysql,io.getquill:quill-async-mysql%%
+quill-async-postgres,io.getquill:quill-async-postgres%%
+quill-cassandra,io.getquill:quill-cassandra%%
+quill-core,io.getquill:quill-core%%
+quill-finagle-mysql,io.getquill:quill-finagle-mysql%%
+quill-finagle-postgres,io.getquill:quill-finagle-postgres%%
+quill-jdbc,io.getquill:quill-jdbc%%
+quill-orientdb,io.getquill:quill-orientdb%%
+quill-spark,io.getquill:quill-spark%%
+quill-sql,io.getquill:quill-sql%%
 rest-assured,io.rest-assured:rest-assured
 retrofit,com.squareup.retrofit2:retrofit
 scala-async,org.scala-lang.modules:scala-async%%
@@ -56,6 +68,7 @@ specs2,org.specs2:specs2-core%%
 spock,org.spockframework:spock-core
 spock-spring,org.spockframework:spock-spring
 spring-boot-starter-web,org.springframework.boot:spring-boot-starter-web
+sqlite,org.xerial:sqlite-jdbc
 testcontainers,org.testcontainers:testcontainers
 testcontainers-scala,com.dimafeng:testcontainers-scala%%
 testng,org.testng:testng

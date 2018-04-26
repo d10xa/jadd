@@ -83,14 +83,14 @@ object Utils {
     import cats.implicits._
     Either.catchOnly[IOException]{
       val elem = XML.load(metadataUri.uri.toURL)
-      MavenMetadataVersionsRawReader.versionsDesc(elem)
+      MavenMetadata.read(elem)
     }.bimap(e =>
       LoadVersionsTrouble(metadataUri, e.toString),
-      vs => artifact.copy(
-        availableVersions = vs,
-        repository = Some(metadataUri.repo),
-        metadataUrl = Some(metadataUri.uri.toString)
-      )
+      mavenMetadata => artifact.copy(
+        availableVersions = mavenMetadata.versions.reverse,
+        mavenMetadata = Some(mavenMetadata),
+        repository = Some(metadataUri.repo)
+      ).withMetadataUrl(metadataUri.uri.toString)
     )
   }
 
@@ -104,7 +104,7 @@ object Utils {
 
     def readVersions(uri: MetadataUri): Seq[String] = {
       val elem = XML.load(uri.uri.toURL)
-      val versions = MavenMetadataVersionsRawReader.versionsDesc(elem)
+      val versions = MavenMetadata.read(elem).versions.reverse
       println(uri.uri)
       versions
     }

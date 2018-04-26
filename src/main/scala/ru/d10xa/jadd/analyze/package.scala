@@ -23,25 +23,28 @@ package object analyze {
       Utils.loadVersions(a, SimpleMetadataUri(repo, a))
 
     val r: EitherT[List, troubles.ArtifactTrouble, Artifact] =
-      artifacts.flatMap(a=>EitherT(repos.map(repo => loadVersions(a, repo))))
+      artifacts.flatMap(a => EitherT(repos.map(repo => loadVersions(a, repo))))
 
     def artifactAnalyzeAsString(a: Artifact): String = {
       val s1 = Seq(
         s"${a.groupId}:${a.artifactId}",
         s" repository: ${a.repository.getOrElse("-")}",
-//        s" shortcut: ${a.shortcut.getOrElse("-")}",
-        s" metadata: ${a.metadataUrl.getOrElse("-")}"
+        s" lastUpdated: ${a.mavenMetadata.flatMap(_.lastUpdated).getOrElse("-")}",
+        //        s" shortcut: ${a.shortcut.getOrElse("-")}",
+        s" metadata: ${a.mavenMetadata.flatMap(_.url).getOrElse("-")}",
+        " versions:"
       )
       val s2 = a.availableVersions.map(v => s"  $v")
       (s1 ++ s2).mkString("\n")
     }
 
-    r.value.foreach {
-      case Left(t) =>
-        troubles.handleTroubles(Seq(t), println)
-      case Right(a) =>
-        println(artifactAnalyzeAsString(a))
-    }
+    val value: List[Either[troubles.ArtifactTrouble, Artifact]] = r.value
+    val (ts, as) = value.separate
+
+    as.foreach(a => println(artifactAnalyzeAsString(a)))
+
+    if(ts.nonEmpty) println("ERRORS:")
+    ts.foreach(t => troubles.handleTroubles(Seq(t), println))
 
   }
 }

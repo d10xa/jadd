@@ -40,8 +40,9 @@ class SbtPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: ArtifactIn
   def buildFileSource: String = Source.fromFile(buildFile).mkString
 
   def handleArtifacts(artifacts: Seq[Artifact]): Unit = {
+    val str: String = makeNewContent(buildFileSource, artifacts) // TODO refactoring function with side effects
     if (this.needWrite) {
-      new SafeFileWriter().write(buildFile, makeNewContent(buildFileSource, artifacts))
+      new SafeFileWriter().write(buildFile, str)
     }
   }
 

@@ -7,6 +7,7 @@ import ru.d10xa.jadd.pipelines.GradlePipeline
 import ru.d10xa.jadd.pipelines.MavenPipeline
 import ru.d10xa.jadd.pipelines.Pipeline
 import ru.d10xa.jadd.pipelines.SbtPipeline
+import ru.d10xa.jadd.pipelines.UnknownProjectPipeline
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
 import ru.d10xa.jadd.shortcuts.RepositoryShortcutsImpl
@@ -19,14 +20,16 @@ object Main {
         artifactShortcuts = new ArtifactShortcuts(Utils.sourceFromSpringUri(config.shortcutsUri)),
         repositoryShortcuts = RepositoryShortcutsImpl
       )
-
+    val ctx = Ctx(config)
     val pipelines: List[Pipeline] = List(
-      new GradlePipeline(Ctx(config)),
-      new MavenPipeline(Ctx(config)),
-      new SbtPipeline(Ctx(config))
+      new GradlePipeline(ctx),
+      new MavenPipeline(ctx),
+      new SbtPipeline(ctx)
     )
+    val activePipelines = pipelines.filter(_.applicable)
 
-    pipelines.filter(_.applicable).foreach(_.run())
+    if (activePipelines.isEmpty) new UnknownProjectPipeline(ctx).run()
+    else activePipelines.foreach(_.run())
   }
 
   def main(args: Array[String]): Unit = {

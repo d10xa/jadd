@@ -16,8 +16,8 @@ package object analyze {
     val artifacts = EitherT(config.artifacts.map(artifactInfoFinder.artifactFromString).toList)
 
     val defaultRepos = List("https://jcenter.bintray.com", "https://repo1.maven.org/maven2")
-    val reposFromConfig = ctx.config.repositories.map(repositoryShortcuts.unshortRepository).toList
-    val repos: List[String] = reposFromConfig ++ defaultRepos
+    val reposFromConfig: List[String] = ctx.config.repositories.map(repositoryShortcuts.unshortRepository).toList
+    val repos: List[String] = if(reposFromConfig.nonEmpty) reposFromConfig else defaultRepos
 
     def loadVersions(a: Artifact, repo: String): Either[troubles.ArtifactTrouble, Artifact] =
       Utils.loadVersions(a, SimpleMetadataUri(repo, a))
@@ -27,7 +27,6 @@ package object analyze {
 
     def artifactAnalyzeAsString(a: Artifact): String = {
       val s1 = Seq(
-        s"${a.groupId}:${a.artifactId}",
         s" repository: ${a.repository.getOrElse("-")}",
         s" lastUpdated: ${a.mavenMetadata.flatMap(_.lastUpdated).getOrElse("-")}",
         //        s" shortcut: ${a.shortcut.getOrElse("-")}",
@@ -41,7 +40,11 @@ package object analyze {
     val value: List[Either[troubles.ArtifactTrouble, Artifact]] = r.value
     val (ts, as) = value.separate
 
-    as.foreach(a => println(artifactAnalyzeAsString(a)))
+    as.groupBy(_.show).foreach {
+      case (artifactShow, groupedArtifacts) =>
+        println(s"## $artifactShow")
+        groupedArtifacts.foreach(a => println(artifactAnalyzeAsString(a)))
+    }
 
     if(ts.nonEmpty) println("ERRORS:")
     ts.foreach(t => troubles.handleTroubles(Seq(t), println))

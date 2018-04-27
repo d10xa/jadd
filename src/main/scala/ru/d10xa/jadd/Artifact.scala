@@ -1,5 +1,6 @@
 package ru.d10xa.jadd
 
+import cats.Show
 import ru.d10xa.jadd.troubles.ArtifactTrouble
 import ru.d10xa.jadd.troubles.WrongArtifactRaw
 
@@ -44,6 +45,8 @@ final case class Artifact(
 }
 
 object Artifact {
+
+  implicit val artifactShow: Show[Artifact] = Show[Artifact]{ a => s"${a.groupId}:${a.artifactId}" }
 
   def fromString(artifactRaw: String): Either[ArtifactTrouble, Artifact] = {
     import cats.syntax.either._

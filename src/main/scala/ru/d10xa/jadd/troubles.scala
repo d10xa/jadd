@@ -17,7 +17,7 @@ object troubles {
       case ArtifactNotFoundByAlias(alias) => s"artifact alias not found ($alias)"
       case WrongArtifactRaw => "artifact syntax invalid"
       case LoadVersionsTrouble(uri, message) =>
-        s"failed to load metadata. URI ${uri.uri}. Cause: $message"
+        s"failed to load metadata. Cause: $message"
     }.foreach(action)
   }
 

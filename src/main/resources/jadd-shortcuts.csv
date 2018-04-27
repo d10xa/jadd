@@ -64,6 +64,7 @@ scalacheck,org.scalacheck:scalacheck%%
 scalatest,org.scalatest:scalatest%%
 scopt,com.github.scopt:scopt%%
 slf4j-api,org.slf4j:slf4j-api
+slick,com.typesafe.slick:slick%%
 specs2,org.specs2:specs2-core%%
 spock,org.spockframework:spock-core
 spock-spring,org.spockframework:spock-spring

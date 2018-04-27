@@ -68,4 +68,4 @@ update snapshot
 ## analyze dependency
 
     # only full artifactId supported. shortcuts not available
-    jadd analyze --repository=bintray/groovy/maven org.codehaus.groovy:groovy-eclipse-compiler
+    jadd analyze --repository=bintray/groovy/maven,google,jcenter,mavenCentral org.codehaus.groovy:groovy-eclipse-compiler

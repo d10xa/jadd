@@ -26,7 +26,7 @@ class ArtifactInfoFinderTest extends FunSuite with Matchers {
   test("sourceFromSpringUri"){
 
     // TODO add tests
-    sourceFromSpringUri("classpath:jadd-repositories.csv")
+    sourceFromSpringUri("classpath:jadd-snapshots.csv")
       .mkString shouldNot be(empty)
 
 //    sourceFromSpringUri("https://github.com/d10xa/jadd/raw/master/src/main/resources/jadd-shortcuts.csv")

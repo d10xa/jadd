@@ -1,6 +1,7 @@
 package ru.d10xa.jadd
 
 import java.io.File
+import java.io.IOException
 import java.net.URI
 
 import cats.syntax.either._
@@ -19,6 +20,7 @@ object Utils {
   sealed trait MetadataUri {
     def uri: URI
     def artifact: Artifact
+    def repo: String
   }
   final case class ScalaMetadataUri(
     artifact: Artifact,
@@ -40,7 +42,7 @@ object Utils {
   }
 
   final case class LocalMetadataUri(
-    repo: File,
+    repo: String,
     artifact: Artifact
   ) extends MetadataUri {
     override def uri: URI = {
@@ -58,10 +60,10 @@ object Utils {
   def collectMetadataUris(
     artifact: Artifact,
     defaultRemoteRepo: String,
-    localRepo: => File
+    localRepo: => String
   ): Stream[MetadataUri] = {
 
-    val repo = artifact.repositoryPath.getOrElse(defaultRemoteRepo)
+    val repo = artifact.repository.getOrElse(defaultRemoteRepo)
 
     val metadataUris: Stream[MetadataUri] =
       if (artifact.needScalaVersionResolving) {
@@ -77,17 +79,32 @@ object Utils {
     metadataUris
   }
 
+  def loadVersions(artifact: Artifact, metadataUri: MetadataUri): Either[ArtifactTrouble, Artifact] = {
+    import cats.implicits._
+    Either.catchOnly[IOException]{
+      val elem = XML.load(metadataUri.uri.toURL)
+      MavenMetadata.read(elem)
+    }.bimap(e =>
+      LoadVersionsTrouble(metadataUri, e.toString),
+      mavenMetadata => artifact.copy(
+        availableVersions = mavenMetadata.versions.reverse,
+        mavenMetadata = Some(mavenMetadata),
+        repository = Some(metadataUri.repo)
+      ).withMetadataUrl(metadataUri.uri.toString)
+    )
+  }
+
   def loadVersions(artifact: Artifact): Either[ArtifactTrouble, Artifact] = {
     // TODO get repository path from ~/.m2/settings.xml or use default
     val uris: Stream[MetadataUri] = collectMetadataUris(
       artifact,
       "https://jcenter.bintray.com",
-      new File(s"${System.getProperty("user.home")}/.m2/repository")
+      s"${System.getProperty("user.home")}/.m2/repository"
     )
 
     def readVersions(uri: MetadataUri): Seq[String] = {
       val elem = XML.load(uri.uri.toURL)
-      val versions = MavenMetadataVersionsRawReader.versionsDesc(elem)
+      val versions = MavenMetadata.read(elem).versions.reverse
       println(uri.uri)
       versions
     }
@@ -98,7 +115,7 @@ object Utils {
         .leftMap(e => LoadVersionsTrouble(uri, e.toString))
         .map { versions => uri.artifact.copy(availableVersions = versions) }
     }
-    opt.head // TODO head may throw exception
+    opt.find(_.isRight).getOrElse(opt.head) // TODO head may throw exception
   }
 
   def loadLatestVersion(artifact: Artifact): Either[ArtifactTrouble, Artifact] = {

@@ -7,36 +7,15 @@ import ru.d10xa.jadd.Scope
 import ru.d10xa.jadd.Utils
 
 import scala.io.BufferedSource
-import scala.io.Source
 import scala.util.Try
 
 class ArtifactInfoFinder(
-  source: Source = Source.fromResource("jadd-shortcuts.csv"),
+  artifactShortcuts: ArtifactShortcuts = new ArtifactShortcuts(),
+  repositoryShortcuts: RepositoryShortcuts = RepositoryShortcutsImpl,
   artifactInfoBasePath: String = "classpath:artifacts/"
 ) {
 
-  import ArtifactInfoFinder._
   import ru.d10xa.jadd.troubles._
-
-  lazy val shortcuts: Map[String, String] = {
-    val lines = source
-      .getLines()
-      .toSeq
-    val linesWithoutHeader =
-      if (lines.head == "shortcut,artifact") lines.tail else lines
-    linesWithoutHeader
-      .map(_.split(','))
-      .map {
-        case Array(short, full) => (short, full)
-      }
-      .toMap
-  }
-
-  lazy val shortcutsReversed: Map[String, String] =
-    shortcuts.toSeq.map { case (a, b) => (b, a) }.toMap
-
-  def unshort(rawArtifact: String): Option[String] =
-    shortcuts.get(rawArtifact)
 
   def findArtifactInfo(fullArtifact: String): Option[ArtifactInfo] = {
 
@@ -84,25 +63,15 @@ class ArtifactInfoFinder(
     require(!artifactRaw.contains("("), "artifact contain illegal symbol (")
 
     def shortcutToArtifact: Option[Artifact] =
-      unshort(artifactRaw)
+      artifactShortcuts.unshort(artifactRaw)
         .map(_.split(':'))
         .collect {
           case Array(a, b) =>
             Artifact(groupId = a, artifactId = b, shortcut = Some(artifactRaw))
         }
 
-    def fullToArtifact: Either[ArtifactTrouble, Artifact] =
-      artifactRaw.split(":") match {
-        case Array(a, b) =>
-          Artifact(
-            groupId = a,
-            artifactId = b
-          ).asRight
-        case _ => WrongArtifactRaw.asLeft
-      }
-
     val artifact: Either[ArtifactTrouble, Artifact] =
-      if (artifactRaw.contains(":")) fullToArtifact
+      if (artifactRaw.contains(":")) Artifact.fromString(artifactRaw)
       else Either.fromOption(shortcutToArtifact, ArtifactNotFoundByAlias(artifactRaw))
 
     def addInfoToArtifact(a: Artifact): Artifact = {
@@ -115,21 +84,11 @@ class ArtifactInfoFinder(
       val repositoryPath: Option[String] =
         maybeInfo
           .flatMap(_.repository)
-          .map(unshortRepository)
-      a.copy(scope = scope, repositoryPath = repositoryPath)
+          .map(repositoryShortcuts.unshortRepository)
+      a.copy(scope = scope, repository = repositoryPath)
     }
 
     artifact.map(addInfoToArtifact)
   }
 
-}
-
-object ArtifactInfoFinder {
-  def unshortRepository(repo: String): String = {
-    if (repo.startsWith("bintray/")) s"https://dl.bintray.com/${repo.drop(8)}"
-    else if (repo == "mavenCentral") "http://central.maven.org/maven2"
-    else if (repo == "jcenter") "https://jcenter.bintray.com"
-    else if (repo == "google") "https://dl.google.com/dl/android/maven2"
-    else repo
-  }
 }

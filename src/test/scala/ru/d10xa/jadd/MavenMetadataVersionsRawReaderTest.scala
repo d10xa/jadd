@@ -1,23 +1,61 @@
 package ru.d10xa.jadd
 
-import org.scalatest._
+import org.scalatest.FunSuite
+import org.scalatest.Matchers
 
-class MavenMetadataVersionsRawReaderTest extends FlatSpec with Matchers {
+import scala.xml.XML
 
-  "parse xml" should "not fail" in {
-    val resource = getClass.getResourceAsStream("/maven-metadata/scala-maven-metadata.xml")
-    val text = scala.io.Source.fromInputStream(resource).mkString
+class MavenMetadataVersionsRawReaderTest extends FunSuite with Matchers {
 
-    val exclude = Seq("rc", "alpha", "beta", "m", ".r")
+  val resource = getClass.getResourceAsStream("/maven-metadata/scala-maven-metadata.xml")
+  val text = scala.io.Source.fromInputStream(resource).mkString
+  val elem = XML.loadString(text)
+
+  test("parse xml") {
 
     val version =
-      MavenMetadataVersionsRawReader
-        .xmlContentToVersionsDesc(text)
+      MavenMetadata.read(elem)
+        .versions
+        .reverse
         .toStream
-        .filter { version => !exclude.exists(version.toLowerCase.contains(_)) }
         .head
 
-    version shouldEqual "2.12.4"
-
+    version shouldEqual "2.13.0-M3"
   }
+
+  test("read lastUpdated pretty format") {
+    val lastUpdated = MavenMetadataVersionsRawReader.lastUpdated(elem)
+
+    lastUpdated shouldEqual Some("2018-01-31 21:47:39")
+  }
+
+  test("read lastUpdated strange format") {
+
+    val xmlString: String =
+      """|<?xml version="1.0" encoding="UTF-8"?>
+         |<metadata>
+         |  <versioning>
+         |    <lastUpdated>42</lastUpdated>
+         |  </versioning>
+         |</metadata>
+      """.stripMargin
+    val lastUpdated = MavenMetadataVersionsRawReader.lastUpdated(XML.loadString(xmlString))
+
+    lastUpdated shouldEqual Some("42")
+  }
+
+  test("lastUpdated absent") {
+
+    val xmlString: String =
+      """|<?xml version="1.0" encoding="UTF-8"?>
+         |<metadata>
+         |  <versioning>
+         |  </versioning>
+         |</metadata>
+      """.stripMargin
+    val lastUpdated = MavenMetadataVersionsRawReader.lastUpdated(XML.loadString(xmlString))
+
+    lastUpdated shouldEqual None
+  }
+
 }

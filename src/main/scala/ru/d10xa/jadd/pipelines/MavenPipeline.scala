@@ -27,7 +27,7 @@ class MavenPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: Artifact
     val indentString = spaceOrTabChar.toString * count
 
     val artifactsWithVersions: Seq[Either[ArtifactTrouble, Artifact]] =
-      loadAllArtifacts
+      loadAllArtifacts()
         .map(_.map(inlineScalaVersion))
 
     // TODO fix maybeVersion.get

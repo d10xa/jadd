@@ -39,7 +39,7 @@ class ArtifactInfoFinderTest extends FunSuite with Matchers {
       groupId = "de.heikoseeberger",
       artifactId = "akka-http-circe%%",
       scope = None,
-      repositoryPath = Some("https://dl.bintray.com/hseeberger/maven")
+      repository = Some("https://dl.bintray.com/hseeberger/maven")
     )
   }
 

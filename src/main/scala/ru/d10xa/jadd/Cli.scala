@@ -6,6 +6,7 @@ object Cli {
   sealed trait Command
   case object Install extends Command
   case object Search extends Command
+  case object Analyze extends Command
   case object Help extends Command
 
   case class Config(
@@ -13,6 +14,7 @@ object Cli {
     artifacts: Seq[String] = Seq.empty,
     projectDir: String = System.getProperty("user.dir"),
     shortcutsUri: String = "https://github.com/d10xa/jadd/raw/master/src/main/resources/jadd-shortcuts.csv",
+    repositories: Seq[String] = Seq.empty,
     dryRun: Boolean = false
   )
   val parser: OptionParser[Config] = new scopt.OptionParser[Config]("jadd") {
@@ -23,6 +25,9 @@ object Cli {
       c.copy(dryRun = true)).text("read-only mode")
     opt[String]('p', "project-dir").action((x, c) =>
       c.copy(projectDir = x)).text("Specifies the project directory. Defaults to current directory.")
+    opt[Seq[String]]("repository").action((x, c) =>
+      c.copy(repositories = x)
+    )
     opt[String]("shortcuts-uri").action((x, c) =>
       c.copy(shortcutsUri = x)).text("Specifies uri for artifacts shortcuts csv file" +
       " (default https://github.com/d10xa/jadd/raw/master/src/main/resources/jadd-shortcuts.csv)")
@@ -38,6 +43,10 @@ object Cli {
     cmd("search")
       .text("search dependency in shortcuts")
       .action((_, c) => c.copy(command = Search))
+
+    cmd("analyze")
+      .text("search dependency in multiple repositories and print all available versions")
+      .action((_, c) => c.copy(command = Analyze))
 
     cmd("s")
       .text("alias for search")

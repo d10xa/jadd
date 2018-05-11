@@ -5,14 +5,18 @@ import java.io.File
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.SafeFileWriter
+import ru.d10xa.jadd.Scope.Test
 import ru.d10xa.jadd.inserts.SbtFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.troubles.handleTroubles
-import ru.d10xa.jadd.view.SbtArtifactView
+import ru.d10xa.jadd.view.ArtifactView
 
 import scala.io.Source
 
 class SbtPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: ArtifactInfoFinder) extends Pipeline {
+
+  import SbtPipeline._
+  import ArtifactView._
 
   lazy val buildFile = new File(ctx.config.projectDir, "build.sbt")
 
@@ -21,9 +25,9 @@ class SbtPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: ArtifactIn
   def makeNewContent(buildFileSource: String, artifacts: Seq[Artifact]): String = {
 
     val artifactsWithVersions: Seq[Artifact] = artifacts.map(inlineScalaVersion)
-    def toVersionStrings(a: Artifact): Seq[String] = new SbtArtifactView(a).showLines
+
     val artifactStrings: Seq[String] = artifactsWithVersions
-      .flatMap(toVersionStrings)
+      .flatMap(_.showLines)
       .toList
 
     artifactStrings.foreach(println)
@@ -50,6 +54,31 @@ class SbtPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: ArtifactIn
     val artifacts = loadAllArtifacts()
     handleArtifacts(artifacts.collect { case Right(v) => v })
     handleTroubles(artifacts.collect { case Left(v) => v }, println)
+  }
+
+}
+
+object SbtPipeline {
+  implicit val sbtArtifactView: ArtifactView[Artifact] = new ArtifactView[Artifact]{
+    override def showLines(artifact: Artifact): Seq[String] = {
+      val artifactId = artifact.artifactId
+      val groupId = artifact.groupId
+      val version = artifact.maybeVersion.get // TODO get
+      artifact.scope match {
+        case Some(Test) =>
+          s"""libraryDependencies += "$groupId" % "$artifactId" % "$version" % Test""" :: Nil
+        case _ =>
+          s"""libraryDependencies += "$groupId" % "$artifactId" % "$version"""" :: Nil
+      }
+    }
+
+    override def find(artifact: Artifact, source: String): Option[String] = {
+      val artifactId = artifact.artifactId
+      val groupId = artifact.groupId
+      val r = raw"""libraryDependencies\s\+=\s["']$groupId["']\s%\s["']$artifactId["']\s%\s["'].+["'](\s%\sTest)?""".r
+      // TODO Add dependencies to sequence if present (sbt) #14
+      r.findFirstIn(source)
+    }
   }
 
 }

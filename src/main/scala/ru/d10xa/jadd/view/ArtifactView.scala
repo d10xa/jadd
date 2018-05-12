@@ -12,6 +12,7 @@ object ArtifactView {
     def typeClassInstance: ArtifactView[A]
     def self: A
     def showLines: Seq[String] = typeClassInstance.showLines(self)
+    def find(source: String): Option[String] = typeClassInstance.find(self, source)
   }
   implicit def artifactViewOps[T](target: T)(implicit t: ArtifactView[T]): Ops[T] = new Ops[T] {
     val self: T = target

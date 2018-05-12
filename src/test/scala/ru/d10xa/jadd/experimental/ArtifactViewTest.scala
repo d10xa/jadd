@@ -21,7 +21,8 @@ class ArtifactViewTest extends FunSuiteLike with Matchers {
       """.stripMargin
 
   test("sbt find artifact") {
-    SbtPipeline.sbtArtifactView.find(Artifact("com.typesafe.scala-logging", "scala-logging_2.12"), sbtSource).get should be(
+    val artifact = Artifact("com.typesafe.scala-logging", "scala-logging%%", maybeScalaVersion = Some("2.12"))
+    SbtPipeline.sbtArtifactView.find(artifact, sbtSource).get should be(
       """libraryDependencies += "com.typesafe.scala-logging" % "scala-logging_2.12" % "3.8.0""""
     )
   }

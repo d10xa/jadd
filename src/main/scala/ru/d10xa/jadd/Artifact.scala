@@ -31,8 +31,10 @@ final case class Artifact(
       .mkString("/")
   }
 
+  def isScala: Boolean = artifactId.endsWith("%%")
+
   def artifactIdWithoutScalaVersion: String = {
-    if(artifactId.endsWith("%%")) artifactId.substring(0, artifactId.length - 2)
+    if(isScala) artifactId.substring(0, artifactId.length - 2)
     else artifactId
   }
 

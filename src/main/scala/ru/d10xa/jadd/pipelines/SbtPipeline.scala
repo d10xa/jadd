@@ -12,12 +12,12 @@ import ru.d10xa.jadd.troubles.handleTroubles
 import ru.d10xa.jadd.view.ArtifactView
 
 import scala.io.Source
-import scala.util.Try
+import scala.util.matching.Regex
 
 class SbtPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: ArtifactInfoFinder) extends Pipeline {
 
-  import SbtPipeline._
   import ArtifactView._
+  import SbtPipeline._
 
   lazy val buildFile = new File(ctx.config.projectDir, "build.sbt")
 
@@ -71,18 +71,31 @@ object SbtPipeline {
           s"""libraryDependencies += $groupAndArtifact % "$version"""" :: Nil
       }
     }
-
+{}
     override def find(artifact: Artifact, source: String): Option[String] = {
-      // TODO refactoring
-      val groupId = artifact.groupId
-      val r0 = raw"""libraryDependencies\s\+=\s["']$groupId["']\s%\s["']${artifact.artifactId}["']\s%\s["'].+["'](\s%\sTest)?""".r
-      val r1 = raw"""libraryDependencies\s\+=\s["']$groupId["']\s%%\s["']${artifact.artifactIdWithoutScalaVersion}["']\s%\s["'].+["'](\s%\sTest)?""".r
-      val s2 = Try(artifact.artifactIdWithScalaVersion(artifact.maybeScalaVersion.get)).getOrElse(r1) // TODO fix
-      val r2 = raw"""libraryDependencies\s\+=\s["']$groupId["']\s%\s["']${s2}["']\s%\s["'].+["'](\s%\sTest)?""".r
       // TODO Add dependencies to sequence if present (sbt) #14
-      r0.findFirstIn(source)
-        .orElse(r1.findFirstIn(source))
-        .orElse(r2.findFirstIn(source))
+      val groupId = artifact.groupId
+
+      def regex0: Option[Regex] = Some(
+        raw"""libraryDependencies\s\+=\s["']$groupId["']\s%\s["']${artifact.artifactId}["']\s%\s["'].+["'](\s%\sTest)?""".r
+      )
+
+      def regex1: Option[Regex] = Some(
+        raw"""libraryDependencies\s\+=\s["']$groupId["']\s%%\s["']${artifact.artifactIdWithoutScalaVersion}["']\s%\s["'].+["'](\s%\sTest)?""".r
+      )
+
+      def regex2: Option[Regex] = (artifact.isScala, artifact.maybeScalaVersion) match {
+        case (true, Some(scalaVersion)) =>
+          val aId = artifact.artifactIdWithScalaVersion(scalaVersion)
+          Some(raw"""libraryDependencies\s\+=\s["']$groupId["']\s%\s["']$aId["']\s%\s["'].+["'](\s%\sTest)?""".r)
+        case _ => None
+      }
+
+      def findMaybeMatch(seq: Option[Regex]*): Option[String] =
+        seq.flatMap(_.map(_.findFirstIn(source))).reduce(_ orElse _)
+
+      findMaybeMatch(regex0, regex1, regex2)
+
     }
   }
 

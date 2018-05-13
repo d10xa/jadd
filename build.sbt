@@ -1,11 +1,13 @@
 import Dependencies._
 
+import scala.io.Source
+
 lazy val root = (project in file(".")).
   settings(
     inThisBuild(List(
       organization := "ru.d10xa",
       scalaVersion := "2.12.5",
-      version      := "0.1.6",
+      version      := Source.fromFile("VERSION").mkString.trim,
       mainClass in Compile := Some("ru.d10xa.jadd.Main")
     )),
     name := "jadd"

@@ -13,7 +13,8 @@ final case class Artifact(
   repository: Option[String] = None,
   mavenMetadata: Option[MavenMetadata] = None,
   maybeScalaVersion: Option[String] = None,
-  availableVersions: Seq[String] = Seq.empty
+  availableVersions: Seq[String] = Seq.empty,
+  explicitScalaVersion: Boolean = false
 ) {
 
   def needScalaVersionResolving: Boolean = artifactId.contains("%%")
@@ -28,6 +29,13 @@ final case class Artifact(
       .map(l :+ _)
       .getOrElse(l)
       .mkString("/")
+  }
+
+  def isScala: Boolean = artifactId.endsWith("%%")
+
+  def artifactIdWithoutScalaVersion: String = {
+    if(isScala) artifactId.substring(0, artifactId.length - 2)
+    else artifactId
   }
 
   def artifactIdWithScalaVersion(v: String): String = {

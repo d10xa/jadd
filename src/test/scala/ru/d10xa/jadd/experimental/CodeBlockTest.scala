@@ -50,4 +50,19 @@ class CodeBlockTest extends FunSuiteLike with Matchers {
     extractBlockContent(buildFileSource, "dependencies {") shouldEqual None
   }
 
+  test("sbt dependencies seq") {
+    def buildFileSource =
+      """
+        |// some code here
+        |libraryDependencies ++= Seq(
+        |  "ch.qos.logback" % "logback-classic" % "1.2.3"
+        |)
+        |// some code here
+        |""".stripMargin
+    extractBlockContent(buildFileSource, "libraryDependencies ++= Seq(").get shouldEqual
+      """
+        |  "ch.qos.logback" % "logback-classic" % "1.2.3"
+        |""".stripMargin
+  }
+
 }

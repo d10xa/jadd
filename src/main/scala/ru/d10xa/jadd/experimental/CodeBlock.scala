@@ -15,14 +15,12 @@ object CodeBlock {
     var open = 1
     var inComment = false
     var slash = false
-    var i = 0
     val r = sourceLeftTrimmed.takeWhile {
       c =>
         val inc = if (c == openChar && !inComment) 1
         else if (c == closeChar && !inComment) -1
         else 0
         open = open + inc
-        i = i + 1
         if(slash) inComment = true
         if(c == '/') slash = true
         if(c == '\n') inComment = false

@@ -28,10 +28,12 @@ scalacOptions ++= Seq(
 
 enablePlugins(JavaAppPackaging)
 
-libraryDependencies += scalaXml
-libraryDependencies += scopt
-libraryDependencies += scalaTest % Test
-libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"
-libraryDependencies += "com.typesafe.scala-logging" % "scala-logging_2.12" % "3.8.0"
-libraryDependencies += "io.circe" %% "circe-parser" % "0.9.3"
-libraryDependencies += "io.circe" %% "circe-generic" % "0.9.3"
+libraryDependencies ++= Seq(
+  scalaXml,
+  scopt,
+  scalaTest % Test,
+  "ch.qos.logback" % "logback-classic" % "1.2.3",
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.9.0",
+  "io.circe" %% "circe-parser" % "0.9.3",
+  "io.circe" %% "circe-generic" % "0.9.3"
+)

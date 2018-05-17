@@ -6,13 +6,14 @@ import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.SafeFileWriter
 import ru.d10xa.jadd.Scope.Test
+import ru.d10xa.jadd.inserts.SbtArtifactMatcher
 import ru.d10xa.jadd.inserts.SbtFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.troubles.handleTroubles
 import ru.d10xa.jadd.view.ArtifactView
+import ru.d10xa.jadd.view.ArtifactView.Match
 
 import scala.io.Source
-import scala.util.matching.Regex
 
 class SbtPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: ArtifactInfoFinder) extends Pipeline {
 
@@ -50,6 +51,7 @@ class SbtPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: ArtifactIn
 }
 
 object SbtPipeline {
+
   implicit val sbtArtifactView: ArtifactView[Artifact] = new ArtifactView[Artifact]{
     override def showLines(artifact: Artifact): Seq[String] = {
       val groupId = artifact.groupId
@@ -64,39 +66,18 @@ object SbtPipeline {
           s""""$groupId" % "${artifact.artifactId}""""
       }
 
+      val prefix = if(artifact.inSequence) "" else "libraryDependencies += "
+
       artifact.scope match {
         case Some(Test) =>
-          s"""libraryDependencies += $groupAndArtifact % "$version" % Test""" :: Nil
+          s"""$prefix$groupAndArtifact % "$version" % Test""" :: Nil
         case _ =>
-          s"""libraryDependencies += $groupAndArtifact % "$version"""" :: Nil
+          s"""$prefix$groupAndArtifact % "$version"""" :: Nil
       }
     }
-{}
-    override def find(artifact: Artifact, source: String): Option[String] = {
-      // TODO Add dependencies to sequence if present (sbt) #14
-      val groupId = artifact.groupId
 
-      def regex0: Option[Regex] = Some(
-        raw"""libraryDependencies\s\+=\s["']$groupId["']\s%\s["']${artifact.artifactId}["']\s%\s["'].+["'](\s%\sTest)?""".r
-      )
-
-      def regex1: Option[Regex] = Some(
-        raw"""libraryDependencies\s\+=\s["']$groupId["']\s%%\s["']${artifact.artifactIdWithoutScalaVersion}["']\s%\s["'].+["'](\s%\sTest)?""".r
-      )
-
-      def regex2: Option[Regex] = (artifact.isScala, artifact.maybeScalaVersion) match {
-        case (true, Some(scalaVersion)) =>
-          val aId = artifact.artifactIdWithScalaVersion(scalaVersion)
-          Some(raw"""libraryDependencies\s\+=\s["']$groupId["']\s%\s["']$aId["']\s%\s["'].+["'](\s%\sTest)?""".r)
-        case _ => None
-      }
-
-      def findMaybeMatch(seq: Option[Regex]*): Option[String] =
-        seq.flatMap(_.map(_.findFirstIn(source))).reduce(_ orElse _)
-
-      findMaybeMatch(regex0, regex1, regex2)
-
-    }
+    override def find(artifact: Artifact, source: String): Seq[Match] =
+      new SbtArtifactMatcher(source).find(artifact)
   }
 
 }

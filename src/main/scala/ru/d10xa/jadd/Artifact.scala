@@ -14,7 +14,8 @@ final case class Artifact(
   mavenMetadata: Option[MavenMetadata] = None,
   maybeScalaVersion: Option[String] = None,
   availableVersions: Seq[String] = Seq.empty,
-  explicitScalaVersion: Boolean = false
+  explicitScalaVersion: Boolean = false,
+  inSequence: Boolean = false // required for ArtifactView
 ) {
 
   def needScalaVersionResolving: Boolean = artifactId.contains("%%")

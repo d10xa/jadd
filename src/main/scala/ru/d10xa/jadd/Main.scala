@@ -1,5 +1,9 @@
 package ru.d10xa.jadd
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.LoggerContext
+import com.typesafe.scalalogging.LazyLogging
+import org.slf4j.LoggerFactory
 import ru.d10xa.jadd.Cli.Analyze
 import ru.d10xa.jadd.Cli.Config
 import ru.d10xa.jadd.Cli.Help
@@ -12,7 +16,7 @@ import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
 import ru.d10xa.jadd.shortcuts.RepositoryShortcutsImpl
 
-object Main {
+object Main extends LazyLogging {
 
   def run(config: Config): Unit = {
     implicit val artifactInfoFinder: ArtifactInfoFinder =
@@ -33,7 +37,12 @@ object Main {
   }
 
   def main(args: Array[String]): Unit = {
-    Cli.parser.parse(args, Cli.Config()) match {
+    val maybeConfig =
+      Cli.parser.parse(args, Cli.Config())
+    maybeConfig.foreach { cfg =>
+      if(cfg.debug) enableDebugMode()
+    }
+    maybeConfig match {
       case Some(config) if config.command == Analyze =>
         analyze.run(Ctx(config))
       case Some(config) if config.command == Help =>
@@ -41,8 +50,15 @@ object Main {
       case Some(config) =>
         Main.run(config)
       case None =>
-        println("arguments are bad")
+        logger.error("arguments are bad")
     }
+  }
+
+  def enableDebugMode(): Unit = {
+    val loggerContext = LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
+    val rootLogger = loggerContext.getLogger("ru.d10xa.jadd")
+    rootLogger.setLevel(Level.DEBUG)
+    logger.debug("Debug mode enabled")
   }
 
 }

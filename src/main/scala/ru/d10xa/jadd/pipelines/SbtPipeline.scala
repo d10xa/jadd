@@ -34,11 +34,15 @@ class SbtPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: ArtifactIn
 
     artifactStrings.foreach(println)
 
-    val str: String = new SbtFileInserts()
-      .append(buildFileSource, artifacts)
+    val sbtFileInserts = new SbtFileInserts()
+
+    val newSource: String =
+      artifacts.foldLeft(buildFileSource) {
+        case (source, artifact) => sbtFileInserts.append(source, artifact)
+      }
 
     if (this.needWrite) {
-      new SafeFileWriter().write(buildFile, str)
+      new SafeFileWriter().write(buildFile, newSource)
     }
   }
 
@@ -52,7 +56,7 @@ class SbtPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: ArtifactIn
 
 object SbtPipeline {
 
-  implicit val sbtArtifactView: ArtifactView[Artifact] = new ArtifactView[Artifact]{
+  implicit val sbtArtifactView: ArtifactView[Artifact] = new ArtifactView[Artifact] {
     override def showLines(artifact: Artifact): Seq[String] = {
       val groupId = artifact.groupId
       val version = artifact.maybeVersion.get // TODO get
@@ -66,7 +70,7 @@ object SbtPipeline {
           s""""$groupId" % "${artifact.artifactId}""""
       }
 
-      val prefix = if(artifact.inSequence) "" else "libraryDependencies += "
+      val prefix = if (artifact.inSequence) "" else "libraryDependencies += "
 
       artifact.scope match {
         case Some(Test) =>

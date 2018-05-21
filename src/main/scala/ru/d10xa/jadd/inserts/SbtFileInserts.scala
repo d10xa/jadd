@@ -16,6 +16,11 @@ class SbtFileInserts extends LazyLogging {
     logger.debug(s"""${artifact.groupId}:${artifact.artifactId} $matchesCount ($matchesView)""")
   }
 
+  def appendAll(source: String, artifacts: Seq[Artifact]): String =
+    artifacts.foldLeft(source) {
+      case (s, artifact) => append(s, artifact)
+    }
+
   /**
    * @return updated source
    */

@@ -34,12 +34,7 @@ class SbtPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: ArtifactIn
 
     artifactStrings.foreach(println)
 
-    val sbtFileInserts = new SbtFileInserts()
-
-    val newSource: String =
-      artifacts.foldLeft(buildFileSource) {
-        case (source, artifact) => sbtFileInserts.append(source, artifact)
-      }
+    val newSource: String = new SbtFileInserts().appendAll(buildFileSource, artifacts)
 
     if (this.needWrite) {
       new SafeFileWriter().write(buildFile, newSource)

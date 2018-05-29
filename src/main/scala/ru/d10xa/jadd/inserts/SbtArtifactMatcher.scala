@@ -10,9 +10,9 @@ class SbtArtifactMatcher(source: String) {
 
   def find(artifact: Artifact): Seq[Match] = {
 
-    def findBlockContent(s: String): Seq[(Int, Int)] = CodeBlock.findBlockContent(source, s)
-    def findBlockContents(s: String*): Seq[(Int, Int)] = s.map(findBlockContent).reduce(_ ++ _)
-    val blocks = findBlockContents(
+    def findBlockContent(s: String): Seq[CodeBlock] = CodeBlock.find(source, s)
+    def findBlockContents(s: String*): Seq[CodeBlock] = s.map(findBlockContent).reduce(_ ++ _)
+    val blocks: Seq[CodeBlock] = findBlockContents(
       "libraryDependencies ++= Seq(",
       "libraryDependencies ++= Seq (",
       "libraryDependencies ++= List(",
@@ -20,11 +20,9 @@ class SbtArtifactMatcher(source: String) {
       "libraryDependencies ++= Vector(",
       "libraryDependencies ++= Vector ("
     ).distinct
-    def inBlock(m: Match): Boolean = blocks.exists(b => b._1 <= m.start && b._2 > m.start)
+    def inBlock(m: Match): Boolean = m.inBlock(blocks)
 
-    val foundInSeq: Seq[Match] = findInSequence(artifact).filter(inBlock)
-
-    foundInSeq ++ findStandalone(artifact)
+    findInSequence(artifact).filter(inBlock) ++ findStandalone(artifact).filterNot(inBlock)
   }
 
   def r0(artifact: Artifact): String = {
@@ -49,12 +47,7 @@ class SbtArtifactMatcher(source: String) {
       .map(_.copy(inSequence = true))
   }
 
-  def findMatches(regexes: Seq[Regex]): Seq[Match] = {
-    for {
-      regex <- regexes
-      m <- regex.findAllMatchIn(source)
-    } yield Match(start = m.start, value = m.group(0))
-  }
+  def findMatches(regexes: Seq[Regex]): Seq[Match] = Match.find(source, regexes)
 
   def isCommented(m: Match): Boolean = {
     source

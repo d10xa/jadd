@@ -21,7 +21,7 @@ class CodeBlockTest extends FunSuiteLike with Matchers {
       """
         |    testCompile 'junit:junit:4.11'
         |""".stripMargin
-    extractBlockContent(buildFileSource, "dependencies {").head._2 shouldEqual expected
+    find(buildFileSource, "dependencies {").head.innerContent shouldEqual expected
   }
 
   test("extract code block with single line comments") {
@@ -38,7 +38,9 @@ class CodeBlockTest extends FunSuiteLike with Matchers {
       """ // }
         |    testCompile 'junit:junit:4.11'
         |""".stripMargin
-    extractBlockContent(buildFileSource, "dependencies {").head._2 shouldEqual expected
+    val blockContent = find(buildFileSource, "dependencies {").head
+    blockContent.innerContent shouldEqual expected
+    buildFileSource.substring(blockContent.innerStartIndex) should startWith(" // }\n    testCompile 'junit:junit:4.11'")
   }
 
   test("block not found") {
@@ -47,7 +49,7 @@ class CodeBlockTest extends FunSuiteLike with Matchers {
          |    jcenter()
          |}
          |""".stripMargin
-    extractBlockContent(buildFileSource, "dependencies {").size shouldEqual 0
+    find(buildFileSource, "dependencies {").size shouldEqual 0
   }
 
   test("sbt dependencies seq") {
@@ -59,7 +61,7 @@ class CodeBlockTest extends FunSuiteLike with Matchers {
         |)
         |// some code here
         |""".stripMargin
-    extractBlockContent(buildFileSource, "libraryDependencies ++= Seq(").head._2 shouldEqual
+    find(buildFileSource, "libraryDependencies ++= Seq(").head.innerContent shouldEqual
       """
         |  "ch.qos.logback" % "logback-classic" % "1.2.3"
         |""".stripMargin

@@ -28,7 +28,7 @@ class MavenPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: Artifact
 
     val artifactsWithVersions: Seq[Either[ArtifactTrouble, Artifact]] =
       loadAllArtifacts()
-        .map(_.map(inlineScalaVersion))
+        .map(_.map(_.inlineScalaVersion))
 
     // TODO fix maybeVersion.get
     val strings = artifactsWithVersions.collect { case Right(v) => v } // TODO refactoring

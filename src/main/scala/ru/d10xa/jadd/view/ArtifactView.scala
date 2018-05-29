@@ -1,8 +1,10 @@
 package ru.d10xa.jadd.view
 
+import ru.d10xa.jadd.experimental.CodeBlock
 import ru.d10xa.jadd.view.ArtifactView.Match
 
 import scala.language.implicitConversions
+import scala.util.matching.Regex
 
 trait ArtifactView[T] {
   def showLines(value: T): Seq[String]
@@ -19,13 +21,23 @@ object ArtifactView {
         replacement +
         source.substring(start + value.length)
     }
+    def inBlock(blocks: Seq[CodeBlock]): Boolean =
+      blocks.exists(b => b.innerStartIndex <= start && b.innerEndIndex >= start)
+  }
+
+  object Match {
+    def find(source: String, regexes: Seq[Regex]): Seq[Match] =
+      for {
+        regex <- regexes
+        m <- regex.findAllMatchIn(source)
+      } yield Match(start = m.start, value = m.group(0))
   }
 
   trait Ops[A] {
     def typeClassInstance: ArtifactView[A]
     def self: A
     def showLines: Seq[String] = typeClassInstance.showLines(self)
-    def find(source: String): Seq[Match] = typeClassInstance.find(self, source)
+    def findMatchesInSource(source: String): Seq[Match] = typeClassInstance.find(self, source)
   }
   implicit def artifactViewOps[T](target: T)(implicit t: ArtifactView[T]): Ops[T] = new Ops[T] {
     val self: T = target

@@ -41,7 +41,7 @@ final case class Artifact(
   }
 
   def artifactIdWithScalaVersion(v: String): String = {
-    require(artifactId.contains("%%"), "scala version resolving require placeholder %%")
+    require(artifactId.endsWith("%%"), "scala version resolving require placeholder %%")
     artifactId.replace("%%", s"_$v")
   }
 
@@ -52,21 +52,37 @@ final case class Artifact(
     this.copy(mavenMetadata = newMeta)
   }
 
+  def inlineScalaVersion: Artifact = Artifact.inlineScalaVersion(this)
+
 }
 
 object Artifact {
+
+  def apply(s: String): Artifact = fromString(s).right.get
 
   implicit val artifactShow: Show[Artifact] = Show[Artifact] { a => s"${a.groupId}:${a.artifactId}" }
 
   def fromString(artifactRaw: String): Either[ArtifactTrouble, Artifact] = {
     import cats.syntax.either._
     artifactRaw.split(":") match {
-      case Array(a, b) =>
+      case Array(g, a) =>
         Artifact(
-          groupId = a,
-          artifactId = b
+          groupId = g,
+          artifactId = a
+        ).asRight
+      case Array(g, a, v) =>
+        Artifact(
+          groupId = g,
+          artifactId = a,
+          maybeVersion = Some(v)
         ).asRight
       case _ => WrongArtifactRaw.asLeft
     }
+  }
+
+  def inlineScalaVersion(artifact: Artifact): Artifact = {
+    artifact.maybeScalaVersion.map { v =>
+      artifact.copy(artifactId = artifact.artifactIdWithScalaVersion(v))
+    }.getOrElse(artifact)
   }
 }

@@ -16,9 +16,4 @@ trait Pipeline {
     Utils
       .unshortAll(ctx.config.artifacts.toList, artifactInfoFinder)
       .map(Utils.loadLatestVersion)
-  def inlineScalaVersion(artifact: Artifact): Artifact = {
-    artifact.maybeScalaVersion.map { v =>
-      artifact.copy(artifactId = artifact.artifactIdWithScalaVersion(v))
-    }.getOrElse(artifact)
-  }
 }

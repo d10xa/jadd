@@ -2,13 +2,12 @@ package ru.d10xa.jadd.inserts
 
 import com.typesafe.scalalogging.LazyLogging
 import ru.d10xa.jadd.Artifact
-import ru.d10xa.jadd.pipelines.SbtPipeline
 import ru.d10xa.jadd.view.ArtifactView
 
 class SbtFileInserts extends LazyLogging {
 
   import ArtifactView._
-  import SbtPipeline._
+  import ru.d10xa.jadd.implicits.sbt._
 
   def debugMatches(artifact: Artifact, matches: Seq[Match]): Unit = {
     def matchesCount = s"matches count: ${matches.size}"
@@ -16,11 +15,14 @@ class SbtFileInserts extends LazyLogging {
     logger.debug(s"""${artifact.groupId}:${artifact.artifactId} $matchesCount ($matchesView)""")
   }
 
+  def appendAll(source: String, artifacts: Seq[Artifact]): String =
+    artifacts.foldLeft(source) { case (s, artifact) => append(s, artifact) }
+
   /**
    * @return updated source
    */
   def append[T](buildFileSource: String, artifact: Artifact): String = {
-    val matches: Seq[Match] = artifact.find(buildFileSource)
+    val matches: Seq[Match] = artifact.findMatchesInSource(buildFileSource)
 
     debugMatches(artifact, matches)
 
@@ -29,7 +31,7 @@ class SbtFileInserts extends LazyLogging {
         .map(m => artifact.copy(inSequence = m.inSequence))
         .map(_ -> matches)
 
-    val foundWithMatches: Option[(Artifact, Seq[Match])] =
+    val maybeFirstMatch: Option[(Artifact, Seq[Match])] =
       artifactMatches
         .sortBy(_._2.minBy(_.start).start)
         .find(_._2.nonEmpty)
@@ -39,7 +41,7 @@ class SbtFileInserts extends LazyLogging {
       appendLines(buildFileSource.split('\n'), insertStrings).mkString("\n") + "\n"
     }
 
-    foundWithMatches match {
+    maybeFirstMatch match {
       case None =>
         ins()
       case Some((a, ms)) =>

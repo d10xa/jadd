@@ -1,11 +1,39 @@
 package ru.d10xa.jadd.experimental
 
+case class CodeBlock(
+  outerIndex: Int,
+  innerStartIndex: Int,
+  innerEndIndex: Int,
+  innerContent: String
+)
+
 object CodeBlock {
 
   val braces = Map(
     '{' -> '}',
     '(' -> ')',
   )
+
+  def find(source: String, block: String): Seq[CodeBlock] = {
+    val outerIndex: Int = source.indexOf(block)
+    val innerIndex: Int = outerIndex + block.length
+    val openChar: Option[Char] = block.lastOption
+    val closeChar: Option[Char] = openChar.flatMap(braces.get)
+    def sourceLeftTrimmed:String = source.substring(innerIndex)
+    if (outerIndex == -1) Seq.empty
+    else {
+      for {
+        op <- openChar.toList
+        cl <- closeChar.toList
+        res <- extractBlockContentFromLeftTrimmed(sourceLeftTrimmed, op, cl)
+      } yield CodeBlock(
+        outerIndex = outerIndex,
+        innerStartIndex = innerIndex,
+        innerEndIndex = innerIndex + res.length,
+        innerContent = res
+      )
+    }
+  }
 
   private def extractBlockContentFromLeftTrimmed(
     sourceLeftTrimmed: String,
@@ -29,30 +57,5 @@ object CodeBlock {
     }
     if(open == 0) Seq(r) else Seq.empty
   }
-
-  /**
-   *
-   * @param source build file source
-   * @param block block with leading open brace e.x dependencies {
-   * @return sequence of matches. (indexOf, string match)
-   */
-  // TODO Implement sequences with more than 1 elements
-  def extractBlockContent(source: String, block: String): Seq[(Int, String)] = {
-    val index: Int = source.indexOf(block)
-    val openChar: Option[Char] = block.lastOption
-    val closeChar: Option[Char] = openChar.flatMap(braces.get)
-    def sourceLeftTrimmed:String = source.substring(index).drop(block.length)
-    if (index == -1) Seq.empty
-    else {
-      for {
-        op <- openChar.toList
-        cl <- closeChar.toList
-        res <- extractBlockContentFromLeftTrimmed(sourceLeftTrimmed, op, cl).map(index -> _)
-      } yield res
-    }
-  }
-
-  def findBlockContent(source: String, block: String): Seq[(Int, Int)] =
-    extractBlockContent(source, block).map { case (i, s) => (i, i + s.length)}
 
 }

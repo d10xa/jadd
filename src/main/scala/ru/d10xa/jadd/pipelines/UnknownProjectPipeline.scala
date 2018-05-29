@@ -20,20 +20,20 @@ class UnknownProjectPipeline(val ctx: Ctx)(implicit artifactInfoFinder: Artifact
     println(s"build tool not recognized in directory ${ctx.config.projectDir}")
 
     implicit val artifactShow: Show[Artifact] =
-      Show[Artifact]{ a =>
+      Show[Artifact] { a =>
         s"""groupId: ${a.groupId}
            |artifactId: ${a.artifactId}
            |version: ${a.maybeVersion.getOrElse("???")}""".stripMargin
       }
 
     val (e, a) = EitherT(loadAllArtifacts().toList)
-      .map(inlineScalaVersion)
+      .map(_.inlineScalaVersion)
       .map(_.show)
       .value
       .separate
 
     a.foreach(println)
-    if(e.nonEmpty) println("ERRORS:")
+    if (e.nonEmpty) println("ERRORS:")
     handleTroubles(e, println)
   }
 

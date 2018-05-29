@@ -18,8 +18,6 @@ final case class Artifact(
   inSequence: Boolean = false // required for ArtifactView
 ) {
 
-  def needScalaVersionResolving: Boolean = artifactId.contains("%%")
-
   def asPath: String = {
     val groupIdPath = groupId.replace('.', '/')
     val art =
@@ -32,10 +30,13 @@ final case class Artifact(
       .mkString("/")
   }
 
+  // TODO think about merge needScalaVersionResolving and isScala methods
+  def needScalaVersionResolving: Boolean = artifactId.contains("%%")
+
   def isScala: Boolean = artifactId.endsWith("%%")
 
   def artifactIdWithoutScalaVersion: String = {
-    if(isScala) artifactId.substring(0, artifactId.length - 2)
+    if (isScala) artifactId.substring(0, artifactId.length - 2)
     else artifactId
   }
 
@@ -55,7 +56,7 @@ final case class Artifact(
 
 object Artifact {
 
-  implicit val artifactShow: Show[Artifact] = Show[Artifact]{ a => s"${a.groupId}:${a.artifactId}" }
+  implicit val artifactShow: Show[Artifact] = Show[Artifact] { a => s"${a.groupId}:${a.artifactId}" }
 
   def fromString(artifactRaw: String): Either[ArtifactTrouble, Artifact] = {
     import cats.syntax.either._

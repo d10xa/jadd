@@ -26,6 +26,7 @@ groovy-all,org.codehaus.groovy:groovy-all
 gson,com.google.code.gson:gson
 guava-testlib,com.google.guava:guava-testlib
 h2,com.h2database:h2
+jline,org.jline:jline
 joda-time,joda-time:joda-time
 jsr305,com.google.code.findbugs:jsr305
 junit,junit:junit

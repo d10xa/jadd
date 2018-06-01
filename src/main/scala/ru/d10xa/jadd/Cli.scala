@@ -8,12 +8,13 @@ object Cli {
   case object Search extends Command
   case object Analyze extends Command
   case object Help extends Command
+  case object Repl extends Command
 
   case class Config(
-    command: Command = Help,
+    command: Command = Repl,
     artifacts: Seq[String] = Seq.empty,
     projectDir: String = System.getProperty("user.dir"),
-    shortcutsUri: String = "https://github.com/d10xa/jadd/raw/master/src/main/resources/jadd-shortcuts.csv",
+    shortcutsUri: String = "classpath:jadd-shortcuts.csv",
     repositories: Seq[String] = Seq.empty,
     dryRun: Boolean = false,
     debug: Boolean = false

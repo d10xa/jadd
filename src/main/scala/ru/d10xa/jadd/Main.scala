@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory
 import ru.d10xa.jadd.Cli.Analyze
 import ru.d10xa.jadd.Cli.Config
 import ru.d10xa.jadd.Cli.Help
+import ru.d10xa.jadd.Cli.Repl
 import ru.d10xa.jadd.pipelines.GradlePipeline
 import ru.d10xa.jadd.pipelines.MavenPipeline
 import ru.d10xa.jadd.pipelines.Pipeline
@@ -37,20 +38,45 @@ object Main extends LazyLogging {
   }
 
   def main(args: Array[String]): Unit = {
-    val maybeConfig =
+    readConfig(args) match {
+      case Some(config) if config.command == Repl =>
+        ReplCommand.runRepl(runOnceForRepl)
+      case Some(config) =>
+        runOnce(args, config)
+      case None =>
+        logger.error("arguments are bad")
+    }
+  }
+
+  def readConfig(args: Array[String]): Option[Config] = {
+    val maybeConfig: Option[Config] =
       Cli.parser.parse(args, Cli.Config())
     maybeConfig.foreach { cfg =>
       if(cfg.debug) enableDebugMode()
     }
-    maybeConfig match {
-      case Some(config) if config.command == Analyze =>
-        analyze.run(Ctx(config))
-      case Some(config) if config.command == Help =>
-        Cli.parser.showUsage()
+    maybeConfig
+  }
+
+  def runOnceForRepl(args: Array[String]): Unit = {
+    // TODO reduce copy/paste from main
+    readConfig(args) match {
       case Some(config) =>
-        Main.run(config)
+        runOnce(args, config)
       case None =>
         logger.error("arguments are bad")
+    }
+  }
+
+  def runOnce(args: Array[String], config: Config): Unit = {
+    config match {
+      case c if c.command == ReplCommand =>
+        Unit // already in repl
+      case c if c.command == Analyze =>
+        analyze.run(Ctx(c))
+      case c if c.command == Help =>
+        Cli.parser.showUsage()
+      case c =>
+        Main.run(c)
     }
   }
 

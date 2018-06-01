@@ -2,6 +2,10 @@
 
 Tool for adding dependencies to gradle/maven/sbt build files
 
+## REPL!
+
+Just run `jadd` without arguments and enjoy! 
+
 ## usage
 
     jadd i logback-classic gson commons-io io.grpc:grpc-protobuf

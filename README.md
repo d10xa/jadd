@@ -2,6 +2,8 @@
 
 Tool for adding dependencies to gradle/maven/sbt build files
 
+[![jadd.gif](data/jadd.gif)](https://github.com/d10xa/jadd#usage "d10xa/jadd")
+
 ## REPL!
 
 Just run `jadd` without arguments and enjoy! 

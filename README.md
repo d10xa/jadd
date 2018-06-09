@@ -6,7 +6,7 @@ Tool for adding dependencies to gradle/maven/sbt build files
 
 ## REPL!
 
-Just run `jadd` without arguments and enjoy! 
+Just run `jadd` without arguments and enjoy tab completion!
 
 ## usage
 
@@ -30,13 +30,13 @@ Just run `jadd` without arguments and enjoy!
 
     curl -s https://raw.githubusercontent.com/d10xa/jadd/master/install.sh | bash
 
-And then add following to `~/.profile or ~/.bashrc or ~/.zshrc`
+And then add following to `~/.profile` or `~/.bashrc` or `~/.zshrc`
 
     export PATH=$PATH:$HOME/.jadd/bin
 
 ## update
 
-    just run installation script
+just run installation script
 
 ## examples
 
@@ -62,5 +62,6 @@ And then add following to `~/.profile or ~/.bashrc or ~/.zshrc`
 
 ## analyze dependency
 
-    # only full artifactId supported. shortcuts not available
+only full artifactId supported. shortcuts not available
+
     jadd analyze --repository=bintray/groovy/maven,google,jcenter,mavenCentral org.codehaus.groovy:groovy-eclipse-compiler

@@ -3,3 +3,6 @@ target/
 .DS_Store
 project/project
 !.idea/codeStyles/Project.xml
+bin/
+lib/
+zip/

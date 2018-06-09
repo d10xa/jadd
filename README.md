@@ -10,44 +10,33 @@ Just run `jadd` without arguments and enjoy!
 
 ## usage
 
+    jadd i org.apache.httpcomponents:httpclient
     jadd i logback-classic gson commons-io io.grpc:grpc-protobuf
     jadd i mongodb h2 postgresql mysql rest-assured
-    jadd s scopt
 
 ## commands
 
-install
-search
-help
+- `install` (shortcut `i`) add dependency to build file
 
-## command shortcuts 
+- `search` (shortcut `s`) print dependency to console
 
-i - install
-s - search
+- `analyze` search dependency in multiple repositories and print all available versions
 
-## installation (macOS)
+- `show` show build file source
 
-    brew install d10xa/jadd/jadd
-    
-## update version (macOS)
+- `help`
 
-    brew upgrade jadd
+## installation
 
-## installation (other OS)
+    curl -s https://raw.githubusercontent.com/d10xa/jadd/master/install.sh | bash
 
-    git clone https://github.com/d10xa/jadd.git ~/.jadd_snapshot
-    cd ~/.jadd_snapshot
-    sbt assembly
+And then add following to `~/.profile or ~/.bashrc or ~/.zshrc`
 
-add alias to ~/.profile or ~/.bashrc or ~/.zshrc
+    export PATH=$PATH:$HOME/.jadd/bin
 
-    alias jadd="java -jar ~/.jadd_snapshot/target/scala-2.12/jadd.jar"
+## update
 
-update snapshot
-
-    cd ~/.jadd_snapshot
-    git pull
-    sbt assembly
+    just run installation script
 
 ## examples
 

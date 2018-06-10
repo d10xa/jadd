@@ -1,6 +1,5 @@
 package ru.d10xa.jadd
 
-import cats.Show
 import ru.d10xa.jadd.troubles.ArtifactTrouble
 import ru.d10xa.jadd.troubles.WrongArtifactRaw
 
@@ -60,23 +59,20 @@ object Artifact {
 
   def apply(s: String): Artifact = fromString(s).right.get
 
-  implicit val artifactShow: Show[Artifact] = Show[Artifact] { a => s"${a.groupId}:${a.artifactId}" }
-
   def fromString(artifactRaw: String): Either[ArtifactTrouble, Artifact] = {
-    import cats.syntax.either._
     artifactRaw.split(":") match {
       case Array(g, a) =>
-        Artifact(
+        Right(Artifact(
           groupId = g,
           artifactId = a
-        ).asRight
+        ))
       case Array(g, a, v) =>
-        Artifact(
+        Right(Artifact(
           groupId = g,
           artifactId = a,
           maybeVersion = Some(v)
-        ).asRight
-      case _ => WrongArtifactRaw.asLeft
+        ))
+      case _ => Left(WrongArtifactRaw)
     }
   }
 

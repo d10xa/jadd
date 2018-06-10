@@ -40,7 +40,7 @@ package object analyze {
     val value: List[Either[troubles.ArtifactTrouble, Artifact]] = r.value
     val (ts, as) = value.separate
 
-    as.groupBy(_.show).foreach {
+    as.groupBy(a => s"${a.groupId}:${a.artifactId}").foreach {
       case (artifactShow, groupedArtifacts) =>
         println(s"## $artifactShow")
         groupedArtifacts.foreach(a => println(artifactAnalyzeAsString(a)))

@@ -26,7 +26,7 @@ if [ -z "$JADD_ZIP_FILE" ]; then
     JADD_ZIP_FILE="${JADD_HOME}/zip/${jadd_archive_name}"
 
     if [ -z "$JADD_ZIP_URL" ]; then
-        JADD_ZIP_URL="https://github.com/d10xa/jadd/releases/download/test-release/"
+        JADD_ZIP_URL="https://github.com/d10xa/jadd/releases/download/v${JADD_VERSION}/"
     fi
 
     if ! [ -s "${JADD_ZIP_FILE}" ]; then

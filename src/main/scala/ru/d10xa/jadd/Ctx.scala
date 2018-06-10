@@ -8,6 +8,6 @@ final case class Ctx(
 
 object Ctx {
   lazy val version: String =
-    Option(Main.getClass.getPackage.getImplementationVersion)
+    Option(Jadd.getClass.getPackage.getImplementationVersion)
       .getOrElse("SNAPSHOT")
 }

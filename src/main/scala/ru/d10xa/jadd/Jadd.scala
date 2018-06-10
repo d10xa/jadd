@@ -17,7 +17,7 @@ import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
 import ru.d10xa.jadd.shortcuts.RepositoryShortcutsImpl
 
-object Main extends LazyLogging {
+object Jadd extends LazyLogging {
 
   def run(config: Config): Unit = {
     implicit val artifactInfoFinder: ArtifactInfoFinder =
@@ -79,7 +79,7 @@ object Main extends LazyLogging {
       case c if c.command == Help =>
         Cli.parser.showUsage()
       case c =>
-        Main.run(c)
+        Jadd.run(c)
     }
   }
 

@@ -8,12 +8,10 @@ lazy val root = (project in file(".")).
       organization := "ru.d10xa",
       scalaVersion := "2.12.6",
       version      := Source.fromFile("VERSION").mkString.trim,
-      mainClass in Compile := Some("ru.d10xa.jadd.Main")
+      mainClass in Compile := Some("ru.d10xa.jadd.Jadd")
     )),
     name := "jadd"
   )
-
-assemblyJarName in assembly := "jadd.jar"
 
 scalacOptions ++= Seq(
   "-encoding", "UTF-8",   // source files are in UTF-8

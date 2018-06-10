@@ -1,3 +1,22 @@
 language: scala
 scala:
-   - 2.12.5
+  - 2.12.6
+before_cache:
+  # Cleanup the cached directories to avoid unnecessary cache updates
+  - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
+  - find $HOME/.sbt        -name "*.lock"               -print -delete
+cache:
+  directories:
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt
+before_deploy:
+  - sbt universal:packageBin
+  - export RELEASE_FILE=$(ls target/universal/jadd-*.zip)
+deploy:
+  provider: releases
+  api_key:
+    secure: hU6sFfkZMRkhx05txd0PTRu7tamZFN5gU+n7eeyjHBP/HMXxDXwYW3azef/4ZehTUes8juILAffiGiNvJCLQ17zP+TQHrTB76+EwKNf9t00GCzm3gns77OGDGGEzcOg+CcAqiDiQphCMP0FBubltMlqXe9KOiMhY2xubTq+w5ZB0aSVeFEswRSEqgpl6wWO2pDfYxe1wtpqsnFAj1tOhTNRWXB/ceqBHdOrspCGKPn1wpXIzp+VQ1UbDLE/6mBd1HsJR7bNhRW7IlBc3dh9S7WHTsqd4QmzhAbCbdGB2bikBxgB0n19lb6cpRLNBgRn2+wTtJFcz/8zBPlsF6PCNPXCurgO3bwHzg8h5VJNQ4sppemOLFvud1Fv3oeeph5bQBW3ypxy1uj6zDbTdNYC9l/D0HSb0+P0LFDX/+l5PFWxvxSW0GdACF+NNrRFXZNQiz3K1QWw7+/GdZUmiUnK1v9lVFsAP9IwxpMvJcL5Sccvg3qd2oJ5Uby9YfpXU9DzJJtC3lYvrdxDttdFsvWLvpWfukORWlBUzEvtnOVJEL2eyR5hmRVbhgXLX390TfqG3Vb4eLZLRojngSYGyiXoTTXMSsVA/oult0mbXfY9WXiTWSRY0AL31COo1NEOyIHJ9LPvpw7Wb8CnOYJ4NJOuTc/QENJWie2j0V9DldKOv5gY=
+  file: "${RELEASE_FILE}"
+  skip_cleanup: true
+  on:
+    tags: true

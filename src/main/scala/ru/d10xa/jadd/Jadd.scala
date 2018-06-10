@@ -17,7 +17,7 @@ import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
 import ru.d10xa.jadd.shortcuts.RepositoryShortcutsImpl
 
-object Main extends LazyLogging {
+object Jadd extends LazyLogging {
 
   def run(config: Config): Unit = {
     implicit val artifactInfoFinder: ArtifactInfoFinder =
@@ -31,10 +31,13 @@ object Main extends LazyLogging {
       new MavenPipeline(ctx),
       new SbtPipeline(ctx)
     )
-    val activePipelines = pipelines.filter(_.applicable)
 
-    if (activePipelines.isEmpty) new UnknownProjectPipeline(ctx).run()
-    else activePipelines.foreach(_.run())
+    val activePipelines =
+      Option(pipelines.filter(_.applicable))
+        .filter(_.nonEmpty)
+        .getOrElse(Seq(new UnknownProjectPipeline(ctx)))
+
+    activePipelines.foreach(_.run())
   }
 
   def main(args: Array[String]): Unit = {
@@ -69,14 +72,14 @@ object Main extends LazyLogging {
 
   def runOnce(args: Array[String], config: Config): Unit = {
     config match {
-      case c if c.command == ReplCommand =>
+      case c if c.command == Repl =>
         Unit // already in repl
       case c if c.command == Analyze =>
         analyze.run(Ctx(c))
       case c if c.command == Help =>
         Cli.parser.showUsage()
       case c =>
-        Main.run(c)
+        Jadd.run(c)
     }
   }
 

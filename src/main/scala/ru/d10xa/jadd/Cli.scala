@@ -20,7 +20,7 @@ object Cli {
     debug: Boolean = false
   )
   val parser: OptionParser[Config] = new scopt.OptionParser[Config]("jadd") {
-    head("jadd", "SNAPSHOT")
+    head("jadd", Ctx.version)
     arg[String]("<artifact>...").unbounded().optional().action((x, c) =>
       c.copy(artifacts = c.artifacts :+ x)).text("unbounded args")
     opt[Unit]("dry-run").action((_, c) =>
@@ -48,13 +48,13 @@ object Cli {
       .text("search dependency in shortcuts")
       .action((_, c) => c.copy(command = Search))
 
-    cmd("analyze")
-      .text("search dependency in multiple repositories and print all available versions")
-      .action((_, c) => c.copy(command = Analyze))
-
     cmd("s")
       .text("alias for search")
       .action((_, c) => c.copy(command = Search))
+
+    cmd("analyze")
+      .text("search dependency in multiple repositories and print all available versions")
+      .action((_, c) => c.copy(command = Analyze))
 
     cmd("help")
       .text("prints this usage text")

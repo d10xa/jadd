@@ -1,3 +1,4 @@
+#!/bin/bash
 VERSION_NAME=$(cat VERSION)
 FILE_EXT=target/universal/jadd-${VERSION_NAME}.zip
 FILE_TARGET_PATH=jadd-${VERSION_NAME}.zip

@@ -42,7 +42,7 @@ object ReplCommand extends StrictLogging {
 
   class JaddCompleter extends org.jline.reader.Completer {
 
-    private val replCommands = Seq("install", "search", "help", "exit")
+    private val replCommands = Seq("install", "search", "show", "help", "exit")
     private lazy val deps = new ArtifactShortcuts().shortcuts.values
 
     override def complete(reader: LineReader, line: ParsedLine, candidates: util.List[Candidate]): Unit = {

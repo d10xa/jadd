@@ -6,6 +6,7 @@ object Cli {
   sealed trait Command
   case object Install extends Command
   case object Search extends Command
+  case object Show extends Command
   case object Analyze extends Command
   case object Help extends Command
   case object Repl extends Command
@@ -51,6 +52,10 @@ object Cli {
     cmd("s")
       .text("alias for search")
       .action((_, c) => c.copy(command = Search))
+
+    cmd("show")
+      .text("print dependencies")
+      .action((_, c) => c.copy(command = Show))
 
     cmd("analyze")
       .text("search dependency in multiple repositories and print all available versions")

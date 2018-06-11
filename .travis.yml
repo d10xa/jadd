@@ -1,14 +1,15 @@
 language: scala
 scala:
   - 2.12.6
+script: sbt clean coverage test
+after_success: sbt coverageReport coveralls
 before_cache:
-  # Cleanup the cached directories to avoid unnecessary cache updates
   - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
   - find $HOME/.sbt        -name "*.lock"               -print -delete
 cache:
   directories:
-    - $HOME/.ivy2/cache
-    - $HOME/.sbt
+  - "$HOME/.ivy2/cache"
+  - "$HOME/.sbt"
 before_deploy:
   - sbt universal:packageBin
   - export RELEASE_FILE=$(ls target/universal/jadd-*.zip)
@@ -20,3 +21,6 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
+env:
+  global:
+    secure: gd1J91mkBKqRfc9+L9qRF2sJkwJ5ogQb+VcEIx33FgraJvP5mtbx+H1gOy829wusJBeMacl9YjPIpojoGIzqUvtsI+U2fTs/gnQH4PZ/TD6CPN6E/eV1Z9pDKrYQsSJ8N1px6OO1RUcha5tHOSBUvYCEnXOMenOL5BgbURNQNrxv5GTlolPvH0yHVjMm2DZD7DYXMLu0zND6nyLHGv5vwEFosufMNujzV+/gkGfHXj/yGke4HXv1GzzpecEm+OjBR+V7DdzA7/Yx0DqDaeBv4TU0P62zlTcUzkvDfdDb7VeIbGYT3FNxZDSAE7CdZk5/9idblvUcSjI15TfXDWXpaURYJfizXz7yaBXJn4/UaUtPeM3QJUyNRgmIlxTKpwo8wWzwiMFv0Ww9cEzKScG6XRkXEZWGPOWcOnGQd6Zx9PJq1B4h3ek99+B4grfWdWOLxr8wCg09o4/LjoADaj0yOPETyylAjXtK+pXqJCfhb3CveevW2WcqGPBhcuHC8tn/bE7FJDSxjF1T+YhMX4ZLXA72R5zlP2ooiQkUokZk0RHXyLn+1UqeTESIpyiI7IoRnGc/43S7vQwMDSRRtl4WW19PrCXscPuaer6HX9SrC/zccUIc61kkOaiM+ILepH4zACGcunnvIX/DNJ9n7xRX/hbaDNltJf3wtyskEla3WxM=

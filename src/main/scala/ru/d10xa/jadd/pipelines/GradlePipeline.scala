@@ -26,7 +26,7 @@ class GradlePipeline(override val ctx: Ctx)(implicit artifactInfoFinder: Artifac
 
   override def applicable: Boolean = buildFile.exists()
 
-  override def run(): Unit = {
+  override def install(): Unit = {
     val artifacts = loadAllArtifacts()
     handleArtifacts(artifacts.collect { case Right(v) => v })
     handleTroubles(artifacts.collect { case Left(v) => v }, println)
@@ -45,6 +45,10 @@ class GradlePipeline(override val ctx: Ctx)(implicit artifactInfoFinder: Artifac
     if (this.needWrite) {
       new SafeFileWriter().write(buildFile, newSource)
     }
+  }
+
+  override def show(): Unit = {
+    logger.info(buildFileSource)
   }
 
 }

@@ -2,6 +2,7 @@ package ru.d10xa.jadd.pipelines
 
 import java.io.File
 
+import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.Indent
@@ -14,16 +15,19 @@ import ru.d10xa.jadd.troubles._
 
 import scala.io.Source
 
-class MavenPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: ArtifactInfoFinder) extends Pipeline {
+class MavenPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: ArtifactInfoFinder)
+  extends Pipeline
+  with StrictLogging {
 
   lazy val buildFile = new File(ctx.config.projectDir, "pom.xml")
 
+  lazy val buildFileSource: String = Source.fromFile(buildFile).mkString
+
   override def applicable: Boolean = buildFile.exists()
 
-  override def run(): Unit = {
+  override def install(): Unit = {
 
-    val source: String = Source.fromFile(buildFile).mkString
-    val indent @ Indent(spaceOrTabChar, count) = Indentation.predictIndentation(source.split('\n'))
+    val indent @ Indent(spaceOrTabChar, count) = Indentation.predictIndentation(buildFileSource.split('\n'))
     val indentString = spaceOrTabChar.toString * count
 
     val artifactsWithVersions: Seq[Either[ArtifactTrouble, Artifact]] =
@@ -55,7 +59,7 @@ class MavenPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: Artifact
     def newContent =
       MavenFileInserts
         .append(
-          source,
+          buildFileSource,
           strings.map(_.split('\n').toSeq),
           indent
         )
@@ -63,6 +67,10 @@ class MavenPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: Artifact
     if (this.needWrite) {
       new SafeFileWriter().write(buildFile, newContent)
     }
+  }
+
+  override def show(): Unit = {
+    logger.info(buildFileSource)
   }
 
 }

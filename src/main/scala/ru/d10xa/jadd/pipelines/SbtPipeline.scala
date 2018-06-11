@@ -8,6 +8,7 @@ import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.SafeFileWriter
 import ru.d10xa.jadd.inserts.SbtFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
+import ru.d10xa.jadd.show.SbtShowCommand
 import ru.d10xa.jadd.troubles.handleTroubles
 import ru.d10xa.jadd.view.ArtifactView
 
@@ -41,10 +42,14 @@ class SbtPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: ArtifactIn
     }
   }
 
-  override def run(): Unit = {
+  override def install(): Unit = {
     val artifacts = loadAllArtifacts()
     handleArtifacts(artifacts.collect { case Right(v) => v })
     handleTroubles(artifacts.collect { case Left(v) => v }, println)
+  }
+
+  override def show(): Unit = {
+    logger.info(new SbtShowCommand(buildFileSource).show())
   }
 
 }

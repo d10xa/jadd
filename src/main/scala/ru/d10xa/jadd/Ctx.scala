@@ -1,6 +1,6 @@
 package ru.d10xa.jadd
 
-import ru.d10xa.jadd.Cli.Config
+import ru.d10xa.jadd.cli.Config
 
 final case class Ctx(
   config: Config

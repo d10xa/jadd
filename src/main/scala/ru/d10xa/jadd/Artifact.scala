@@ -22,11 +22,7 @@ final case class Artifact(
     val art =
       if (needScalaVersionResolving && maybeScalaVersion.isDefined) artifactIdWithScalaVersion(maybeScalaVersion.get)
       else artifactId
-    val l: Seq[String] = groupIdPath :: art :: Nil
-    maybeVersion
-      .map(l :+ _)
-      .getOrElse(l)
-      .mkString("/")
+    (groupIdPath :: art :: Nil) mkString "/"
   }
 
   // TODO think about merge needScalaVersionResolving and isScala methods

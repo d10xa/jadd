@@ -12,7 +12,7 @@ import scala.util.Try
 class ArtifactInfoFinder(
   artifactShortcuts: ArtifactShortcuts = new ArtifactShortcuts(),
   repositoryShortcuts: RepositoryShortcuts = RepositoryShortcutsImpl,
-  artifactInfoBasePath: String = "classpath:artifacts/"
+  artifactInfoBasePath: String = ArtifactInfoFinder.DEFAULT_ARTIFACT_INFO_BASE_PATH
 ) {
 
   import ru.d10xa.jadd.troubles._
@@ -91,4 +91,8 @@ class ArtifactInfoFinder(
     artifact.map(addInfoToArtifact)
   }
 
+}
+
+object ArtifactInfoFinder {
+  val DEFAULT_ARTIFACT_INFO_BASE_PATH = "classpath:artifacts/"
 }

@@ -1,4 +1,4 @@
-package ru.d10xa.jadd
+package ru.d10xa.jadd.shortcuts
 
 import org.scalatest.FunSuite
 import org.scalatest.Matchers

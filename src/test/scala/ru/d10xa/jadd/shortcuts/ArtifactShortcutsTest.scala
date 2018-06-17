@@ -3,38 +3,33 @@ package ru.d10xa.jadd.shortcuts
 import org.scalatest.FunSuite
 import org.scalatest.Matchers
 
-import scala.io.Source
-
 class ArtifactShortcutsTest extends FunSuite with Matchers {
 
-  val lines: Vector[String] = Source.fromResource("jadd-shortcuts.csv").getLines().toVector
-  lazy val shortcuts: Vector[String] = lines.tail.map(_.split(",").head)
-  lazy val groupAndArtifactIds: Vector[String] = lines.tail.map(_.split(",").last)
+  import ru.d10xa.jadd.Utils._
 
-  test("csv has header") {
-    // github has a pretty view for csv files and it requires header
-    // https://github.com/d10xa/jadd/blob/master/src/main/resources/jadd-shortcuts.csv
-    lines.head shouldEqual "shortcut,artifact"
+  val artifactShortcuts = new ArtifactShortcuts()
+  val unshort: String => Option[String] = artifactShortcuts.unshort
+
+  test("find full by shortcut") {
+    unshort("junit") shouldBe Some("junit:junit")
   }
 
-  test("must be at least 90 artifacts") {
-    lines.tail.size should be >= 90
+  test("find shortcut by full") {
+    unshort("junit") shouldBe Some("junit:junit")
   }
 
-  test("all lines has exactly one comma") {
-    lines.map(_.count(_ == ',')).distinct shouldEqual Vector(1)
+  test("find unknown") {
+    unshort("unknown") shouldBe None
   }
 
-  test("shourtcuts unique") {
-    shortcuts.size shouldEqual shortcuts.distinct.size
-  }
+  test("sourceFromSpringUri") {
 
-  test("artifacts unique") {
-    groupAndArtifactIds.size shouldEqual groupAndArtifactIds.distinct.size
-  }
+    // TODO add tests
+    sourceFromSpringUri("classpath:jadd-shortcuts.csv")
+      .mkString shouldNot be(empty)
 
-  test("lines sorted by shortcut") {
-    shortcuts.sorted shouldEqual shortcuts
+    //    sourceFromSpringUri("https://github.com/d10xa/jadd/raw/master/src/main/resources/jadd-shortcuts.csv")
+    //      .mkString shouldNot be(empty)
   }
 
 }

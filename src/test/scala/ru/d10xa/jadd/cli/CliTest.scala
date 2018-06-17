@@ -82,6 +82,12 @@ class CliTest extends FunSuite with Matchers {
     parse(Array("--project-dir", "/tmp")).projectDir.shouldBe("/tmp")
   }
 
+  test("parse --shortcuts-uri") {
+    val config = parse(Array("install", "junit", "--shortcuts-uri=classpath:jadd-shortcuts.csv"))
+    config.shortcutsUri shouldEqual "classpath:jadd-shortcuts.csv"
+    config.artifacts shouldEqual Seq("junit")
+  }
+
   test("parse fail") {
     parse(Array("42")).command.shouldBe(Help)
     parse(Array("--unknown-argument")).command.shouldBe(Help)

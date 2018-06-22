@@ -31,6 +31,10 @@ object Cli extends Cli {
       .text("read-only mode")
       .action((_, c) => c.copy(dryRun = true))
 
+    opt[Unit]('q', "quiet")
+      .text("log errors only")
+      .action((_, c) => c.copy(quiet = true))
+
     opt[Unit]("debug")
       .text("print debug messages")
       .action((_, c) => c.copy(debug = true))

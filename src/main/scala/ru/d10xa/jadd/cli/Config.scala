@@ -10,5 +10,6 @@ case class Config(
   shortcutsUri: String = "classpath:jadd-shortcuts.csv",
   repositories: Seq[String] = Seq.empty,
   dryRun: Boolean = false,
+  quiet: Boolean = false,
   debug: Boolean = false
 )

@@ -26,6 +26,7 @@ groovy-all,org.codehaus.groovy:groovy-all
 gson,com.google.code.gson:gson
 guava-testlib,com.google.guava:guava-testlib
 h2,com.h2database:h2
+hoverfly,io.specto:hoverfly-java
 jline,org.jline:jline
 joda-time,joda-time:joda-time
 jsr305,com.google.code.findbugs:jsr305
@@ -96,3 +97,5 @@ testcontainers,org.testcontainers:testcontainers
 testcontainers-scala,com.dimafeng:testcontainers-scala%%
 testng,org.testng:testng
 utest,com.lihaoyi:utest%%
+wiremock,com.github.tomakehurst:wiremock
+wiremock-standalone,com.github.tomakehurst:wiremock-standalone

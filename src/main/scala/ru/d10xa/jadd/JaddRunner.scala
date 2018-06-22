@@ -19,6 +19,7 @@ class JaddRunner(
     def readConfig(args: Array[String]): Config = {
       val config = cli.parse(args)
       if(config.debug) loggingUtil.enableDebug()
+      if(config.quiet) loggingUtil.quiet()
       config
     }
 

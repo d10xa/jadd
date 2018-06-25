@@ -1,8 +1,9 @@
 # jadd
 
 ![GitHub release](https://img.shields.io/github/release/d10xa/jadd.svg)
-[![Build Status](https://travis-ci.org/d10xa/jadd.svg?branch=master)](https://travis-ci.org/d10xa/jadd)
-[![Coverage Status](https://coveralls.io/repos/github/d10xa/jadd/badge.svg)](https://coveralls.io/github/d10xa/jadd)
+![Travis](https://img.shields.io/travis/d10xa/jadd.svg)
+![Coveralls github](https://img.shields.io/coveralls/github/d10xa/jadd.svg)
+
 
 Tool for adding dependencies to gradle/maven/sbt build files
 

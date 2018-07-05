@@ -12,6 +12,7 @@ import ru.d10xa.jadd.Scope.Test
 import ru.d10xa.jadd.inserts.MavenFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.troubles._
+import ru.d10xa.jadd.versions.VersionTools
 
 import scala.io.Source
 
@@ -31,7 +32,7 @@ class MavenPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: Artifact
     val indentString = spaceOrTabChar.toString * count
 
     val artifactsWithVersions: Seq[Either[ArtifactTrouble, Artifact]] =
-      loadAllArtifacts()
+      loadAllArtifacts(VersionTools)
         .map(_.map(_.inlineScalaVersion))
 
     // TODO fix maybeVersion.get

@@ -1,0 +1,15 @@
+{
+  "id" : "4dfee6e8-cec8-3469-9b11-9294eb86cff3",
+  "request" : {
+    "url" : "/junit/junit/maven-metadata.xml",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "body-junit-maven-metadata.xml-Qj4Tr.xml",
+    "headers" : {
+      "Content-Type" : "application/xml"
+    }
+  },
+  "uuid" : "4dfee6e8-cec8-3469-9b11-9294eb86cff3"
+}

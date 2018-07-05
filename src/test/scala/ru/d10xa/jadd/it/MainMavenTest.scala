@@ -4,8 +4,11 @@ import org.scalatest.FunSuiteLike
 import org.scalatest.Matchers
 import ru.d10xa.jadd.Jadd
 import ru.d10xa.jadd.testkit.BuildFileTestBase
+import ru.d10xa.jadd.testkit.WireMockTestBase
 
-class MainMavenTest extends BuildFileTestBase("pom.xml") with FunSuiteLike with Matchers {
+class MainMavenTest extends WireMockTestBase with BuildFileTestBase with FunSuiteLike with Matchers {
+
+  override def buildFileName: String = "pom.xml"
 
   test("insert dependency") {
     val content =
@@ -26,7 +29,7 @@ class MainMavenTest extends BuildFileTestBase("pom.xml") with FunSuiteLike with 
 
     write(content)
 
-    Jadd.main(Array("install", "-q", projectDirArg, "ch.qos.logback:logback-core"))
+    Jadd.main(Array("install", "-q", projectDirArg, "--repository", mockedRepositoryUrl, "ch.qos.logback:logback-core"))
 
     val expected =
       """
@@ -38,6 +41,53 @@ class MainMavenTest extends BuildFileTestBase("pom.xml") with FunSuiteLike with 
         |            <groupId>ch.qos.logback</groupId>
         |            <artifactId>logback-core</artifactId>
         |            <version>1.2.3</version>
+        |        </dependency>
+        |        <dependency>
+        |            <groupId>junit</groupId>
+        |            <artifactId>junit</artifactId>
+        |            <version>4.12</version>
+        |            <scope>test</scope>
+        |        </dependency>
+        |    </dependencies>
+        |</project>
+        |""".stripMargin
+
+    read() shouldEqual expected
+  }
+
+  test("m2"){
+    val content =
+      """
+        |<project>
+        |    <modelVersion>4.0.0</modelVersion>
+        |    <artifactId>a</artifactId>
+        |    <dependencies>
+        |        <dependency>
+        |            <groupId>junit</groupId>
+        |            <artifactId>junit</artifactId>
+        |            <version>4.12</version>
+        |            <scope>test</scope>
+        |        </dependency>
+        |    </dependencies>
+        |</project>
+        |""".stripMargin
+
+    write(content)
+
+    Jadd.main(Array(
+      "install", "-q", projectDirArg, "--repository", "src/test/resources/m2/repository", "com.example:projectname")
+    )
+
+    val expected =
+      """
+        |<project>
+        |    <modelVersion>4.0.0</modelVersion>
+        |    <artifactId>a</artifactId>
+        |    <dependencies>
+        |        <dependency>
+        |            <groupId>com.example</groupId>
+        |            <artifactId>projectname</artifactId>
+        |            <version>12.5</version>
         |        </dependency>
         |        <dependency>
         |            <groupId>junit</groupId>

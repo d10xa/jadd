@@ -9,6 +9,7 @@ import ru.d10xa.jadd.SafeFileWriter
 import ru.d10xa.jadd.inserts.GradleFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.troubles._
+import ru.d10xa.jadd.versions.VersionTools
 import ru.d10xa.jadd.view.ArtifactView
 
 import scala.io.Source
@@ -27,7 +28,7 @@ class GradlePipeline(override val ctx: Ctx)(implicit artifactInfoFinder: Artifac
   override def applicable: Boolean = buildFile.exists()
 
   override def install(): Unit = {
-    val artifacts = loadAllArtifacts()
+    val artifacts = loadAllArtifacts(VersionTools)
     handleArtifacts(artifacts.collect { case Right(v) => v })
     handleTroubles(artifacts.collect { case Left(v) => v }, println)
   }

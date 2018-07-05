@@ -1,0 +1,15 @@
+{
+  "id" : "da1cf5bc-f49e-385d-b1ef-235d1452b06f",
+  "request" : {
+    "url" : "/ch/qos/logback/logback-classic/maven-metadata.xml",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "body-logback-classic-maven-metadata.xml-kq7RH.xml",
+    "headers" : {
+      "Content-Type" : "application/xml"
+    }
+  },
+  "uuid" : "da1cf5bc-f49e-385d-b1ef-235d1452b06f"
+}

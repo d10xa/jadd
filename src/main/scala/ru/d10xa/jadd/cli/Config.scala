@@ -8,7 +8,12 @@ case class Config(
   artifacts: Seq[String] = Seq.empty,
   projectDir: String = System.getProperty("user.dir"),
   shortcutsUri: String = "classpath:jadd-shortcuts.csv",
-  repositories: Seq[String] = Seq.empty,
+  repositories: Seq[String] = Seq(
+    "https://jcenter.bintray.com",
+    // TODO get repository path from ~/.m2/settings.xml or use default
+    // TODO support for ~
+    s"${System.getProperty("user.home")}/.m2/repository"
+  ),
   dryRun: Boolean = false,
   quiet: Boolean = false,
   debug: Boolean = false

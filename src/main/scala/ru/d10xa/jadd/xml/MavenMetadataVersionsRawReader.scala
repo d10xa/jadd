@@ -1,9 +1,5 @@
-package ru.d10xa.jadd
+package ru.d10xa.jadd.xml
 
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-
-import scala.util.Try
 import scala.xml.Elem
 
 object MavenMetadataVersionsRawReader {
@@ -25,12 +21,7 @@ object MavenMetadataVersionsRawReader {
       lastUpdated <- versioning \ "lastUpdated"
       text = lastUpdated.text
     } yield text).headOption
-    val formatIn = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
-    val formatOut = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-    def prettyPrintDateFormat(dateStr: String): String =
-      Try(LocalDateTime.parse(dateStr, formatIn).format(formatOut))
-        .getOrElse(dateStr)
-    lastUpdatedText.map(prettyPrintDateFormat)
+    lastUpdatedText
   }
 
 }

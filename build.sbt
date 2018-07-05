@@ -34,5 +34,6 @@ libraryDependencies ++= Seq(
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.0",
   "io.circe" %% "circe-parser" % "0.9.3",
   "io.circe" %% "circe-generic" % "0.9.3",
-  "org.jline" % "jline" % "3.7.1"
+  "org.jline" % "jline" % "3.7.1",
+  "com.github.tomakehurst" % "wiremock" % "2.18.0" % Test
 )

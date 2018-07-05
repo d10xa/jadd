@@ -2,7 +2,8 @@ package ru.d10xa.jadd
 
 import cats.data.EitherT
 import cats.implicits._
-import ru.d10xa.jadd.Utils.SimpleMetadataUri
+import ru.d10xa.jadd.repository.MavenMetadata
+import ru.d10xa.jadd.repository.RepositoryApi
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
 import ru.d10xa.jadd.shortcuts.RepositoryShortcutsImpl
@@ -19,8 +20,11 @@ package object analyze {
     val reposFromConfig: List[String] = ctx.config.repositories.map(repositoryShortcuts.unshortRepository).toList
     val repos: List[String] = if(reposFromConfig.nonEmpty) reposFromConfig else defaultRepos
 
-    def loadVersions(a: Artifact, repo: String): Either[troubles.ArtifactTrouble, Artifact] =
-      Utils.loadVersions(a, SimpleMetadataUri(repo, a))
+    def loadVersions(a: Artifact, repo: String): Either[troubles.ArtifactTrouble, Artifact] = {
+      val errorOrMeta: Either[troubles.MetadataLoadTrouble, MavenMetadata] =
+        RepositoryApi.fromString(repo).receiveRepositoryMeta(a)
+      errorOrMeta.map(meta => a.merge(meta))
+    }
 
     val r: EitherT[List, troubles.ArtifactTrouble, Artifact] =
       artifacts.flatMap(a => EitherT(repos.map(repo => loadVersions(a, repo))))
@@ -28,7 +32,7 @@ package object analyze {
     def artifactAnalyzeAsString(a: Artifact): String = {
       val s1 = Seq(
         s" repository: ${a.repository.getOrElse("-")}",
-        s" lastUpdated: ${a.mavenMetadata.flatMap(_.lastUpdated).getOrElse("-")}",
+        s" lastUpdated: ${a.mavenMetadata.flatMap(_.lastUpdatedPretty).getOrElse("-")}",
         //        s" shortcut: ${a.shortcut.getOrElse("-")}",
         s" metadata: ${a.mavenMetadata.flatMap(_.url).getOrElse("-")}",
         " versions:"

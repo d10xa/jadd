@@ -2,6 +2,8 @@ package ru.d10xa.jadd
 
 import org.scalatest.FunSuite
 import org.scalatest.Matchers
+import ru.d10xa.jadd.repository.MavenMetadata
+import ru.d10xa.jadd.xml.MavenMetadataVersionsRawReader
 
 import scala.xml.XML
 
@@ -14,7 +16,7 @@ class MavenMetadataVersionsRawReaderTest extends FunSuite with Matchers {
   test("parse xml") {
 
     val version =
-      MavenMetadata.read(elem)
+      MavenMetadata.readFromXml(MavenMetadata(), elem)
         .versions
         .reverse
         .toStream
@@ -23,10 +25,10 @@ class MavenMetadataVersionsRawReaderTest extends FunSuite with Matchers {
     version shouldEqual "2.13.0-M3"
   }
 
-  test("read lastUpdated pretty format") {
+  test("read lastUpdated") {
     val lastUpdated = MavenMetadataVersionsRawReader.lastUpdated(elem)
 
-    lastUpdated shouldEqual Some("2018-01-31 21:47:39")
+    lastUpdated shouldEqual Some("20180131214739")
   }
 
   test("read lastUpdated strange format") {

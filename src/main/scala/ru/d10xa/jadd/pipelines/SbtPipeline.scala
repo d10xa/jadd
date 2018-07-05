@@ -10,6 +10,7 @@ import ru.d10xa.jadd.inserts.SbtFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.show.SbtShowCommand
 import ru.d10xa.jadd.troubles.handleTroubles
+import ru.d10xa.jadd.versions.VersionTools
 import ru.d10xa.jadd.view.ArtifactView
 
 import scala.io.Source
@@ -43,7 +44,7 @@ class SbtPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: ArtifactIn
   }
 
   override def install(): Unit = {
-    val artifacts = loadAllArtifacts()
+    val artifacts = loadAllArtifacts(VersionTools)
     handleArtifacts(artifacts.collect { case Right(v) => v })
     handleTroubles(artifacts.collect { case Left(v) => v }, println)
   }

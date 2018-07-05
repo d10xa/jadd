@@ -1,0 +1,15 @@
+{
+  "id" : "791c65a8-e999-3100-a8e3-e57082e33671",
+  "request" : {
+    "url" : "/ch/qos/logback/logback-core/maven-metadata.xml",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "body-logback-core-maven-metadata.xml-Rdcw3.xml",
+    "headers" : {
+      "Content-Type" : "application/xml"
+    }
+  },
+  "uuid" : "791c65a8-e999-3100-a8e3-e57082e33671"
+}

@@ -4,18 +4,22 @@ import org.scalatest.FunSuiteLike
 import org.scalatest.Matchers
 import ru.d10xa.jadd.Jadd
 import ru.d10xa.jadd.testkit.BuildFileTestBase
+import ru.d10xa.jadd.testkit.WireMockTestBase
 
-class MainGradleTest extends BuildFileTestBase("build.gradle") with FunSuiteLike with Matchers {
+class MainGradleTest extends WireMockTestBase with BuildFileTestBase with FunSuiteLike with Matchers {
 
-  test("install dependency"){
+  override def buildFileName: String = "build.gradle"
+
+  test("install dependency") {
     write(
       """
         |dependencies {
         |    compile "commons-io:commons-io:2.6"
         |}
-      """.stripMargin)
+      """.stripMargin
+    )
 
-    Jadd.main(Array("install", "-q", projectDirArg, "junit:junit"))
+    Jadd.main(Array("install", "-q", projectDirArg, "--repository", mockedRepositoryUrl, "junit:junit"))
 
     read() shouldEqual
       """

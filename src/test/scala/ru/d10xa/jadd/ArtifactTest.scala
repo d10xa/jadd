@@ -2,6 +2,7 @@ package ru.d10xa.jadd
 
 import org.scalatest.FunSuite
 import org.scalatest.Matchers
+import ru.d10xa.jadd.repository.MavenMetadata
 import ru.d10xa.jadd.troubles.WrongArtifactRaw
 
 class ArtifactTest extends FunSuite with Matchers {

@@ -8,6 +8,7 @@ import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.troubles._
+import ru.d10xa.jadd.versions.VersionTools
 
 class UnknownProjectPipeline(val ctx: Ctx)(implicit artifactInfoFinder: ArtifactInfoFinder)
   extends Pipeline
@@ -29,7 +30,7 @@ class UnknownProjectPipeline(val ctx: Ctx)(implicit artifactInfoFinder: Artifact
            |version: ${a.maybeVersion.getOrElse("???")}""".stripMargin
       }
 
-    val (e, a) = EitherT(loadAllArtifacts().toList)
+    val (e, a) = EitherT(loadAllArtifacts(VersionTools).toList)
       .map(_.inlineScalaVersion)
       .map(_.show)
       .value

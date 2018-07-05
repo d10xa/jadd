@@ -1,6 +1,5 @@
 package ru.d10xa.jadd.shortcuts
 
-import cats.syntax.either._
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.ArtifactInfo
 import ru.d10xa.jadd.Scope
@@ -72,7 +71,10 @@ class ArtifactInfoFinder(
 
     val artifact: Either[ArtifactTrouble, Artifact] =
       if (artifactRaw.contains(":")) Artifact.fromString(artifactRaw)
-      else Either.fromOption(shortcutToArtifact, ArtifactNotFoundByAlias(artifactRaw))
+      else shortcutToArtifact match {
+        case None => Left(ArtifactNotFoundByAlias(artifactRaw))
+        case Some(a) => Right(a)
+      }
 
     def addInfoToArtifact(a: Artifact): Artifact = {
       val artifactString = s"${a.groupId}:${a.artifactId}"

@@ -7,6 +7,7 @@ import ru.d10xa.jadd.cli.Command.Install
 import ru.d10xa.jadd.cli.Command.Show
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.troubles.ArtifactTrouble
+import ru.d10xa.jadd.versions.VersionTools
 
 trait Pipeline {
   def applicable: Boolean
@@ -15,8 +16,25 @@ trait Pipeline {
   def show(): Unit
   def ctx: Ctx
   def needWrite: Boolean = ctx.config.command == Install && !ctx.config.dryRun
-  def loadAllArtifacts()(implicit artifactInfoFinder: ArtifactInfoFinder): Seq[Either[ArtifactTrouble, Artifact]] =
-    Utils
+  def loadAllArtifacts(
+    versionTools: VersionTools
+  )(implicit artifactInfoFinder: ArtifactInfoFinder): Seq[Either[ArtifactTrouble, Artifact]] = {
+
+    val unshorted: Seq[Artifact] = Utils
       .unshortAll(ctx.config.artifacts.toList, artifactInfoFinder)
-      .map(Utils.loadLatestVersion)
+
+    unshorted.map { artifact =>
+      val artifactWithRepo =
+        if(artifact.repository.isDefined) Seq(artifact)
+        else ctx.config.repositories.map(repo => artifact.copy(repository = Some(repo)))
+
+      val res: Seq[Either[ArtifactTrouble, Artifact]] = artifactWithRepo
+        .toStream
+        .map(versionTools.loadLatestVersion)
+
+      res
+        .find(_.isRight)
+        .getOrElse(res.head)
+    }
+  }
 }

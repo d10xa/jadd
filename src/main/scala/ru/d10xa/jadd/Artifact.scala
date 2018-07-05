@@ -1,7 +1,12 @@
 package ru.d10xa.jadd
 
+import com.typesafe.scalalogging.StrictLogging
+import ru.d10xa.jadd.repository.MavenMetadata
+import ru.d10xa.jadd.repository.RepositoryApi
 import ru.d10xa.jadd.troubles.ArtifactTrouble
+import ru.d10xa.jadd.troubles.RepositoryUndefined
 import ru.d10xa.jadd.troubles.WrongArtifactRaw
+import ru.d10xa.jadd.versions.VersionTools
 
 final case class Artifact(
   groupId: String,
@@ -28,7 +33,7 @@ final case class Artifact(
   // TODO think about merge needScalaVersionResolving and isScala methods
   def needScalaVersionResolving: Boolean = artifactId.contains("%%")
 
-  def isScala: Boolean = artifactId.endsWith("%%")
+  def isScala: Boolean = artifactId.endsWith("%%") || maybeScalaVersion.isDefined
 
   def artifactIdWithoutScalaVersion: String = {
     if (isScala) artifactId.substring(0, artifactId.length - 2)
@@ -51,7 +56,36 @@ final case class Artifact(
 
 }
 
-object Artifact {
+object Artifact extends StrictLogging {
+
+  implicit class ArtifactImplicits(a: Artifact) {
+
+    def asPaths: Seq[String] = Artifact.artifactAsPaths(a)
+    def merge(mavenMetadata: MavenMetadata): Artifact = {
+      a.copy(
+        availableVersions = mavenMetadata.versions.reverse,
+        mavenMetadata = Some(mavenMetadata)
+      ).withMetadataUrl(mavenMetadata.url.toString)
+    }
+    def loadVersions(): Either[ArtifactTrouble, Artifact] = {
+
+      val errOrApi = a.repository match {
+        case Some(r) => Right(RepositoryApi.fromString(r))
+        case None => Left(RepositoryUndefined(a))
+      }
+
+      val errOrMeta =
+        errOrApi.flatMap(_.receiveRepositoryMeta(a))
+
+      errOrMeta.foreach(m => logger.info(m.url.getOrElse("Metadata url undefined")))
+      val errOrNewArt = errOrMeta.map(a.merge(_))
+      errOrNewArt
+    }
+
+    def initLatestVersion(versionTools: VersionTools = VersionTools): Artifact =
+      a.copy(maybeVersion = versionTools.excludeNonRelease(a.availableVersions).headOption)
+
+  }
 
   def apply(s: String): Artifact = fromString(s).right.get
 
@@ -77,4 +111,16 @@ object Artifact {
       artifact.copy(artifactId = artifact.artifactIdWithScalaVersion(v))
     }.getOrElse(artifact)
   }
+
+  def artifactAsPaths(artifact: Artifact): Seq[String] =
+    (artifact.needScalaVersionResolving, artifact.maybeScalaVersion) match {
+      case (_, Some(scalaVersion)) =>
+        Seq(artifact.copy(maybeScalaVersion = Some(scalaVersion)).asPath)
+      case (true, None) => Seq(
+        artifact.copy(maybeScalaVersion = Some("2.12")).asPath,
+        artifact.copy(maybeScalaVersion = Some("2.11")).asPath
+      )
+      case _ =>
+        Seq(artifact.asPath)
+    }
 }

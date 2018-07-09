@@ -97,6 +97,8 @@ testcontainers,org.testcontainers:testcontainers
 testcontainers-scala,com.dimafeng:testcontainers-scala%%
 testng,org.testng:testng
 typesafe-config,com.typesafe:config
+ujson,com.lihaoyi:ujson%%
+upickle,com.lihaoyi:upickle%%
 utest,com.lihaoyi:utest%%
 wiremock,com.github.tomakehurst:wiremock
 wiremock-standalone,com.github.tomakehurst:wiremock-standalone

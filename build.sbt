@@ -32,8 +32,8 @@ libraryDependencies ++= Seq(
   scalaTest % Test,
   "ch.qos.logback" % "logback-classic" % "1.2.3",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.0",
-  "io.circe" %% "circe-parser" % "0.9.3",
-  "io.circe" %% "circe-generic" % "0.9.3",
+  "org.typelevel" %% "cats-core" % "1.1.0",
   "org.jline" % "jline" % "3.7.1",
+  "com.lihaoyi" %% "ujson" % "0.6.6",
   "com.github.tomakehurst" % "wiremock" % "2.18.0" % Test
 )

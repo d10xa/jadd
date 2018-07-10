@@ -5,7 +5,6 @@ import ru.d10xa.jadd.ArtifactInfo
 import ru.d10xa.jadd.Scope
 import ru.d10xa.jadd.Utils
 
-import scala.io.BufferedSource
 import scala.util.Try
 
 class ArtifactInfoFinder(
@@ -33,17 +32,21 @@ class ArtifactInfoFinder(
     }
 
     def readFile(fileName: String): Option[ArtifactInfo] = {
-      import io.circe.generic.auto._
-      import io.circe.parser._
+      import ujson.Js
+
+      implicit class JsOptStr(js: Js) {
+        def optStr(selector: String): Option[String] = Try(js(selector).str).toOption
+      }
 
       val artifactInfoPath: String = artifactInfoBasePath + fileName
-
-      val source: BufferedSource = Utils.sourceFromSpringUri(artifactInfoPath)
-      if (Try(source.hasNext).recover { case _: NullPointerException => false }.get) { // TODO get
-        decode[ArtifactInfo](source.mkString).toOption
-      } else {
-        None
-      }
+      Try {
+        val jsonStr = Utils.mkStringFromResource(artifactInfoPath)
+        val json = ujson.read(jsonStr)
+        ArtifactInfo(
+          scope = json.optStr("scope"),
+          repository = json.optStr("repository")
+        )
+      }.toOption
     }
 
     // find file by $groupId:$artifactId.json and then $groupId.json

@@ -24,4 +24,16 @@ object Utils {
     if (string.startsWith("classpath:")) Source.fromResource(string.drop(10))
     else Source.fromURL(string)
 
+  def mkStringFromResource(resource: String): String = {
+    val source = if (resource.startsWith("classpath:")) {
+      val str = resource.drop(10)
+      Source.fromResource(str)
+    } else {
+      Source.fromURL(resource)
+    }
+    val s = source.mkString
+    source.close()
+    s
+  }
+
 }

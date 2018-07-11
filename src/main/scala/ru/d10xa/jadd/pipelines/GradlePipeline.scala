@@ -8,6 +8,7 @@ import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.SafeFileWriter
 import ru.d10xa.jadd.inserts.GradleFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
+import ru.d10xa.jadd.show.GradleShowCommand
 import ru.d10xa.jadd.troubles._
 import ru.d10xa.jadd.versions.VersionTools
 import ru.d10xa.jadd.view.ArtifactView
@@ -49,7 +50,7 @@ class GradlePipeline(override val ctx: Ctx)(implicit artifactInfoFinder: Artifac
   }
 
   override def show(): Unit = {
-    logger.info(buildFileSource)
+    logger.info(new GradleShowCommand(buildFileSource).show())
   }
 
 }

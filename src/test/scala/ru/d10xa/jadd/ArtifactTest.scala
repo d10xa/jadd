@@ -52,4 +52,9 @@ class ArtifactTest extends FunSuite with Matchers {
     Artifact.fromString("only-groupid-or-shortcut").left.get shouldEqual WrongArtifactRaw
   }
 
+  test("fromTuple") {
+    Artifact.fromTuple(("a", "b", "1.0")) shouldEqual Artifact("a", "b", Some("1.0"))
+    Artifact.fromTuple(("a", "b")) shouldEqual Artifact("a", "b", None)
+  }
+
 }

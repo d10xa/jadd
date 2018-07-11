@@ -89,6 +89,10 @@ object Artifact extends StrictLogging {
 
   def apply(s: String): Artifact = fromString(s).right.get
 
+  def fromTuple(t: (String, String, String)): Artifact = Artifact(t._1, t._2, Some(t._3))
+
+  def fromTuple(t: (String, String)): Artifact = Artifact(t._1, t._2, None)
+
   def fromString(artifactRaw: String): Either[ArtifactTrouble, Artifact] = {
     artifactRaw.split(":") match {
       case Array(g, a) =>

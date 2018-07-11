@@ -1,12 +1,11 @@
-package ru.d10xa.jadd
+package ru.d10xa.jadd.show
 
 import org.scalatest.FunSuite
 import org.scalatest.Matchers
-import ru.d10xa.jadd.show.SbtShowCommand
 
-class CommandShowTest extends FunSuite with Matchers {
+class SbtShowTest extends FunSuite with Matchers {
 
-  test("sbt") {
+  test("seq") {
     val source =
       s"""
          |libraryDependencies ++= Seq(

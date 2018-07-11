@@ -17,6 +17,7 @@ class GradleShowTest extends FunSuite with Matchers {
         |dependencies {
         |    compile 'a:b:1.0' // hello
         |    compile "com.example42:y:2.3.4-SNAPSHOT"
+        |    compile "org.springframework.boot:spring-boot-starter-web"
         |    testCompile 'e:h:9.9.9'
         |}
       """.stripMargin
@@ -26,7 +27,8 @@ class GradleShowTest extends FunSuite with Matchers {
     val expected: String =
       """a:b:1.0
         |com.example42:y:2.3.4-SNAPSHOT
-        |e:h:9.9.9""".stripMargin
+        |e:h:9.9.9
+        |org.springframework.boot:spring-boot-starter-web""".stripMargin
 
     show shouldEqual expected
   }

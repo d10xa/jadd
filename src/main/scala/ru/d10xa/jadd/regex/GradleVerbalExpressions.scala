@@ -2,12 +2,15 @@ package ru.d10xa.jadd.regex
 
 import ru.lanwen.verbalregex.VerbalExpression
 
-// TODO add optional parenthesis like `compile("org.springframework.boot:spring-boot-starter-web")`
 object GradleVerbalExpressions {
 
   val spaceOrTab: VerbalExpression.Builder = VerbalExpression
     .regex()
     .oneOf(" ", "\t")
+
+  val spaceOrTabOrOpenParenthesis: VerbalExpression.Builder = VerbalExpression
+    .regex()
+    .oneOf(" ", "\t", "\\(")
 
   val quote: VerbalExpression.Builder = VerbalExpression
     .regex()
@@ -24,7 +27,7 @@ object GradleVerbalExpressions {
     VerbalExpression.regex()
       .add(spaceOrTab).zeroOrMore()
       .oneOf(configurations: _*)
-      .add(spaceOrTab).oneOrMore()
+      .add(spaceOrTabOrOpenParenthesis).oneOrMore()
       .add(quote)
       .capt().add(validName).endCapt()
       .`then`(":")
@@ -42,7 +45,7 @@ object GradleVerbalExpressions {
     VerbalExpression.regex()
       .add(spaceOrTab).zeroOrMore()
       .oneOf(configurations: _*)
-      .add(spaceOrTab).oneOrMore()
+      .add(spaceOrTabOrOpenParenthesis).oneOrMore()
       .add(quote)
       .capt().add(validName).endCapt()
       .`then`(":")

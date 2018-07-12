@@ -15,6 +15,9 @@ class GradleVerbalExpressionsTest extends FunSuite with Matchers {
       |repositories {
       |    jcenter()
       |}
+      |def scoptVersion = "3.7.0"
+      |def scalaMinorVersion = "2.12"
+      |
       |dependencies {
       |    compile 'a:b:1.0'
       |    compile("com.example42:y:2.3.4-SNAPSHOT") // no space parenthesis
@@ -23,6 +26,8 @@ class GradleVerbalExpressionsTest extends FunSuite with Matchers {
       |    compile "org.springframework.boot:spring-boot-starter-web"
       |    testCompile("org.springframework.boot:spring-boot-starter-test") // no space parenthesis
       |    testCompile ("org.springframework.boot:spring-boot-starter-actuator") // space and parenthesis
+      |
+      |    compile "com.github.scopt:scopt_${scalaMinorVersion}:$scoptVersion"
       |}
       |// comment
     """.stripMargin
@@ -36,7 +41,8 @@ class GradleVerbalExpressionsTest extends FunSuite with Matchers {
     groups3 shouldEqual Seq(
       ("a", "b", "1.0"),
       ("com.example42", "y", "2.3.4-SNAPSHOT"),
-      ("e", "h", "9.9.9")
+      ("e", "h", "9.9.9"),
+      ("com.github.scopt", "scopt_${scalaMinorVersion}", "$scoptVersion")
     )
   }
 

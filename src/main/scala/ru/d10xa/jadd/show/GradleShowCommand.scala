@@ -2,6 +2,7 @@ package ru.d10xa.jadd.show
 
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.regex.GradleVerbalExpressions._
+import ru.d10xa.jadd.stringinterpolation.GStr
 
 class GradleShowCommand(buildFileSource: String) extends StrictLogging {
   def show(): String = {
@@ -14,6 +15,10 @@ class GradleShowCommand(buildFileSource: String) extends StrictLogging {
       .groups2(buildFileSource)
       .map { case (g, a) => s"$g:$a" }
 
-    (t3 ++ t2).mkString("\n")
+    val map: Map[String, String] = variableAssignment.build().groups2(buildFileSource).toMap
+    val interpolated = GStr.interpolate(map)
+
+    val all = t3 ++ t2
+    all.map(new GStr(_)).map(_.resolve(interpolated)).mkString("\n")
   }
 }

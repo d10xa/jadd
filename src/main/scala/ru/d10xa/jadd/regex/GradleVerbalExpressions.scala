@@ -20,6 +20,22 @@ object GradleVerbalExpressions {
     .regex()
     .add("(?:[\\w-_0-9\\.\\$\\{\\}]+)")
 
+  val variableAssignment: VerbalExpression.Builder = VerbalExpression
+    .regex()
+    .capt()
+    .add(validNameWithPlaceholders)
+    .endCapt()
+    .add(spaceOrTab).zeroOrMore()
+    .`then`("=")
+    .add(spaceOrTab).zeroOrMore()
+    .add(quote)
+    .capt()
+    .anything()
+    .endCapt()
+    .add(quote)
+
+  val validVariableNameRegex: String = "[a-zA-Z_$][a-zA-Z_$0-9]*"
+
   def stringWithGroupIdArtifactIdVersion(
     configurations: Seq[String] = Seq("compile", "testCompile")
   ): VerbalExpression = {

@@ -1,11 +1,11 @@
 package ru.d10xa.jadd.stringinterpolation
 
+import ru.d10xa.jadd.regex.GradleVerbalExpressions.validVariableNameRegex
 import ru.lanwen.verbalregex.VerbalExpression
 
 import scala.collection.JavaConverters.asScalaBufferConverter
 
 final class GStr(str: String) {
-  private val validVariableNameRegex: String = "[a-zA-Z_$][a-zA-Z_$0-9]*"
 
   def placeholders(): Set[String] = {
     val re1 = VerbalExpression
@@ -54,6 +54,7 @@ final class GStr(str: String) {
 }
 
 object GStr {
+
   def interpolate(m: Map[String, String]): Map[String, String] = {
 
     def interpolateStep(m: Map[String, String]): Map[String, String] = {

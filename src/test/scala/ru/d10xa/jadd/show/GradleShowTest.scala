@@ -33,4 +33,33 @@ class GradleShowTest extends FunSuite with Matchers {
     show shouldEqual expected
   }
 
+  test("string interpolation") {
+    val source: String =
+      """
+        |plugins {
+        |    id 'scala'
+        |}
+        |ext {
+        |    scalaTestVersion = '3.0.4'
+        |}
+        |repositories {
+        |    jcenter()
+        |}
+        |def scalaMajorVersion = "2.12"
+        |def scalaVersion = "${scalaMajorVersion}.6"
+        |dependencies {
+        |    compile "org.scala-lang:scala-library:${scalaVersion}"
+        |    testCompile "org.scalatest:scalatest_${scalaMajorVersion}:$scalaTestVersion"
+        |}
+      """.stripMargin
+
+    val show = new GradleShowCommand(source).show()
+
+    val expected: String =
+      """org.scala-lang:scala-library:2.12.6
+        |org.scalatest:scalatest_2.12:3.0.4""".stripMargin
+
+    show shouldEqual expected
+  }
+
 }

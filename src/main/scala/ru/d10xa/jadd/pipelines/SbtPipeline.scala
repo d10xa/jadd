@@ -34,7 +34,7 @@ class SbtPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: ArtifactIn
       .flatMap(_.showLines)
       .toList
 
-    artifactStrings.foreach(println)
+    artifactStrings.foreach(s => logger.info(s))
 
     val newSource: String = new SbtFileInserts().appendAll(buildFileSource, artifacts)
 
@@ -46,7 +46,7 @@ class SbtPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: ArtifactIn
   override def install(): Unit = {
     val artifacts = loadAllArtifacts(VersionTools)
     handleArtifacts(artifacts.collect { case Right(v) => v })
-    handleTroubles(artifacts.collect { case Left(v) => v }, println)
+    handleTroubles(artifacts.collect { case Left(v) => v }, s => logger.info(s))
   }
 
   override def show(): Unit = {

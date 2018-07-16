@@ -1,5 +1,6 @@
 package ru.d10xa.jadd
 
+import ru.d10xa.jadd.analyze.AnalyzeCommandImpl
 import ru.d10xa.jadd.cli.Command.Analyze
 import ru.d10xa.jadd.cli.Command.Help
 import ru.d10xa.jadd.cli.Command.Repl
@@ -19,12 +20,14 @@ trait CommandExecutor {
 
 class CommandExecutorImpl extends CommandExecutor {
 
+  lazy val analyzeCommand = new AnalyzeCommandImpl
+
   override def execute(config: Config, showUsage: () => Unit): Unit = {
     config match {
       case c if c.command == Repl =>
         Unit // already in repl
       case c if c.command == Analyze =>
-        analyze.run(Ctx(c))
+        analyzeCommand.run(Ctx(c))
       case c if c.command == Help =>
         showUsage()
       case c =>

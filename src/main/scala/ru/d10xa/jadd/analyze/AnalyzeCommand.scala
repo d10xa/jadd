@@ -1,15 +1,24 @@
-package ru.d10xa.jadd
+package ru.d10xa.jadd.analyze
 
 import cats.data.EitherT
 import cats.implicits._
+import com.typesafe.scalalogging.StrictLogging
+import ru.d10xa.jadd.Artifact
+import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.repository.MavenMetadata
 import ru.d10xa.jadd.repository.RepositoryApi
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
 import ru.d10xa.jadd.shortcuts.RepositoryShortcutsImpl
+import ru.d10xa.jadd.troubles
 
-package object analyze {
-  def run(ctx: Ctx): Unit = {
+trait AnalyzeCommand {
+  def run(ctx: Ctx): Unit
+}
+
+class AnalyzeCommandImpl extends AnalyzeCommand with StrictLogging {
+
+  override def run(ctx: Ctx): Unit = {
     val config = ctx.config
     val repositoryShortcuts = RepositoryShortcutsImpl
     val artifactShortcuts = new ArtifactShortcuts()
@@ -18,7 +27,7 @@ package object analyze {
 
     val defaultRepos = List("https://jcenter.bintray.com", "https://repo1.maven.org/maven2")
     val reposFromConfig: List[String] = ctx.config.repositories.map(repositoryShortcuts.unshortRepository).toList
-    val repos: List[String] = if(reposFromConfig.nonEmpty) reposFromConfig else defaultRepos
+    val repos: List[String] = if (reposFromConfig.nonEmpty) reposFromConfig else defaultRepos
 
     def loadVersions(a: Artifact, repo: String): Either[troubles.ArtifactTrouble, Artifact] = {
       val errorOrMeta: Either[troubles.MetadataLoadTrouble, MavenMetadata] =
@@ -46,12 +55,13 @@ package object analyze {
 
     as.groupBy(a => s"${a.groupId}:${a.artifactId}").foreach {
       case (artifactShow, groupedArtifacts) =>
-        println(s"## $artifactShow")
-        groupedArtifacts.foreach(a => println(artifactAnalyzeAsString(a)))
+        logger.info(s"## $artifactShow")
+        groupedArtifacts.foreach(a => logger.info(artifactAnalyzeAsString(a)))
     }
 
-    if(ts.nonEmpty) println("ERRORS:")
-    ts.foreach(t => troubles.handleTroubles(Seq(t), println))
+    if (ts.nonEmpty) logger.info("ERRORS:")
+    ts.foreach(t => troubles.handleTroubles(Seq(t), s => logger.info(s)))
 
   }
+
 }

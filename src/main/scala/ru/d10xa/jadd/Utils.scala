@@ -1,30 +1,36 @@
 package ru.d10xa.jadd
 
+import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.troubles.ArtifactNotFoundByAlias
 
 import scala.io.BufferedSource
 import scala.io.Source
 
-object Utils {
+trait Utils {
+  def unshortAll(rawDependencies: List[String], artifactInfoFinder: ArtifactInfoFinder): List[Artifact]
+  def sourceFromSpringUri(string: String): BufferedSource
+  def mkStringFromResource(resource: String): String
+}
 
-  def unshortAll(rawDependencies: List[String], artifactInfoFinder: ArtifactInfoFinder): List[Artifact] =
+object Utils extends Utils with StrictLogging {
+  override def unshortAll(rawDependencies: List[String], artifactInfoFinder: ArtifactInfoFinder): List[Artifact] =
     rawDependencies
       .flatMap(raw => artifactInfoFinder.artifactFromString(raw) match {
         case Right(artifact) => artifact :: Nil
         case Left(_: ArtifactNotFoundByAlias) =>
-          println(s"$raw - artifact not found by shortcut")
+          logger.info(s"$raw - artifact not found by shortcut")
           Nil
         case Left(trouble) =>
-          println(s"some error occurred $trouble")
+          logger.info(s"some error occurred $trouble")
           Nil
       })
 
-  def sourceFromSpringUri(string: String): BufferedSource =
+  override def sourceFromSpringUri(string: String): BufferedSource =
     if (string.startsWith("classpath:")) Source.fromResource(string.drop(10))
     else Source.fromURL(string)
 
-  def mkStringFromResource(resource: String): String = {
+  override def mkStringFromResource(resource: String): String = {
     val source = if (resource.startsWith("classpath:")) {
       val str = resource.drop(10)
       Source.fromResource(str)
@@ -35,5 +41,4 @@ object Utils {
     source.close()
     s
   }
-
 }

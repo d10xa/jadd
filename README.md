@@ -27,7 +27,7 @@ Just run `jadd` without arguments and enjoy tab completion!
 
 - `analyze` search dependency in multiple repositories and print all available versions
 
-- `show` show build file source
+- `show` show artifacts from build file
 
 - `help`
 

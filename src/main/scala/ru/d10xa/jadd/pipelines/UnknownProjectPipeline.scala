@@ -21,7 +21,7 @@ class UnknownProjectPipeline(val ctx: Ctx)(implicit artifactInfoFinder: Artifact
 
   override def install(): Unit = {
 
-    println(s"build tool not recognized in directory ${ctx.config.projectDir}")
+    logger.info(s"build tool not recognized in directory ${ctx.config.projectDir}")
 
     implicit val artifactShow: Show[Artifact] =
       Show[Artifact] { a =>
@@ -36,9 +36,9 @@ class UnknownProjectPipeline(val ctx: Ctx)(implicit artifactInfoFinder: Artifact
       .value
       .separate
 
-    a.foreach(println)
-    if (e.nonEmpty) println("ERRORS:")
-    handleTroubles(e, println)
+    a.foreach(i => logger.info(i))
+    if (e.nonEmpty) logger.info("ERRORS:")
+    handleTroubles(e, s => logger.info(s))
   }
 
   override def show(): Unit = {

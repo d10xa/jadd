@@ -31,7 +31,7 @@ class GradlePipeline(override val ctx: Ctx)(implicit artifactInfoFinder: Artifac
   override def install(): Unit = {
     val artifacts = loadAllArtifacts(VersionTools)
     handleArtifacts(artifacts.collect { case Right(v) => v })
-    handleTroubles(artifacts.collect { case Left(v) => v }, println)
+    handleTroubles(artifacts.collect { case Left(v) => v }, s => logger.info(s))
   }
 
   def handleArtifacts(artifacts: Seq[Artifact]): Unit = {
@@ -39,7 +39,7 @@ class GradlePipeline(override val ctx: Ctx)(implicit artifactInfoFinder: Artifac
       .flatMap(_.showLines)
       .toList
 
-    artifactStrings.foreach(println)
+    artifactStrings.foreach(s => logger.info(s))
 
     val newSource: String = new GradleFileInserts()
       .appendAll(buildFileSource, artifacts)

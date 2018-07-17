@@ -23,7 +23,7 @@ object LoggingUtil extends LoggingUtil with LazyLogging {
         logger.debug("Debug mode enabled")
       case l: SubstituteLoggerFactory =>
         def logger = l.getLogger("ru.d10xa.jadd")
-        println(s"SubstituteLoggerFactory used. Can not enable debug mode ${logger.getClass}")
+        logger.info(s"SubstituteLoggerFactory used. Can not enable debug mode ${logger.getClass}")
     }
   }
 
@@ -33,7 +33,7 @@ object LoggingUtil extends LoggingUtil with LazyLogging {
         l.getLogger("ru.d10xa.jadd").setLevel(Level.ERROR)
       case l: SubstituteLoggerFactory =>
         def logger = l.getLogger("ru.d10xa.jadd")
-        println(s"SubstituteLoggerFactory used. Can not enable quiet mode ${logger.getClass}")
+        logger.info(s"SubstituteLoggerFactory used. Can not enable quiet mode ${logger.getClass}")
     }
   }
 }

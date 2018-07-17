@@ -54,8 +54,8 @@ class MavenPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: Artifact
              |</dependency>""".stripMargin
       }
 
-    strings.foreach(println)
-    handleTroubles(artifactsWithVersions.collect { case Left(trouble) => trouble }, println)
+    strings.foreach(s => logger.info(s))
+    handleTroubles(artifactsWithVersions.collect { case Left(trouble) => trouble }, s => logger.info(s))
 
     def newContent =
       MavenFileInserts

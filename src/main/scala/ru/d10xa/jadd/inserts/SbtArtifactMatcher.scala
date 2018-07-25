@@ -6,7 +6,7 @@ import ru.d10xa.jadd.view.ArtifactView.Match
 
 import scala.util.matching.Regex
 
-class SbtArtifactMatcher(source: String) {
+class SbtArtifactMatcher(val source: String) extends AnyVal {
 
   def find(artifact: Artifact): Seq[Match] = {
 

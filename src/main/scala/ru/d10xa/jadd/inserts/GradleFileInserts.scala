@@ -29,13 +29,13 @@ class GradleFileInserts extends StrictLogging {
       if(blocks.isEmpty) {
           s"""$source
             |dependencies {
-            |${indent.take()}$artifactAsString
+            |${indent.take(1)}$artifactAsString
             |}
             |""".stripMargin
       } else {
         val b = blocks.head
         val (begin, end) = source.splitAt(b.innerEndIndex)
-        begin + s"""${indent.take()}$artifactAsString""" + "\n" + end
+        begin + s"""${indent.take(1)}$artifactAsString""" + "\n" + end
       }
     }
     def update(m: Match): String = {

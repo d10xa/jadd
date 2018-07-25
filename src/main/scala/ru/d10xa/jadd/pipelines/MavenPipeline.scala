@@ -5,10 +5,8 @@ import java.io.File
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
-import ru.d10xa.jadd.Indent
 import ru.d10xa.jadd.Indentation
 import ru.d10xa.jadd.SafeFileWriter
-import ru.d10xa.jadd.Scope.Test
 import ru.d10xa.jadd.inserts.MavenFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.troubles._
@@ -20,6 +18,8 @@ class MavenPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: Artifact
   extends Pipeline
   with StrictLogging {
 
+  import ru.d10xa.jadd.implicits.maven._
+
   lazy val buildFile = new File(ctx.config.projectDir, "pom.xml")
 
   lazy val buildFileSource: String = Source.fromFile(buildFile).mkString
@@ -28,40 +28,31 @@ class MavenPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: Artifact
 
   override def install(): Unit = {
 
-    val indent @ Indent(spaceOrTabChar, count) = Indentation.predictIndentation(buildFileSource.split('\n'))
-    val indentString = spaceOrTabChar.toString * count
+    val indent = Indentation.predictIndentation(buildFileSource.split('\n'))
 
     val artifactsWithVersions: Seq[Either[ArtifactTrouble, Artifact]] =
       loadAllArtifacts(VersionTools)
         .map(_.map(_.inlineScalaVersion))
 
-    // TODO fix maybeVersion.get
-    val strings = artifactsWithVersions.collect { case Right(v) => v } // TODO refactoring
+    // TODO stringsForPrint, stringsForInsert refactoring
+    val stringsForPrint = artifactsWithVersions
+      .collect { case Right(v) => v }
+      .map(_ -> indent)
+      .flatMap { case t @ (artifact, _) => asPrintLines(t) ++ availableVersionsAsPrintLines(artifact) }
 
-      .map {
-        case a if a.scope.contains(Test) =>
-          s"""<dependency>
-             |$indentString<groupId>${a.groupId}</groupId>
-             |$indentString<artifactId>${a.artifactId}</artifactId>
-             |$indentString<version>${a.maybeVersion.get}</version>
-             |$indentString<scope>test</scope>
-             |</dependency>""".stripMargin
-        case a =>
-          s"""<dependency>
-             |$indentString<groupId>${a.groupId}</groupId>
-             |$indentString<artifactId>${a.artifactId}</artifactId>
-             |$indentString<version>${a.maybeVersion.get}</version>
-             |</dependency>""".stripMargin
-      }
+    val stringsForInsert = artifactsWithVersions
+      .collect { case Right(v) => v }
+      .map(_ -> indent)
+      .flatMap(asPrintLines(_))
 
-    strings.foreach(s => logger.info(s))
+    stringsForPrint.foreach(s => logger.info(s))
     handleTroubles(artifactsWithVersions.collect { case Left(trouble) => trouble }, s => logger.info(s))
 
     def newContent =
       MavenFileInserts
         .append(
           buildFileSource,
-          strings.map(_.split('\n').toSeq),
+          stringsForInsert.map(_.split('\n').toSeq),
           indent
         )
         .mkString("\n") + "\n"

@@ -24,10 +24,10 @@ object MavenFileInserts {
         }))
         MiddleInsert.insert(fileLines, d, index + 1)
       case None =>
-        val d: Seq[String] = dependencies.flatten.map(d => s"${indent.take()}$d")
+        val d: Seq[String] = dependencies.flatten.map(d => s"${indent.take(1)}$d")
         val deps: Seq[String] =
           s"<dependencies>" +: d :+ s"</dependencies>"
-        MiddleInsert.insert(fileLines, deps.map(d => s"${indent.take()}$d"), -1)
+        MiddleInsert.insert(fileLines, deps.map(d => s"${indent.take(1)}$d"), -1)
     }
 
   }

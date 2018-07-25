@@ -11,7 +11,6 @@ import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.show.GradleShowCommand
 import ru.d10xa.jadd.troubles._
 import ru.d10xa.jadd.versions.VersionTools
-import ru.d10xa.jadd.view.ArtifactView
 
 import scala.io.Source
 
@@ -19,7 +18,6 @@ class GradlePipeline(override val ctx: Ctx)(implicit artifactInfoFinder: Artifac
   extends Pipeline
   with StrictLogging {
 
-  import ArtifactView._
   import ru.d10xa.jadd.implicits.gradle._
 
   lazy val buildFile = new File(ctx.config.projectDir, "build.gradle")
@@ -36,7 +34,7 @@ class GradlePipeline(override val ctx: Ctx)(implicit artifactInfoFinder: Artifac
 
   def handleArtifacts(artifacts: Seq[Artifact]): Unit = {
     val artifactStrings: Seq[String] = artifacts
-      .flatMap(_.showLines)
+      .flatMap(a => asPrintLines(a) ++ availableVersionsAsPrintLines(a))
       .toList
 
     artifactStrings.foreach(s => logger.info(s))

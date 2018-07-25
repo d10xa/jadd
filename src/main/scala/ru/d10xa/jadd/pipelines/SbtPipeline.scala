@@ -11,7 +11,6 @@ import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.show.SbtShowCommand
 import ru.d10xa.jadd.troubles.handleTroubles
 import ru.d10xa.jadd.versions.VersionTools
-import ru.d10xa.jadd.view.ArtifactView
 
 import scala.io.Source
 
@@ -19,7 +18,6 @@ class SbtPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: ArtifactIn
   extends Pipeline
   with StrictLogging {
 
-  import ArtifactView._
   import ru.d10xa.jadd.implicits.sbt._
 
   lazy val buildFile = new File(ctx.config.projectDir, "build.sbt")
@@ -31,7 +29,7 @@ class SbtPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: ArtifactIn
   def handleArtifacts(artifacts: Seq[Artifact]): Unit = {
 
     val artifactStrings: Seq[String] = artifacts
-      .flatMap(_.showLines)
+      .flatMap(a => asPrintLines(a) ++ availableVersionsAsPrintLines(a))
       .toList
 
     artifactStrings.foreach(s => logger.info(s))

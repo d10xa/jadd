@@ -8,6 +8,7 @@ import ru.d10xa.jadd.cli.Command.Show
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.troubles.ArtifactTrouble
 import ru.d10xa.jadd.versions.VersionTools
+import ru.d10xa.jadd.view.ArtifactView
 
 trait Pipeline {
   def applicable: Boolean
@@ -16,6 +17,12 @@ trait Pipeline {
   def show(): Unit
   def ctx: Ctx
   def needWrite: Boolean = ctx.config.command == Install && !ctx.config.dryRun
+  def asPrintLines[A](a: A)(implicit view: ArtifactView[A]): Seq[String] = {
+    view.showLines(a)
+  }
+  def availableVersionsAsPrintLines(a: Artifact): Seq[String] =
+    "available versions:" :: a.versionsForPrint :: Nil
+
   def loadAllArtifacts(
     versionTools: VersionTools
   )(implicit artifactInfoFinder: ArtifactInfoFinder): Seq[Either[ArtifactTrouble, Artifact]] = {

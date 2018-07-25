@@ -27,6 +27,11 @@ gson,com.google.code.gson:gson
 guava-testlib,com.google.guava:guava-testlib
 h2,com.h2database:h2
 hoverfly,io.specto:hoverfly-java
+jackson-annotations,com.fasterxml.jackson.core:jackson-annotations
+jackson-core,com.fasterxml.jackson.core:jackson-core
+jackson-databind,com.fasterxml.jackson.core:jackson-databind
+jackson-module-kotlin,com.fasterxml.jackson.module:jackson-module-kotlin
+jackson-module-scala,com.fasterxml.jackson.module:jackson-module-scala%%
 jline,org.jline:jline
 joda-time,joda-time:joda-time
 jsr305,com.google.code.findbugs:jsr305

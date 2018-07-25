@@ -8,7 +8,7 @@ import ru.d10xa.jadd.view.ArtifactView.Match
 
 trait GradleImplicits {
 
-  implicit val sbtArtifactView: ArtifactView[Artifact] = new ArtifactView[Artifact] {
+  implicit val gradleArtifactView: ArtifactView[Artifact] = new ArtifactView[Artifact] {
     override def showLines(artifact: Artifact): Seq[String] = {
 
       def artifactToString(a: Artifact): String =

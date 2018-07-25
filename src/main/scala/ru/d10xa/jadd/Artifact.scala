@@ -54,6 +54,7 @@ final case class Artifact(
 
   def inlineScalaVersion: Artifact = Artifact.inlineScalaVersion(this)
 
+  def versionsForPrint: String = availableVersions.mkString(", ")
 }
 
 object Artifact extends StrictLogging {

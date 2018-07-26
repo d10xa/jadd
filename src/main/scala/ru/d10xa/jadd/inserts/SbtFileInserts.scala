@@ -22,7 +22,7 @@ class SbtFileInserts extends LazyLogging {
    * @return updated source
    */
   def append[T](buildFileSource: String, artifact: Artifact): String = {
-    val matches: Seq[Match] = artifact.findMatchesInSource(buildFileSource)
+    val matches: Seq[Match] = new SbtArtifactMatcher(buildFileSource).find(artifact)
 
     debugMatches(artifact, matches)
 

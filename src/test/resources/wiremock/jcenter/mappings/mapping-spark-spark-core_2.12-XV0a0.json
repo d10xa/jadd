@@ -8,8 +8,7 @@
     "status" : 404,
     "bodyFileName" : "body-spark-spark-core_2.12-XV0a0.txt",
     "headers" : {
-      "Content-Type" : "text/html",
-      "Transfer-Encoding" : "chunked"
+      "Content-Type" : "text/html"
     }
   },
   "uuid" : "9ddd0818-1f30-3b52-802f-dd465e1d2dcb"

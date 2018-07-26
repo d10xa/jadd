@@ -29,7 +29,12 @@ class MainMavenTest extends WireMockTestBase with BuildFileTestBase with FunSuit
 
     write(content)
 
-    Jadd.main(Array("install", "-q", projectDirArg, "--repository", mockedRepositoryUrl, "ch.qos.logback:logback-core"))
+    Jadd.main(
+      Array(
+        "install", "-q", projectDirArg, "--repository", mockedRepositoryUrl,
+        "ch.qos.logback:logback-core", "org.testng:testng"
+      )
+    )
 
     val expected =
       """
@@ -41,6 +46,12 @@ class MainMavenTest extends WireMockTestBase with BuildFileTestBase with FunSuit
         |            <groupId>ch.qos.logback</groupId>
         |            <artifactId>logback-core</artifactId>
         |            <version>1.2.3</version>
+        |        </dependency>
+        |        <dependency>
+        |            <groupId>org.testng</groupId>
+        |            <artifactId>testng</artifactId>
+        |            <version>6.14.3</version>
+        |            <scope>test</scope>
         |        </dependency>
         |        <dependency>
         |            <groupId>junit</groupId>
@@ -55,7 +66,7 @@ class MainMavenTest extends WireMockTestBase with BuildFileTestBase with FunSuit
     read() shouldEqual expected
   }
 
-  test("m2"){
+  test("m2") {
     val content =
       """
         |<project>
@@ -75,8 +86,8 @@ class MainMavenTest extends WireMockTestBase with BuildFileTestBase with FunSuit
     write(content)
 
     Jadd.main(Array(
-      "install", "-q", projectDirArg, "--repository", "src/test/resources/m2/repository", "com.example:projectname")
-    )
+      "install", "-q", projectDirArg, "--repository", "src/test/resources/m2/repository", "com.example:projectname"
+    ))
 
     val expected =
       """

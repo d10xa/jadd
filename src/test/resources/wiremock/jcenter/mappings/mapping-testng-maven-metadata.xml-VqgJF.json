@@ -1,0 +1,15 @@
+{
+  "id" : "25cfa1fa-b922-37ad-b25f-ef946558bef2",
+  "request" : {
+    "url" : "/org/testng/testng/maven-metadata.xml",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "body-testng-maven-metadata.xml-VqgJF.xml",
+    "headers" : {
+      "Content-Type" : "application/xml"
+    }
+  },
+  "uuid" : "25cfa1fa-b922-37ad-b25f-ef946558bef2"
+}

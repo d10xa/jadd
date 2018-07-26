@@ -6,6 +6,10 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatest.FunSuiteLike
 import org.scalatest.Matchers
 
+/**
+ * To record new mappings run wiremock proxy and uncomment mockedRepositoryUrl with port 9999
+ * wiremock --port 9999 --record-mappings --proxy-all="http://jcenter.bintray.com" --root-dir=src/test/resources/wiremock/jcenter
+ */
 trait WireMockTestBase extends FunSuiteLike with Matchers with BeforeAndAfterAll {
 
   val wireMockServer: WireMockServer = new WireMockServer(
@@ -15,6 +19,8 @@ trait WireMockTestBase extends FunSuiteLike with Matchers with BeforeAndAfterAll
   )
 
   def mockedRepositoryUrl = s"http://localhost:${wireMockServer.port()}"
+  // Uncomment to record new mappings
+  //  def mockedRepositoryUrl = s"http://localhost:9999"
 
   override protected def beforeAll(): Unit = {
     wireMockServer.start()

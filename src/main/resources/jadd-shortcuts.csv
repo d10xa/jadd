@@ -75,6 +75,7 @@ scalacheck,org.scalacheck:scalacheck%%
 scalameta,org.scalameta:scalameta%%
 scalamock-scalatest-support,org.scalamock:scalamock-scalatest-support%%
 scalatest,org.scalatest:scalatest%%
+scallop,org.rogach:scallop%%
 scopt,com.github.scopt:scopt%%
 selenium-api,org.seleniumhq.selenium:selenium-api
 selenium-chrome-driver,org.seleniumhq.selenium:selenium-chrome-driver

@@ -55,6 +55,11 @@ final case class Artifact(
   def inlineScalaVersion: Artifact = Artifact.inlineScalaVersion(this)
 
   def versionsForPrint: String = availableVersions.mkString(", ")
+
+  def canonicalView: String = maybeVersion match {
+    case Some(v) => s"$groupId:$artifactId:$v"
+    case None => s"$groupId:$artifactId"
+  }
 }
 
 object Artifact extends StrictLogging {

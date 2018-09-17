@@ -1,20 +1,13 @@
 package ru.d10xa.jadd.regex
 
 import ru.lanwen.verbalregex.VerbalExpression
+import ru.d10xa.jadd.regex.CommonVerbalExpressions._
 
 object GradleVerbalExpressions {
-
-  val spaceOrTab: VerbalExpression.Builder = VerbalExpression
-    .regex()
-    .oneOf(" ", "\t")
 
   val spaceOrTabOrOpenParenthesis: VerbalExpression.Builder = VerbalExpression
     .regex()
     .oneOf(" ", "\t", "\\(")
-
-  val quote: VerbalExpression.Builder = VerbalExpression
-    .regex()
-    .oneOf("'", "\"")
 
   val validNameWithPlaceholders: VerbalExpression.Builder = VerbalExpression
     .regex()
@@ -28,11 +21,11 @@ object GradleVerbalExpressions {
     .add(spaceOrTab).zeroOrMore()
     .`then`("=")
     .add(spaceOrTab).zeroOrMore()
-    .add(quote)
+    .add(anyQuote)
     .capt()
     .anything()
     .endCapt()
-    .add(quote)
+    .add(anyQuote)
 
   val validVariableNameRegex: String = "[a-zA-Z_$][a-zA-Z_$0-9]*"
 
@@ -44,13 +37,13 @@ object GradleVerbalExpressions {
       .add(spaceOrTab).zeroOrMore()
       .oneOf(configurations: _*)
       .add(spaceOrTabOrOpenParenthesis).oneOrMore()
-      .add(quote)
+      .add(anyQuote)
       .capt().add(validNameWithPlaceholders).endCapt()
       .`then`(":")
       .capt().add(validNameWithPlaceholders).endCapt()
       .`then`(":")
       .capt().add(validNameWithPlaceholders).endCapt()
-      .add(quote)
+      .add(anyQuote)
       .build()
   }
 
@@ -62,11 +55,11 @@ object GradleVerbalExpressions {
       .add(spaceOrTab).zeroOrMore()
       .oneOf(configurations: _*)
       .add(spaceOrTabOrOpenParenthesis).oneOrMore()
-      .add(quote)
+      .add(anyQuote)
       .capt().add(validNameWithPlaceholders).endCapt()
       .`then`(":")
       .capt().add(validNameWithPlaceholders).endCapt()
-      .add(quote)
+      .add(anyQuote)
       .build()
   }
 }

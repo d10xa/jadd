@@ -22,6 +22,7 @@ cats-core,org.typelevel:cats-core%%
 circe-core,io.circe:circe-core%%
 circe-generic,io.circe:circe-generic%%
 circe-parser,io.circe:circe-parser%%
+commons-csv,org.apache.commons:commons-csv
 commons-io,commons-io:commons-io
 commons-lang3,org.apache.commons:commons-lang3
 dbunit,org.dbunit:dbunit
@@ -33,9 +34,7 @@ hoverfly,io.specto:hoverfly-java
 jackson-annotations,com.fasterxml.jackson.core:jackson-annotations
 jackson-core,com.fasterxml.jackson.core:jackson-core
 jackson-databind,com.fasterxml.jackson.core:jackson-databind
-jackson-databind,com.fasterxml.jackson.core:jackson-databind
 jackson-module-kotlin,com.fasterxml.jackson.module:jackson-module-kotlin
-jackson-module-scala,com.fasterxml.jackson.module:jackson-module-scala%%
 jackson-module-scala,com.fasterxml.jackson.module:jackson-module-scala%%
 jansi,org.fusesource.jansi:jansi
 jline,org.jline:jline

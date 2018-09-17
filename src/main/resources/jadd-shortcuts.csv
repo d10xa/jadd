@@ -1,4 +1,5 @@
 shortcut,artifact
+activemq-all,org.apache.activemq:activemq-all
 akka-cluster,com.typesafe.akka:akka-cluster%%
 akka-http,com.typesafe.akka:akka-http%%
 akka-http-argonaut,de.heikoseeberger:akka-http-argonaut%%
@@ -11,6 +12,8 @@ akka-http-upickle,de.heikoseeberger:akka-http-upickle%%
 akka-persistence,com.typesafe.akka:akka-persistence%%
 akka-testkit,com.typesafe.akka:akka-testkit%%
 akka-testkit-typed,com.typesafe.akka:akka-testkit-typed%%
+antlr4,org.antlr:antlr4
+antlr4-runtime,org.antlr:antlr4-runtime
 apache-httpclient,org.apache.httpcomponents:httpclient
 cassandra-driver-core,com.datastax.cassandra:cassandra-driver-core
 cassandra-driver-extras,com.datastax.cassandra:cassandra-driver-extras
@@ -30,10 +33,14 @@ hoverfly,io.specto:hoverfly-java
 jackson-annotations,com.fasterxml.jackson.core:jackson-annotations
 jackson-core,com.fasterxml.jackson.core:jackson-core
 jackson-databind,com.fasterxml.jackson.core:jackson-databind
+jackson-databind,com.fasterxml.jackson.core:jackson-databind
 jackson-module-kotlin,com.fasterxml.jackson.module:jackson-module-kotlin
 jackson-module-scala,com.fasterxml.jackson.module:jackson-module-scala%%
+jackson-module-scala,com.fasterxml.jackson.module:jackson-module-scala%%
+jansi,org.fusesource.jansi:jansi
 jline,org.jline:jline
 joda-time,joda-time:joda-time
+jsoup,org.jsoup:jsoup
 jsr305,com.google.code.findbugs:jsr305
 junit,junit:junit
 kotlin-test,org.jetbrains.kotlin:kotlin-test
@@ -77,6 +84,7 @@ scalamock-scalatest-support,org.scalamock:scalamock-scalatest-support%%
 scalatest,org.scalatest:scalatest%%
 scallop,org.rogach:scallop%%
 scopt,com.github.scopt:scopt%%
+selenide,com.codeborne:selenide
 selenium-api,org.seleniumhq.selenium:selenium-api
 selenium-chrome-driver,org.seleniumhq.selenium:selenium-chrome-driver
 selenium-edge-driver,org.seleniumhq.selenium:selenium-edge-driver

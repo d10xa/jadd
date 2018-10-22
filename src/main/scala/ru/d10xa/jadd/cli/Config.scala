@@ -14,6 +14,7 @@ case class Config(
     // TODO support for ~
     s"${System.getProperty("user.home")}/.m2/repository"
   ),
+  proxy: Option[String] = None,
   dryRun: Boolean = false,
   quiet: Boolean = false,
   debug: Boolean = false

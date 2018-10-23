@@ -47,7 +47,7 @@ object Cli extends Cli {
       .action((x, c) => c.copy(repositories = x))
 
     opt[String]("proxy")
-      .text("proxy")
+      .text("http proxy. (Format host:port or user:password@host:port)")
       .action((x, c) => c.copy(proxy = Some(x)))
 
     opt[String]("shortcuts-uri")

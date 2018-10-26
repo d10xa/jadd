@@ -44,12 +44,12 @@ object ProxySettings {
         (host, port, None)
     }
 
-    val authenticator = new Authenticator {
-      override def getPasswordAuthentication: PasswordAuthentication =
-        new PasswordAuthentication(
-          userAndPassword.map(_._1).getOrElse(""),
-          userAndPassword.map(_._2).getOrElse("").toCharArray
-        )
+    val authenticator = userAndPassword match {
+      case Some((user, password)) => new Authenticator {
+        override def getPasswordAuthentication: PasswordAuthentication =
+          new PasswordAuthentication(user, password.toCharArray)
+      }
+      case None => Authenticator.getDefault
     }
 
     ProxySettings(

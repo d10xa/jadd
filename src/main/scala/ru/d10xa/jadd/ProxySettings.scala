@@ -2,8 +2,7 @@ package ru.d10xa.jadd
 
 import java.net.Authenticator
 import java.net.PasswordAuthentication
-
-import scala.util.matching.Regex
+import java.net.URI
 
 case class ProxySettings(
   httpHost: Option[String],
@@ -15,14 +14,10 @@ case class ProxySettings(
   httpProxyPassword: Option[String],
   httpsProxyPassword: Option[String],
   tunnelingDisabledSchemes: Option[String],
-  proxyingDisabledSchemes: Option[String],
-  authenticator: Authenticator
+  proxyingDisabledSchemes: Option[String]
 )
 
 object ProxySettings {
-
-  val userPassHostPort: Regex = "(.+):(.+)@(.+):(.+)".r
-  val hostPort: Regex = "(.+):(.+)".r
 
   val httpProxyHost = "http.proxyHost"
   val httpsProxyHost = "https.proxyHost"
@@ -35,35 +30,27 @@ object ProxySettings {
   val tunnelingDisabledSchemes = "jdk.http.auth.tunneling.disabledSchemes"
   val proxyingDisabledSchemes = "jdk.http.auth.proxying.disabledSchemes"
 
-  def apply(proxy: String): ProxySettings = {
+  def apply(proxy: URI): ProxySettings = {
 
-    val (h, p, userAndPassword) = proxy match {
-      case userPassHostPort(user, password, host, port) =>
-        (host, port, Some((user, password)))
-      case hostPort(host, port) =>
-        (host, port, None)
-    }
+    val host = proxy.getHost
+    val port = proxy.getPort.toString
+    val userAndPassword =
+      Option(proxy.getUserInfo)
+        .map(_.split(':'))
+        .collect { case Array(u, pass) => (u, pass) }
 
-    val authenticator = userAndPassword match {
-      case Some((user, password)) => new Authenticator {
-        override def getPasswordAuthentication: PasswordAuthentication =
-          new PasswordAuthentication(user, password.toCharArray)
-      }
-      case None => Authenticator.getDefault
-    }
 
     ProxySettings(
-      httpHost = Some(h),
-      httpsHost = Some(h),
-      httpPort = Some(p),
-      httpsPort = Some(p),
+      httpHost = Some(host),
+      httpsHost = Some(host),
+      httpPort = Some(port),
+      httpsPort = Some(port),
       httpProxyUser = userAndPassword.map(_._1),
       httpsProxyUser = userAndPassword.map(_._1),
       httpProxyPassword = userAndPassword.map(_._2),
       httpsProxyPassword = userAndPassword.map(_._2),
       tunnelingDisabledSchemes = Some(""),
-      proxyingDisabledSchemes = Some(""),
-      authenticator
+      proxyingDisabledSchemes = Some("")
     )
 
   }
@@ -86,8 +73,7 @@ object ProxySettings {
       httpProxyPassword = prop(httpProxyPassword),
       httpsProxyPassword = prop(httpsProxyPassword),
       tunnelingDisabledSchemes = prop(tunnelingDisabledSchemes),
-      proxyingDisabledSchemes = prop(proxyingDisabledSchemes),
-      Authenticator.getDefault
+      proxyingDisabledSchemes = prop(proxyingDisabledSchemes)
     )
   }
 
@@ -102,6 +88,14 @@ object ProxySettings {
     prop(httpsProxyPassword, proxySettings.httpsProxyPassword)
     prop(tunnelingDisabledSchemes, proxySettings.tunnelingDisabledSchemes)
     prop(proxyingDisabledSchemes, proxySettings.proxyingDisabledSchemes)
-    Authenticator.setDefault(proxySettings.authenticator)
   }
+
+  def setupAuthenticator(user: String, password: String): Unit = {
+    val a = new Authenticator {
+      override def getPasswordAuthentication: PasswordAuthentication =
+        new PasswordAuthentication(user, password.toCharArray)
+    }
+    Authenticator.setDefault(a)
+  }
+
 }

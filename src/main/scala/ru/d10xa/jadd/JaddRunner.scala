@@ -1,5 +1,7 @@
 package ru.d10xa.jadd
 
+import java.net.URI
+
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.cli.Cli
 import ru.d10xa.jadd.cli.Command.Repl
@@ -25,8 +27,13 @@ class JaddRunner(
     }
 
     def initProxy(proxyStr: String): Unit = {
-      val proxySettings = ProxySettings(proxyStr)
+      val proxyUri = new URI(proxyStr)
+      val proxySettings = ProxySettings(proxyUri)
       ProxySettings.set(proxySettings)
+      (proxySettings.httpProxyUser, proxySettings.httpProxyPassword) match {
+        case (Some(u), Some(p)) => ProxySettings.setupAuthenticator(u, p)
+        case _ => // do nothing
+      }
     }
 
     def runOnceForRepl(args: Array[String]): Unit =

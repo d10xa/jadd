@@ -9,7 +9,7 @@ case class CodeBlock(
 
 object CodeBlock {
 
-  val braces = Map(
+  val braces: Map[Char, Char] = Map(
     '{' -> '}',
     '(' -> ')',
   )

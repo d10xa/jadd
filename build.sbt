@@ -26,6 +26,8 @@ scalacOptions ++= Seq(
 
 enablePlugins(JavaAppPackaging)
 
+coverageExcludedPackages := ".*\\.generated\\..*"
+
 libraryDependencies ++= Seq(
   scalaXml,
   scopt,
@@ -36,5 +38,6 @@ libraryDependencies ++= Seq(
   "org.jline" % "jline" % "3.7.1",
   "com.lihaoyi" %% "ujson" % "0.6.6",
   "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.5",
+  "org.antlr" % "antlr4-runtime" % "4.7.1",
   "com.github.tomakehurst" % "wiremock" % "2.18.0" % Test
 )

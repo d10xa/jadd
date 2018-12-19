@@ -1,0 +1,12 @@
+grammar SbtDependencies;
+percents : '%' | '%%';
+singleDependency : ScalaString percents ScalaString '%' ScalaString ('%' ('Test' | '"test"'))? ;
+multipleDependencies : singleDependency (',' singleDependency)* ;
+libraryDependencies : 'libraryDependencies' '++=' ('Seq' | 'List' | 'Vector') '(' multipleDependencies? ')' ;
+libraryDependency : 'libraryDependencies' '+=' singleDependency ;
+ScalaString : '"' Character* '"' ;
+WS :   ('\u0020' | '\u0009' | '\u000D' | '\u000A') -> skip ;
+Character : '\u0020' | '\u0021' | '\u0023' .. '\u007F' ;
+NEWLINE : '\n'+ -> skip ;
+COMMENT :   '/*' .*? '*/' -> skip ;
+LINE_COMMENT :   '//' (~[\r\n])* -> skip ;

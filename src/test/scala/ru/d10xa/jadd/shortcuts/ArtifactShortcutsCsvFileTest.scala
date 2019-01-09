@@ -25,8 +25,17 @@ class ArtifactShortcutsCsvFileTest extends FunSuite with Matchers {
     lines.map(_.count(_ == ',')).distinct shouldEqual Vector(1)
   }
 
-  test("shourtcuts unique") {
-    shortcuts.size shouldEqual shortcuts.distinct.size
+  implicit class SeqDuplicatesImplicits[T](seq: Seq[T]) {
+    def duplicates(): Iterable[T] =
+      seq
+        .groupBy(identity)
+        .collect { case (x, xs) if xs.lengthCompare(1) > 0 => x }
+  }
+
+  test("shortcuts unique") {
+    val duplicates = shortcuts.duplicates()
+    duplicates.map(d => s"duplicate: $d").foreach(println)
+    duplicates.size shouldEqual 0
   }
 
   test("artifacts unique") {

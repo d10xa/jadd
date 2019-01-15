@@ -10,7 +10,8 @@ import scala.util.Try
 class ArtifactInfoFinder(
   artifactShortcuts: ArtifactShortcuts = new ArtifactShortcuts(),
   repositoryShortcuts: RepositoryShortcuts = RepositoryShortcutsImpl,
-  artifactInfoBasePath: String = ArtifactInfoFinder.DEFAULT_ARTIFACT_INFO_BASE_PATH
+  artifactInfoBasePath: String =
+    ArtifactInfoFinder.DEFAULT_ARTIFACT_INFO_BASE_PATH
 ) {
 
   import ru.d10xa.jadd.troubles._
@@ -18,7 +19,7 @@ class ArtifactInfoFinder(
   def findArtifactInfo(fullArtifact: String): Option[ArtifactInfo] = {
 
     // if left field is empty then try to add it from right
-    def combineEmptyFields(a: ArtifactInfo, b: ArtifactInfo): ArtifactInfo = {
+    def combineEmptyFields(a: ArtifactInfo, b: ArtifactInfo): ArtifactInfo =
       a.copy(
         repository = a.repository match {
           case o if o.isDefined => o
@@ -29,13 +30,13 @@ class ArtifactInfoFinder(
           case _ => b.scope
         }
       )
-    }
 
     def readFile(fileName: String): Option[ArtifactInfo] = {
       import ujson.Js
 
       implicit class JsOptStr(js: Js) {
-        def optStr(selector: String): Option[String] = Try(js(selector).str).toOption
+        def optStr(selector: String): Option[String] =
+          Try(js(selector).str).toOption
       }
 
       val artifactInfoPath: String = artifactInfoBasePath + fileName
@@ -50,10 +51,13 @@ class ArtifactInfoFinder(
     }
 
     // find file by $groupId:$artifactId.json and then $groupId.json
-    val primary: Option[ArtifactInfo] = readFile(fullArtifact.replaceFirst(":", "__")
-      .replaceFirst("%%", "") + ".json")
+    val primary: Option[ArtifactInfo] = readFile(
+      fullArtifact
+        .replaceFirst(":", "__")
+        .replaceFirst("%%", "") + ".json")
 
-    val secondary: Option[ArtifactInfo] = readFile(fullArtifact.takeWhile(_ != ':') + ".json")
+    val secondary: Option[ArtifactInfo] = readFile(
+      fullArtifact.takeWhile(_ != ':') + ".json")
 
     (primary, secondary) match {
       case (Some(a), Some(b)) => Some(combineEmptyFields(a, b))
@@ -61,11 +65,15 @@ class ArtifactInfoFinder(
     }
   }
 
-  def artifactFromString(artifactRaw: String): Either[ArtifactTrouble, Artifact] = {
+  def artifactFromString(
+    artifactRaw: String
+  ): Either[ArtifactTrouble, Artifact] = {
+
     require(!artifactRaw.contains("("), "artifact contain illegal symbol (")
 
     def shortcutToArtifact: Option[Artifact] =
-      artifactShortcuts.unshort(artifactRaw)
+      artifactShortcuts
+        .unshort(artifactRaw)
         .map(_.split(':'))
         .collect {
           case Array(a, b) =>
@@ -73,10 +81,13 @@ class ArtifactInfoFinder(
         }
 
     val artifact: Either[ArtifactTrouble, Artifact] =
-      if (artifactRaw.contains(":")) Artifact.fromString(artifactRaw)
-      else shortcutToArtifact match {
-        case None => Left(ArtifactNotFoundByAlias(artifactRaw))
-        case Some(a) => Right(a)
+      if (artifactRaw.contains(":")) {
+        Artifact.fromString(artifactRaw)
+      } else {
+        shortcutToArtifact match {
+          case None => Left(ArtifactNotFoundByAlias(artifactRaw))
+          case Some(a) => Right(a)
+        }
       }
 
     def addInfoToArtifact(a: Artifact): Artifact = {

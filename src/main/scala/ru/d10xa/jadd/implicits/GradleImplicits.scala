@@ -6,15 +6,16 @@ import ru.d10xa.jadd.view.ArtifactView
 
 trait GradleImplicits {
 
-  implicit val gradleArtifactView: ArtifactView[Artifact] = (artifact: Artifact) => {
+  implicit val gradleArtifactView: ArtifactView[Artifact] =
+    (artifact: Artifact) => {
 
-    def artifactToString(a: Artifact): String =
-      if (a.scope.contains(Test))
-        s"""testCompile "${a.groupId}:${a.artifactId}:${a.maybeVersion.get}""""
-      else
-        s"""compile "${a.groupId}:${a.artifactId}:${a.maybeVersion.get}""""
+      def artifactToString(a: Artifact): String =
+        if (a.scope.contains(Test))
+          s"""testCompile "${a.groupId}:${a.artifactId}:${a.maybeVersion.get}""""
+        else
+          s"""compile "${a.groupId}:${a.artifactId}:${a.maybeVersion.get}""""
 
-    artifactToString(artifact.inlineScalaVersion) :: Nil
-  }
+      artifactToString(artifact.inlineScalaVersion) :: Nil
+    }
 
 }

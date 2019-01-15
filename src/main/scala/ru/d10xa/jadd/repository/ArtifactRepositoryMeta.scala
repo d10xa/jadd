@@ -14,7 +14,8 @@ sealed case class MavenMetadata(
   url: Option[String] = None,
   repository: Option[String] = None,
   versions: Seq[String] = Seq.empty,
-  lastUpdated: Option[String] = None
+  lastUpdated: Option[String] = None,
+  maybeScalaVersion: Option[String] = None // Metadata from newer to older (scala 2.12, 2.11..)
 ) extends ArtifactRepositoryMeta {
   lazy val lastUpdatedPretty: Option[String] =
     lastUpdated.map(MavenMetadata.lastUpdatedPretty)

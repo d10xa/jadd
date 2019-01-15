@@ -25,8 +25,6 @@ lazy val root = project
 
 enablePlugins(JavaAppPackaging)
 
-coverageExcludedPackages := ".*\\.generated\\..*"
-
 libraryDependencies ++= Seq(
   "org.scala-lang.modules" %% "scala-xml" % "1.1.0",
   "com.github.scopt" %% "scopt" % "3.7.0",

@@ -14,9 +14,10 @@ import ru.d10xa.jadd.versions.VersionTools
 
 import scala.io.Source
 
-class GradlePipeline(override val ctx: Ctx)(implicit artifactInfoFinder: ArtifactInfoFinder)
-  extends Pipeline
-  with StrictLogging {
+class GradlePipeline(override val ctx: Ctx)(
+  implicit artifactInfoFinder: ArtifactInfoFinder)
+    extends Pipeline
+    with StrictLogging {
 
   import ru.d10xa.jadd.implicits.gradle._
 
@@ -29,7 +30,7 @@ class GradlePipeline(override val ctx: Ctx)(implicit artifactInfoFinder: Artifac
   override def install(): Unit = {
     val artifacts = loadAllArtifacts(VersionTools)
     handleArtifacts(artifacts.collect { case Right(v) => v })
-    handleTroubles(artifacts.collect { case Left(v) => v }, s => logger.info(s))
+    findAndHandleTroubles(artifacts, s => logger.info(s))
   }
 
   def handleArtifacts(artifacts: Seq[Artifact]): Unit = {
@@ -47,8 +48,7 @@ class GradlePipeline(override val ctx: Ctx)(implicit artifactInfoFinder: Artifac
     }
   }
 
-  override def show(): Unit = {
+  override def show(): Unit =
     logger.info(new GradleShowCommand(buildFileSource).show())
-  }
 
 }

@@ -69,6 +69,7 @@ class ArtifactInfoFinder(
     artifactRaw: String
   ): Either[ArtifactTrouble, Artifact] = {
 
+    // TODO move to either
     require(!artifactRaw.contains("("), "artifact contain illegal symbol (")
 
     def shortcutToArtifact: Option[Artifact] =

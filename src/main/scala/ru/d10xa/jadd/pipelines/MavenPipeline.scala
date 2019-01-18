@@ -2,6 +2,7 @@ package ru.d10xa.jadd.pipelines
 
 import java.io.File
 
+import cats.data.EitherNel
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
@@ -14,9 +15,10 @@ import ru.d10xa.jadd.versions.VersionTools
 
 import scala.io.Source
 
-class MavenPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: ArtifactInfoFinder)
-  extends Pipeline
-  with StrictLogging {
+class MavenPipeline(override val ctx: Ctx)(
+  implicit artifactInfoFinder: ArtifactInfoFinder)
+    extends Pipeline
+    with StrictLogging {
 
   import ru.d10xa.jadd.implicits.maven._
 
@@ -30,7 +32,7 @@ class MavenPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: Artifact
 
     val indent = Indentation.predictIndentation(buildFileSource.split('\n'))
 
-    val artifactsWithVersions: Seq[Either[ArtifactTrouble, Artifact]] =
+    val artifactsWithVersions: Seq[EitherNel[ArtifactTrouble, Artifact]] =
       loadAllArtifacts(VersionTools)
         .map(_.map(_.inlineScalaVersion))
 
@@ -38,7 +40,10 @@ class MavenPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: Artifact
     val stringsForPrint = artifactsWithVersions
       .collect { case Right(v) => v }
       .map(_ -> indent)
-      .flatMap { case t @ (artifact, _) => asPrintLines(t) ++ availableVersionsAsPrintLines(artifact) }
+      .flatMap {
+        case t @ (artifact, _) =>
+          asPrintLines(t) ++ availableVersionsAsPrintLines(artifact)
+      }
 
     val stringsForInsert = artifactsWithVersions
       .collect { case Right(v) => v }
@@ -46,7 +51,8 @@ class MavenPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: Artifact
       .flatMap(asPrintLines(_))
 
     stringsForPrint.foreach(s => logger.info(s))
-    handleTroubles(artifactsWithVersions.collect { case Left(trouble) => trouble }, s => logger.info(s))
+
+    findAndHandleTroubles(artifactsWithVersions, s => logger.info(s))
 
     def newContent =
       MavenFileInserts
@@ -61,8 +67,7 @@ class MavenPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: Artifact
     }
   }
 
-  override def show(): Unit = {
+  override def show(): Unit =
     logger.info(buildFileSource)
-  }
 
 }

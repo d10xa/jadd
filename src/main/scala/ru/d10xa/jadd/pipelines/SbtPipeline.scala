@@ -9,14 +9,15 @@ import ru.d10xa.jadd.SafeFileWriter
 import ru.d10xa.jadd.inserts.SbtFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.show.SbtShowCommand
-import ru.d10xa.jadd.troubles.handleTroubles
+import ru.d10xa.jadd.troubles.findAndHandleTroubles
 import ru.d10xa.jadd.versions.VersionTools
 
 import scala.io.Source
 
-class SbtPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: ArtifactInfoFinder)
-  extends Pipeline
-  with StrictLogging {
+class SbtPipeline(override val ctx: Ctx)(
+  implicit artifactInfoFinder: ArtifactInfoFinder)
+    extends Pipeline
+    with StrictLogging {
 
   import ru.d10xa.jadd.implicits.sbt._
 
@@ -34,7 +35,8 @@ class SbtPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: ArtifactIn
 
     artifactStrings.foreach(s => logger.info(s))
 
-    val newSource: String = new SbtFileInserts().appendAll(buildFileSource, artifacts)
+    val newSource: String =
+      new SbtFileInserts().appendAll(buildFileSource, artifacts)
 
     if (this.needWrite) {
       new SafeFileWriter().write(buildFile, newSource)
@@ -44,11 +46,10 @@ class SbtPipeline(override val ctx: Ctx)(implicit artifactInfoFinder: ArtifactIn
   override def install(): Unit = {
     val artifacts = loadAllArtifacts(VersionTools)
     handleArtifacts(artifacts.collect { case Right(v) => v })
-    handleTroubles(artifacts.collect { case Left(v) => v }, s => logger.info(s))
+    findAndHandleTroubles(artifacts, s => logger.info(s))
   }
 
-  override def show(): Unit = {
+  override def show(): Unit =
     logger.info(new SbtShowCommand(buildFileSource).show())
-  }
 
 }

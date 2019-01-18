@@ -1,5 +1,7 @@
 package ru.d10xa.jadd
 
+import cats.data.EitherNel
+import cats.data.NonEmptyList
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.repository.MavenMetadata
 import ru.d10xa.jadd.repository.RepositoryApi
@@ -30,7 +32,8 @@ final case class Artifact(
       case (true, Some(scalaVersion)) =>
         s"$groupIdPath/${artifactIdWithScalaVersion(scalaVersion)}"
       case _ =>
-        throw new IllegalStateException(s"artifact $artifactId cannot be represented as path")
+        throw new IllegalStateException(
+          s"artifact $artifactId cannot be represented as path")
     }
   }
 
@@ -76,19 +79,14 @@ final case class Artifact(
         maybeScalaVersion.orElse(mavenMetadata.maybeScalaVersion)
     ).withMetadataUrl(mavenMetadata.url.toString)
 
-  def loadVersions(): Either[ArtifactTrouble, Artifact] = {
-
+  def loadVersions(): EitherNel[ArtifactTrouble, Artifact] = {
     val errOrApi: Either[RepositoryUndefined, RepositoryApi[MavenMetadata]] =
       repository match {
         case Some(r) => Right(RepositoryApi.fromString(r))
         case None => Left(RepositoryUndefined(this))
       }
-
-    val errOrMeta =
-      errOrApi.flatMap(_.receiveRepositoryMeta(this))
-
-    errOrMeta.foreach(m =>
-      logger.info(m.url.getOrElse("Metadata url undefined")))
+    val errOrMeta: Either[NonEmptyList[ArtifactTrouble], MavenMetadata] =
+      errOrApi.left.map(NonEmptyList.one).flatMap(_.receiveRepositoryMeta(this))
 
     val errOrNewArt = errOrMeta.map(merge)
     errOrNewArt

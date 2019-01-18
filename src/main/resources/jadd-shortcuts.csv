@@ -29,6 +29,8 @@ commons-csv,org.apache.commons:commons-csv
 commons-io,commons-io:commons-io
 commons-lang3,org.apache.commons:commons-lang3
 dbunit,org.dbunit:dbunit
+gradle-core,org.gradle:gradle-core
+gradle-tooling-api,org.gradle:gradle-tooling-api
 groovy-all,org.codehaus.groovy:groovy-all
 gson,com.google.code.gson:gson
 guava-testlib,com.google.guava:guava-testlib
@@ -90,6 +92,7 @@ kotlin-test-junit,org.jetbrains.kotlin:kotlin-test-junit
 leveldb,org.iq80.leveldb:leveldb
 logback-classic,ch.qos.logback:logback-classic
 logback-core,ch.qos.logback:logback-core
+maven-core,org.apache.maven:maven-core
 mockito,org.mockito:mockito-core
 modelmapper,org.modelmapper:modelmapper
 mongodb,org.mongodb:mongodb-driver
@@ -121,6 +124,7 @@ quill-spark,io.getquill:quill-spark%%
 quill-sql,io.getquill:quill-sql%%
 rest-assured,io.rest-assured:rest-assured
 retrofit,com.squareup.retrofit2:retrofit
+sbt,org.scala-sbt:sbt
 scala-async,org.scala-lang.modules:scala-async%%
 scala-compiler,org.scala-lang:scala-compiler
 scala-library,org.scala-lang:scala-library

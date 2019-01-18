@@ -3,16 +3,21 @@ package ru.d10xa.jadd.repository
 import java.io.File
 import java.net.URL
 
+import cats.data.EitherNel
+import cats.data.NonEmptyList
 import com.typesafe.scalalogging.LazyLogging
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.troubles.MetadataLoadTrouble
 
+import scala.collection.immutable.Stream
+import scala.collection.immutable.Stream.cons
 import scala.util.control.NonFatal
 import scala.xml.XML
 
 sealed trait RepositoryApi[+T <: ArtifactRepositoryMeta] {
   def repository: String
-  def receiveRepositoryMeta(artifact: Artifact): Either[MetadataLoadTrouble, T]
+  def receiveRepositoryMeta(
+    artifact: Artifact): EitherNel[MetadataLoadTrouble, T]
 }
 
 object RepositoryApi {
@@ -39,22 +44,37 @@ trait MavenMetadataBase extends LazyLogging {
     artifact: Artifact,
     artifactPath: String): Either[MetadataLoadTrouble, MavenMetadata]
   def receiveRepositoryMeta(
-    artifact: Artifact): Either[MetadataLoadTrouble, MavenMetadata] = {
+    artifact: Artifact): EitherNel[MetadataLoadTrouble, MavenMetadata] = {
 
-    val seq = if (artifact.isScala && artifact.maybeScalaVersion.isEmpty) {
-      Seq("2.12", "2.11").toStream
-        .map(scalaVersion =>
-          artifact.copy(maybeScalaVersion = Some(scalaVersion)))
-        .map(a => receiveRepositoryMetaWithArtifactPath(a, a.asPath))
-    } else {
-      Seq(receiveRepositoryMetaWithArtifactPath(artifact, artifact.asPath))
+    implicit class StreamImplicits[A](s: Stream[A]) {
+      def takeUntil(p: A => Boolean): Stream[A] =
+        if (s.isEmpty) Stream.empty
+        else if (p(s.head)) cons(s.head, s.tail.takeUntil(p))
+        else Stream(s.head)
     }
 
-    // TODO refactoring
-    seq
-      .collectFirst { case Right(value) => value }
-      .map(Right(_))
-      .getOrElse(Left(MetadataLoadTrouble(artifact, seq.head.left.get.cause)))
+    import cats.implicits._
+
+    val metas: NonEmptyList[Either[MetadataLoadTrouble, MavenMetadata]] =
+      if (artifact.isScala && artifact.maybeScalaVersion.isEmpty) {
+
+        List("2.12", "2.11").toStream
+          .map(scalaVersion =>
+            artifact.copy(maybeScalaVersion = Some(scalaVersion)))
+          .map(a => receiveRepositoryMetaWithArtifactPath(a, a.asPath))
+          .takeUntil(_.isLeft) // take all Left and single Right
+          .toList
+          .toNel
+          .get // get is safe, because of explicit initial List definition
+      } else {
+        NonEmptyList.one(
+          receiveRepositoryMetaWithArtifactPath(artifact, artifact.asPath))
+      }
+
+    val (troubles, maybeArtifactList) = metas.toList.separate
+
+    if (maybeArtifactList.nonEmpty) maybeArtifactList.head.asRight
+    else troubles.toNel.get.asLeft
   }
 }
 

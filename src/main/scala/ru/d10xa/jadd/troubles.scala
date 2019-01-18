@@ -1,5 +1,7 @@
 package ru.d10xa.jadd
 
+import cats.data.EitherNel
+
 object troubles {
 
   type ErrorOrArtifact = Either[ArtifactTrouble, Artifact]
@@ -14,6 +16,18 @@ object troubles {
   case class ArtifactNotFoundByAlias(alias: String) extends ArtifactTrouble
 
   case object WrongArtifactRaw extends ArtifactTrouble
+
+  def findAndHandleTroubles(
+    artifacts: Seq[EitherNel[ArtifactTrouble, Artifact]],
+    action: String => Unit): Unit = {
+    val troubles = artifacts.flatMap { e =>
+      e match {
+        case Right(_) => Seq.empty
+        case Left(t) => t.toList
+      }
+    }
+    handleTroubles(troubles, action)
+  }
 
   def handleTroubles(
     troubles: Seq[ArtifactTrouble],

@@ -9,14 +9,13 @@ import ru.d10xa.jadd.SafeFileWriter
 import ru.d10xa.jadd.inserts.GradleFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.show.GradleShowCommand
-import ru.d10xa.jadd.troubles._
-import ru.d10xa.jadd.versions.VersionTools
 
 import scala.io.Source
 
-class GradlePipeline(override val ctx: Ctx)(
-  implicit artifactInfoFinder: ArtifactInfoFinder)
-    extends Pipeline
+class GradlePipeline(
+  override val ctx: Ctx,
+  artifactInfoFinder: ArtifactInfoFinder
+) extends Pipeline
     with StrictLogging {
 
   import ru.d10xa.jadd.implicits.gradle._
@@ -27,16 +26,9 @@ class GradlePipeline(override val ctx: Ctx)(
 
   override def applicable: Boolean = buildFile.exists()
 
-  override def install(): Unit = {
-    val artifacts = loadAllArtifacts(VersionTools)
-    handleArtifacts(artifacts.collect { case Right(v) => v })
-    findAndHandleTroubles(artifacts, s => logger.info(s))
-  }
-
-  def handleArtifacts(artifacts: Seq[Artifact]): Unit = {
+  override def install(artifacts: List[Artifact]): Unit = {
     val artifactStrings: Seq[String] = artifacts
       .flatMap(a => asPrintLines(a) ++ availableVersionsAsPrintLines(a))
-      .toList
 
     artifactStrings.foreach(s => logger.info(s))
 

@@ -1,6 +1,9 @@
 package ru.d10xa.jadd.pipelines
 
+import cats.implicits._
 import cats.data.EitherNel
+import cats.data.NonEmptyList
+import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.Utils
@@ -8,13 +11,25 @@ import ru.d10xa.jadd.cli.Command.Install
 import ru.d10xa.jadd.cli.Command.Show
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.troubles.ArtifactTrouble
+import ru.d10xa.jadd.troubles.handleTroubles
 import ru.d10xa.jadd.versions.VersionTools
 import ru.d10xa.jadd.view.ArtifactView
 
-trait Pipeline {
+trait Pipeline extends StrictLogging {
   def applicable: Boolean
-  def run(): Unit = if (ctx.config.command == Show) show() else install()
-  def install(): Unit
+  def run(artifactInfoFinder: ArtifactInfoFinder): Unit =
+    if (ctx.config.command == Show) {
+      show()
+    } else {
+      val loaded: List[Either[NonEmptyList[ArtifactTrouble], Artifact]] =
+        loadAllArtifacts(VersionTools, artifactInfoFinder)
+      val a: (List[NonEmptyList[ArtifactTrouble]], List[Artifact]) =
+        loaded.separate
+      val x = a._1.flatMap(_.toList)
+      install(a._2)
+      handleTroubles(x, s => logger.info(s))
+    }
+  def install(artifacts: List[Artifact]): Unit
   def show(): Unit
   def ctx: Ctx
   def needWrite: Boolean = ctx.config.command == Install && !ctx.config.dryRun
@@ -24,9 +39,9 @@ trait Pipeline {
     "available versions:" :: a.versionsForPrint :: Nil
 
   def loadAllArtifacts(
-    versionTools: VersionTools
-  )(implicit artifactInfoFinder: ArtifactInfoFinder)
-    : Seq[EitherNel[ArtifactTrouble, Artifact]] = {
+    versionTools: VersionTools,
+    artifactInfoFinder: ArtifactInfoFinder
+  ): List[Either[NonEmptyList[ArtifactTrouble], Artifact]] = {
 
     val unshorted: Seq[Artifact] = Utils
       .unshortAll(ctx.config.artifacts.toList, artifactInfoFinder)
@@ -45,6 +60,6 @@ trait Pipeline {
       res
         .find(_.isRight)
         .getOrElse(res.head)
-    }
+    }.toList
   }
 }

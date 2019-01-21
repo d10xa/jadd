@@ -7,12 +7,11 @@ import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
-import ru.d10xa.jadd.troubles._
-import ru.d10xa.jadd.versions.VersionTools
 
-class UnknownProjectPipeline(val ctx: Ctx)(
-  implicit artifactInfoFinder: ArtifactInfoFinder)
-    extends Pipeline
+class UnknownProjectPipeline(
+  override val ctx: Ctx,
+  artifactInfoFinder: ArtifactInfoFinder
+) extends Pipeline
     with StrictLogging {
 
   /**
@@ -20,7 +19,7 @@ class UnknownProjectPipeline(val ctx: Ctx)(
     */
   override def applicable: Boolean = true
 
-  override def install(): Unit = {
+  override def install(artifacts: List[Artifact]): Unit = {
 
     logger.info(
       s"build tool not recognized in directory ${ctx.config.projectDir}")
@@ -32,17 +31,10 @@ class UnknownProjectPipeline(val ctx: Ctx)(
            |version: ${a.maybeVersion.getOrElse("???")}""".stripMargin
       }
 
-    val artifacts =
-      loadAllArtifacts(VersionTools).toList
-        .map(_.map(_.inlineScalaVersion))
-
-    val (e, a) = artifacts
-      .map(_.map(_.show))
-      .separate
-
-    a.foreach(i => logger.info(i))
-    if (e.nonEmpty) logger.info("ERRORS:")
-    findAndHandleTroubles(artifacts, s => logger.info(s))
+    artifacts
+      .map(_.inlineScalaVersion)
+      .map(_.show)
+      .foreach(i => logger.info(i))
   }
 
   override def show(): Unit =

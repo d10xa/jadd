@@ -22,7 +22,7 @@ class CommandExecutorImpl extends CommandExecutor {
 
   lazy val analyzeCommand = new AnalyzeCommandImpl
 
-  override def execute(config: Config, showUsage: () => Unit): Unit = {
+  override def execute(config: Config, showUsage: () => Unit): Unit =
     config match {
       case c if c.command == Repl =>
         Unit // already in repl
@@ -33,27 +33,27 @@ class CommandExecutorImpl extends CommandExecutor {
       case c =>
         executePipelines(c)
     }
-  }
 
   def executePipelines(config: Config): Unit = {
-    implicit val artifactInfoFinder: ArtifactInfoFinder =
+    val artifactInfoFinder: ArtifactInfoFinder =
       new ArtifactInfoFinder(
-        artifactShortcuts = new ArtifactShortcuts(Utils.sourceFromSpringUri(config.shortcutsUri)),
+        artifactShortcuts =
+          new ArtifactShortcuts(Utils.sourceFromSpringUri(config.shortcutsUri)),
         repositoryShortcuts = RepositoryShortcutsImpl
       )
     val ctx = Ctx(config)
     val pipelines: List[Pipeline] = List(
-      new GradlePipeline(ctx),
-      new MavenPipeline(ctx),
-      new SbtPipeline(ctx)
+      new GradlePipeline(ctx, artifactInfoFinder),
+      new MavenPipeline(ctx, artifactInfoFinder),
+      new SbtPipeline(ctx, artifactInfoFinder)
     )
 
     val activePipelines =
       Option(pipelines.filter(_.applicable))
         .filter(_.nonEmpty)
-        .getOrElse(Seq(new UnknownProjectPipeline(ctx)))
+        .getOrElse(Seq(new UnknownProjectPipeline(ctx, artifactInfoFinder)))
 
-    activePipelines.foreach(_.run())
+    activePipelines.foreach(_.run(artifactInfoFinder))
   }
 
 }

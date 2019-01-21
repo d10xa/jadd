@@ -9,13 +9,10 @@ import ru.d10xa.jadd.SafeFileWriter
 import ru.d10xa.jadd.inserts.SbtFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.show.SbtShowCommand
-import ru.d10xa.jadd.troubles.findAndHandleTroubles
-import ru.d10xa.jadd.versions.VersionTools
 
 import scala.io.Source
 
-class SbtPipeline(override val ctx: Ctx)(
-  implicit artifactInfoFinder: ArtifactInfoFinder)
+class SbtPipeline(override val ctx: Ctx, artifactInfoFinder: ArtifactInfoFinder)
     extends Pipeline
     with StrictLogging {
 
@@ -27,11 +24,10 @@ class SbtPipeline(override val ctx: Ctx)(
 
   def buildFileSource: String = Source.fromFile(buildFile).mkString
 
-  def handleArtifacts(artifacts: Seq[Artifact]): Unit = {
+  def install(artifacts: List[Artifact]): Unit = {
 
     val artifactStrings: Seq[String] = artifacts
       .flatMap(a => asPrintLines(a) ++ availableVersionsAsPrintLines(a))
-      .toList
 
     artifactStrings.foreach(s => logger.info(s))
 
@@ -41,12 +37,6 @@ class SbtPipeline(override val ctx: Ctx)(
     if (this.needWrite) {
       new SafeFileWriter().write(buildFile, newSource)
     }
-  }
-
-  override def install(): Unit = {
-    val artifacts = loadAllArtifacts(VersionTools)
-    handleArtifacts(artifacts.collect { case Right(v) => v })
-    findAndHandleTroubles(artifacts, s => logger.info(s))
   }
 
   override def show(): Unit =

@@ -2,7 +2,6 @@ package ru.d10xa.jadd.pipelines
 
 import java.io.File
 
-import cats.data.EitherNel
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
@@ -10,14 +9,13 @@ import ru.d10xa.jadd.Indentation
 import ru.d10xa.jadd.SafeFileWriter
 import ru.d10xa.jadd.inserts.MavenFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
-import ru.d10xa.jadd.troubles._
-import ru.d10xa.jadd.versions.VersionTools
 
 import scala.io.Source
 
-class MavenPipeline(override val ctx: Ctx)(
-  implicit artifactInfoFinder: ArtifactInfoFinder)
-    extends Pipeline
+class MavenPipeline(
+  override val ctx: Ctx,
+  artifactInfoFinder: ArtifactInfoFinder
+) extends Pipeline
     with StrictLogging {
 
   import ru.d10xa.jadd.implicits.maven._
@@ -28,17 +26,14 @@ class MavenPipeline(override val ctx: Ctx)(
 
   override def applicable: Boolean = buildFile.exists()
 
-  override def install(): Unit = {
+  override def install(artifacts: List[Artifact]): Unit = {
 
     val indent = Indentation.predictIndentation(buildFileSource.split('\n'))
 
-    val artifactsWithVersions: Seq[EitherNel[ArtifactTrouble, Artifact]] =
-      loadAllArtifacts(VersionTools)
-        .map(_.map(_.inlineScalaVersion))
+    val artifactsWithVersions = artifacts.map(_.inlineScalaVersion)
 
     // TODO stringsForPrint, stringsForInsert refactoring
     val stringsForPrint = artifactsWithVersions
-      .collect { case Right(v) => v }
       .map(_ -> indent)
       .flatMap {
         case t @ (artifact, _) =>
@@ -46,13 +41,10 @@ class MavenPipeline(override val ctx: Ctx)(
       }
 
     val stringsForInsert = artifactsWithVersions
-      .collect { case Right(v) => v }
       .map(_ -> indent)
       .flatMap(asPrintLines(_))
 
     stringsForPrint.foreach(s => logger.info(s))
-
-    findAndHandleTroubles(artifactsWithVersions, s => logger.info(s))
 
     def newContent =
       MavenFileInserts

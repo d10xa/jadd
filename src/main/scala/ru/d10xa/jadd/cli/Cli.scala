@@ -46,6 +46,10 @@ object Cli extends Cli {
     opt[Seq[String]]("repository")
       .action((x, c) => c.copy(repositories = x))
 
+    opt[String]("proxy")
+      .text("http proxy. (Format http://host:port or http://user:password@host:port)")
+      .action((x, c) => c.copy(proxy = Some(x)))
+
     opt[String]("shortcuts-uri")
       .text("Specifies uri for artifacts shortcuts csv file")
       .action((x, c) => c.copy(shortcutsUri = x))

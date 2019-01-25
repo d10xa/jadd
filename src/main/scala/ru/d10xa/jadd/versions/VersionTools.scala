@@ -1,33 +1,43 @@
 package ru.d10xa.jadd.versions
 
 import cats.data.EitherNel
+import cats.data.NonEmptyList
 import ru.d10xa.jadd.Artifact
+import ru.d10xa.jadd.repository.MavenMetadata
+import ru.d10xa.jadd.repository.RepositoryApi
 import ru.d10xa.jadd.troubles.ArtifactTrouble
+import ru.d10xa.jadd.troubles.RepositoryUndefined
 
 trait VersionTools {
 
   // TODO api refactoring
 
-  def excludeNonRelease(versions: Seq[String]): Seq[String]
-  def loadLatestVersion(
+  def loadVersionAndInitLatest(
     artifact: Artifact): EitherNel[ArtifactTrouble, Artifact]
 }
 
 object VersionTools extends VersionTools {
 
-  override def loadLatestVersion(
-    artifact: Artifact): EitherNel[ArtifactTrouble, Artifact] =
-    artifact
-      .loadVersions()
-      .map(_.initLatestVersion())
+  def loadVersions(artifact: Artifact): EitherNel[ArtifactTrouble, Artifact] = {
 
-  override def excludeNonRelease(versions: Seq[String]): Seq[String] = {
-    val exclude = Seq("rc", "alpha", "beta", "m")
-    val filteredVersions =
-      versions.filter { version =>
-        !exclude.exists(version.toLowerCase.contains(_))
+    val errOrApi: Either[RepositoryUndefined, RepositoryApi[MavenMetadata]] =
+      artifact.repository match {
+        case Some(r) => Right(RepositoryApi.fromString(r))
+        case None => Left(RepositoryUndefined(artifact))
       }
-    if (filteredVersions.isEmpty) versions else filteredVersions
+    val errOrMeta: Either[NonEmptyList[ArtifactTrouble], MavenMetadata] =
+      errOrApi.left
+        .map(NonEmptyList.one)
+        .flatMap(_.receiveRepositoryMeta(artifact))
+
+    val errOrNewArt = errOrMeta.map(artifact.merge)
+    errOrNewArt
   }
+
+  override def loadVersionAndInitLatest(
+    artifact: Artifact
+  ): EitherNel[ArtifactTrouble, Artifact] =
+    loadVersions(artifact)
+      .map(_.initLatestVersion())
 
 }

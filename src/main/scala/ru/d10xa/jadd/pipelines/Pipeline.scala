@@ -53,7 +53,7 @@ trait Pipeline extends StrictLogging {
 
       val res: Seq[EitherNel[ArtifactTrouble, Artifact]] =
         artifactWithRepo.toStream
-          .map(versionTools.loadLatestVersion)
+          .map(versionTools.loadVersionAndInitLatest)
 
       res
         .find(_.isRight)

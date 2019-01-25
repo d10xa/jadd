@@ -1,14 +1,10 @@
 package ru.d10xa.jadd
 
-import cats.data.EitherNel
-import cats.data.NonEmptyList
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.repository.MavenMetadata
-import ru.d10xa.jadd.repository.RepositoryApi
 import ru.d10xa.jadd.troubles.ArtifactTrouble
-import ru.d10xa.jadd.troubles.RepositoryUndefined
 import ru.d10xa.jadd.troubles.WrongArtifactRaw
-import ru.d10xa.jadd.versions.VersionTools
+import ru.d10xa.jadd.versions.VersionFilter
 
 final case class Artifact(
   groupId: String,
@@ -54,6 +50,16 @@ final case class Artifact(
     artifactId.replace("%%", s"_$v")
   }
 
+  def merge(mavenMetadata: MavenMetadata): Artifact =
+    this
+      .copy(
+        availableVersions = mavenMetadata.versions.reverse,
+        mavenMetadata = Some(mavenMetadata),
+        maybeScalaVersion =
+          this.maybeScalaVersion.orElse(mavenMetadata.maybeScalaVersion)
+      )
+      .withMetadataUrl(mavenMetadata.url.toString)
+
   def withMetadataUrl(url: String): Artifact = {
     val newMeta: Option[MavenMetadata] =
       mavenMetadata
@@ -71,31 +77,11 @@ final case class Artifact(
     case None => s"$groupId:$artifactId"
   }
 
-  def merge(mavenMetadata: MavenMetadata): Artifact =
-    copy(
-      availableVersions = mavenMetadata.versions.reverse,
-      mavenMetadata = Some(mavenMetadata),
-      maybeScalaVersion =
-        maybeScalaVersion.orElse(mavenMetadata.maybeScalaVersion)
-    ).withMetadataUrl(mavenMetadata.url.toString)
-
-  def loadVersions(): EitherNel[ArtifactTrouble, Artifact] = {
-    val errOrApi: Either[RepositoryUndefined, RepositoryApi[MavenMetadata]] =
-      repository match {
-        case Some(r) => Right(RepositoryApi.fromString(r))
-        case None => Left(RepositoryUndefined(this))
-      }
-    val errOrMeta: Either[NonEmptyList[ArtifactTrouble], MavenMetadata] =
-      errOrApi.left.map(NonEmptyList.one).flatMap(_.receiveRepositoryMeta(this))
-
-    val errOrNewArt = errOrMeta.map(merge)
-    errOrNewArt
-  }
-
-  def initLatestVersion(versionTools: VersionTools = VersionTools): Artifact =
+  def initLatestVersion(
+    versionFilter: VersionFilter = VersionFilter): Artifact =
     copy(
       maybeVersion =
-        versionTools.excludeNonRelease(availableVersions).headOption)
+        versionFilter.excludeNonRelease(availableVersions).headOption)
 
 }
 

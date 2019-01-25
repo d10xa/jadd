@@ -1,7 +1,6 @@
 package ru.d10xa.jadd.pipelines
 
 import cats.implicits._
-import cats.data.EitherNel
 import cats.data.NonEmptyList
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.Artifact
@@ -12,6 +11,7 @@ import ru.d10xa.jadd.cli.Command.Show
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.troubles.ArtifactTrouble
 import ru.d10xa.jadd.troubles.handleTroubles
+import ru.d10xa.jadd.versions.ArtifactVersionsDownloader
 import ru.d10xa.jadd.versions.VersionTools
 import ru.d10xa.jadd.view.ArtifactView
 
@@ -44,19 +44,9 @@ trait Pipeline extends StrictLogging {
     artifacts: Seq[Artifact],
     versionTools: VersionTools
   ): List[Either[NonEmptyList[ArtifactTrouble], Artifact]] =
-    artifacts.map { artifact =>
-      val artifactWithRepo =
-        if (artifact.repository.isDefined) Seq(artifact)
-        else
-          ctx.config.repositories.map(repo =>
-            artifact.copy(repository = Some(repo)))
-
-      val res: Seq[EitherNel[ArtifactTrouble, Artifact]] =
-        artifactWithRepo.toStream
-          .map(versionTools.loadVersionAndInitLatest)
-
-      res
-        .find(_.isRight)
-        .getOrElse(res.head)
-    }.toList
+    artifacts
+      .map(
+        ArtifactVersionsDownloader
+          .loadArtifactVersions(_, ctx.config.repositories, versionTools))
+      .toList
 }

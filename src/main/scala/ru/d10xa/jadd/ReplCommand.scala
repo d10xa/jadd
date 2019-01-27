@@ -37,24 +37,33 @@ object ReplCommand extends StrictLogging {
         .parser(parser)
         .build
 
-    def readLine(): String = reader.readLine(prompt, rightPrompt, null.asInstanceOf[MaskingCallback], null)
+    def readLine(): String =
+      reader.readLine(
+        prompt,
+        rightPrompt,
+        null.asInstanceOf[MaskingCallback],
+        null)
   }
 
   class JaddCompleter extends org.jline.reader.Completer {
 
+    private val commandsNeedCompletion = Set("install", "search", "i", "s")
     private val replCommands = Seq("install", "search", "show", "help", "exit")
     private lazy val deps = new ArtifactShortcuts().shortcuts.values
 
-    override def complete(reader: LineReader, line: ParsedLine, candidates: util.List[Candidate]): Unit = {
+    override def complete(
+      reader: LineReader,
+      line: ParsedLine,
+      candidates: util.List[Candidate]): Unit =
       if (line.wordIndex == 0) {
         replCommands.foreach(c => candidates.add(new Candidate(c)))
+      } else {
+        line.words().asScala.headOption.foreach { command =>
+          if (commandsNeedCompletion.contains(command)) {
+            deps.foreach(d => candidates.add(new Candidate(d)))
+          }
+        }
       }
-      line.words().asScala.toList match {
-        case x :: xs if x == "install" || x == "search" =>
-          deps.foreach(d => candidates.add(new Candidate(d)))
-        case _ =>
-      }
-    }
   }
 
   def runRepl(action: Array[String] => Unit): Unit = {
@@ -64,13 +73,14 @@ object ReplCommand extends StrictLogging {
     while (running) {
       val line: String = readReplString(replContext)
       running = needContinue(line)
-      if(running) {
+      if (running) {
         action(line.split(" "))
       }
     }
   }
 
-  def needContinue(line: String): Boolean = line.trim != "exit" && line.trim != "quit"
+  def needContinue(line: String): Boolean =
+    line.trim != "exit" && line.trim != "quit"
 
   def readReplString(replContext: ReplContext): String =
     Try(replContext.readLine())

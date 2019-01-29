@@ -8,22 +8,27 @@ import scala.io.BufferedSource
 import scala.io.Source
 
 trait Utils {
-  def unshortAll(rawDependencies: List[String], artifactInfoFinder: ArtifactInfoFinder): List[Artifact]
+  def unshortAll(
+    rawDependencies: List[String],
+    artifactInfoFinder: ArtifactInfoFinder): List[Artifact]
   def sourceFromSpringUri(string: String): BufferedSource
   def mkStringFromResource(resource: String): String
 }
 
 object Utils extends Utils with StrictLogging {
-  override def unshortAll(rawDependencies: List[String], artifactInfoFinder: ArtifactInfoFinder): List[Artifact] =
+  override def unshortAll(
+    rawDependencies: List[String],
+    artifactInfoFinder: ArtifactInfoFinder): List[Artifact] =
     rawDependencies
-      .flatMap(raw => artifactInfoFinder.artifactFromString(raw) match {
-        case Right(artifact) => artifact :: Nil
-        case Left(_: ArtifactNotFoundByAlias) =>
-          logger.info(s"$raw - artifact not found by shortcut")
-          Nil
-        case Left(trouble) =>
-          logger.info(s"some error occurred $trouble")
-          Nil
+      .flatMap(raw =>
+        artifactInfoFinder.artifactFromString(raw) match {
+          case Right(artifact) => artifact :: Nil
+          case Left(_: ArtifactNotFoundByAlias) =>
+            logger.info(s"$raw - artifact not found by shortcut")
+            Nil
+          case Left(trouble) =>
+            logger.info(s"some error occurred $trouble")
+            Nil
       })
 
   override def sourceFromSpringUri(string: String): BufferedSource =
@@ -34,8 +39,10 @@ object Utils extends Utils with StrictLogging {
     val source = if (resource.startsWith("classpath:")) {
       val str = resource.drop(10)
       Source.fromResource(str)
-    } else {
+    } else if (resource.contains("://")) {
       Source.fromURL(resource)
+    } else {
+      Source.fromFile(resource)
     }
     val s = source.mkString
     source.close()

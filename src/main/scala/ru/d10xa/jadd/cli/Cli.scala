@@ -21,11 +21,12 @@ object Cli extends Cli {
 
     head("jadd", Ctx.version)
 
-    def multipleArtifacts: OptionDef[String, Config] = arg[String]("<artifact>...")
-      .text("unbounded args")
-      .action((x, c) => c.copy(artifacts = c.artifacts :+ x))
-      .unbounded()
-      .optional()
+    def multipleArtifacts: OptionDef[String, Config] =
+      arg[String]("<artifact>...")
+        .text("unbounded args")
+        .action((x, c) => c.copy(artifacts = c.artifacts :+ x))
+        .unbounded()
+        .optional()
 
     opt[Unit]("dry-run")
       .text("read-only mode")
@@ -43,11 +44,16 @@ object Cli extends Cli {
       .text("Specifies the project directory. Defaults to current directory.")
       .action((x, c) => c.copy(projectDir = x))
 
+    opt[Seq[String]]('r', "requirements")
+      .text("Install from the given requirements file/url")
+      .action((x, c) => c.copy(requirements = x))
+
     opt[Seq[String]]("repository")
       .action((x, c) => c.copy(repositories = x))
 
     opt[String]("proxy")
-      .text("http proxy. (Format http://host:port or http://user:password@host:port)")
+      .text(
+        "http proxy. (Format http://host:port or http://user:password@host:port)")
       .action((x, c) => c.copy(proxy = Some(x)))
 
     opt[String]("shortcuts-uri")
@@ -79,7 +85,8 @@ object Cli extends Cli {
       .action((_, c) => c.copy(command = Show))
 
     cmd("analyze")
-      .text("search dependency in multiple repositories and print all available versions")
+      .text(
+        "search dependency in multiple repositories and print all available versions")
       .action((_, c) => c.copy(command = Analyze))
       .children(multipleArtifacts)
 
@@ -89,7 +96,8 @@ object Cli extends Cli {
   }
 
   override def parse(args: Array[String]): Config = {
-    val config = parser.parse(args, Config())
+    val config = parser
+      .parse(args, Config())
       .getOrElse(Config(command = Help))
     config.copy(usage = parser.usage)
   }

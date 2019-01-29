@@ -6,6 +6,7 @@ case class Config(
   usage: String = "",
   command: Command = Repl,
   artifacts: Seq[String] = Seq.empty,
+  requirements: Seq[String] = Seq.empty,
   projectDir: String = System.getProperty("user.dir"),
   shortcutsUri: String = "classpath:jadd-shortcuts.csv",
   repositories: Seq[String] = Seq(

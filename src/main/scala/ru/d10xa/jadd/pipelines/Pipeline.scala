@@ -21,8 +21,9 @@ trait Pipeline extends StrictLogging {
     if (ctx.config.command == Show) {
       show()
     } else {
+      val artifacts = Pipeline.extractArtifacts(ctx)
       val unshorted: Seq[Artifact] = Utils
-        .unshortAll(ctx.config.artifacts.toList, artifactInfoFinder)
+        .unshortAll(artifacts.toList, artifactInfoFinder)
       val loaded: List[Either[NonEmptyList[ArtifactTrouble], Artifact]] =
         loadAllArtifacts(unshorted, VersionTools)
       val a: (List[NonEmptyList[ArtifactTrouble]], List[Artifact]) =
@@ -49,4 +50,19 @@ trait Pipeline extends StrictLogging {
         ArtifactVersionsDownloader
           .loadArtifactVersions(_, ctx.config.repositories, versionTools))
       .toList
+}
+
+object Pipeline {
+
+  def extractArtifacts(ctx: Ctx): Seq[String] =
+    if (ctx.config.requirements.nonEmpty) {
+      for {
+        requirement <- ctx.config.requirements
+        source = Utils.mkStringFromResource(requirement)
+        artifact <- source.trim.split("\\r?\\n").map(_.trim)
+      } yield artifact
+    } else {
+      ctx.config.artifacts
+    }
+
 }

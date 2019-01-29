@@ -15,9 +15,8 @@ Just run `jadd` without arguments and enjoy tab completion!
 
 ## usage
 
-    jadd i org.apache.httpcomponents:httpclient
-    jadd i logback-classic gson commons-io io.grpc:grpc-protobuf
-    jadd i mongodb h2 postgresql mysql rest-assured
+    jadd i logback-classic postgresql gson commons-io io.grpc:grpc-protobuf
+    jadd i -r jrequirements.txt
 
 ## commands
 

@@ -2,6 +2,7 @@ package ru.d10xa.jadd
 
 import java.util
 
+import cats.effect.IO
 import com.typesafe.scalalogging.StrictLogging
 import org.jline.reader.Candidate
 import org.jline.reader.Completer
@@ -14,10 +15,13 @@ import org.jline.reader.Parser
 import org.jline.reader.UserInterruptException
 import org.jline.terminal.Terminal
 import org.jline.terminal.TerminalBuilder
+import ru.d10xa.jadd.ReplAutocomplete.ArtifactAutocompleteCache
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
 
 import scala.collection.JavaConverters.asScalaBufferConverter
+import scala.collection.mutable
 import scala.util.Try
+import scala.util.control.NonFatal
 
 object ReplCommand extends StrictLogging {
 
@@ -49,7 +53,11 @@ object ReplCommand extends StrictLogging {
 
     private val commandsNeedCompletion = Set("install", "search", "i", "s")
     private val replCommands = Seq("install", "search", "show", "help", "exit")
-    private lazy val deps = new ArtifactShortcuts().shortcuts.values
+
+    val autocomplete = new ReplAutocomplete(
+      new ArtifactAutocompleteCache(
+        mutable.Set(new ArtifactShortcuts().shortcuts.values.toSeq: _*)
+      ))
 
     override def complete(
       reader: LineReader,
@@ -58,11 +66,30 @@ object ReplCommand extends StrictLogging {
       if (line.wordIndex == 0) {
         replCommands.foreach(c => candidates.add(new Candidate(c)))
       } else {
-        line.words().asScala.headOption.foreach { command =>
-          if (commandsNeedCompletion.contains(command)) {
-            deps.foreach(d => candidates.add(new Candidate(d)))
+        candidates.clear()
+        val word = line.word()
+        line
+          .words()
+          .asScala
+          .headOption
+          .toVector
+          .flatMap { command =>
+            if (commandsNeedCompletion.contains(command)) {
+              autocomplete
+                .complete(word)
+                .handleErrorWith {
+                  case e: org.jsoup.HttpStatusException
+                      if e.getStatusCode == 404 =>
+                    IO.pure(Vector.empty)
+                  case NonFatal(e) =>
+                    logger.warn(e.getMessage)
+                    IO.pure(Vector.empty)
+                }
+                .unsafeRunSync()
+            } else Vector.empty
           }
-        }
+          .map(new Candidate(_))
+          .foreach(candidates.add)
       }
   }
 

@@ -37,3 +37,5 @@ libraryDependencies ++= Seq(
   "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.5",
   "com.github.tomakehurst" % "wiremock" % "2.18.0" % Test
 )
+libraryDependencies += "org.jsoup" % "jsoup" % "1.11.3"
+libraryDependencies += "org.typelevel" %% "cats-effect" % "1.2.0"

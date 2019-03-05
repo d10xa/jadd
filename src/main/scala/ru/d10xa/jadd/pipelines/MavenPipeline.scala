@@ -9,6 +9,7 @@ import ru.d10xa.jadd.Indentation
 import ru.d10xa.jadd.SafeFileWriter
 import ru.d10xa.jadd.inserts.MavenFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
+import ru.d10xa.jadd.show.MavenShowCommand
 
 import scala.io.Source
 
@@ -60,6 +61,6 @@ class MavenPipeline(
   }
 
   override def show(): Unit =
-    logger.info(buildFileSource)
+    logger.info(new MavenShowCommand(buildFileSource).show())
 
 }

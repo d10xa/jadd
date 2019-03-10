@@ -9,6 +9,7 @@ import ru.d10xa.jadd.Utils
 import ru.d10xa.jadd.cli.Command.Install
 import ru.d10xa.jadd.cli.Command.Show
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
+import ru.d10xa.jadd.shortcuts.RepositoryShortcuts
 import ru.d10xa.jadd.troubles.ArtifactTrouble
 import ru.d10xa.jadd.troubles.handleTroubles
 import ru.d10xa.jadd.versions.ArtifactVersionsDownloader
@@ -17,15 +18,20 @@ import ru.d10xa.jadd.view.ArtifactView
 
 trait Pipeline extends StrictLogging {
   def applicable: Boolean
-  def run(artifactInfoFinder: ArtifactInfoFinder): Unit =
+  def run(
+    artifactInfoFinder: ArtifactInfoFinder,
+    repositoryShortcuts: RepositoryShortcuts
+  ): Unit =
     if (ctx.config.command == Show) {
       show()
     } else {
       val artifacts = Pipeline.extractArtifacts(ctx)
       val unshorted: Seq[Artifact] = Utils
         .unshortAll(artifacts.toList, artifactInfoFinder)
+      val repositoriesUnshorted: Seq[String] =
+        ctx.config.repositories.map(repositoryShortcuts.unshortRepository)
       val loaded: List[Either[NonEmptyList[ArtifactTrouble], Artifact]] =
-        loadAllArtifacts(unshorted, VersionTools)
+        loadAllArtifacts(unshorted, VersionTools, repositoriesUnshorted)
       val a: (List[NonEmptyList[ArtifactTrouble]], List[Artifact]) =
         loaded.separate
       val x = a._1.flatMap(_.toList)
@@ -43,12 +49,13 @@ trait Pipeline extends StrictLogging {
 
   def loadAllArtifacts(
     artifacts: Seq[Artifact],
-    versionTools: VersionTools
+    versionTools: VersionTools,
+    repositories: Seq[String]
   ): List[Either[NonEmptyList[ArtifactTrouble], Artifact]] =
     artifacts
       .map(
         ArtifactVersionsDownloader
-          .loadArtifactVersions(_, ctx.config.repositories, versionTools))
+          .loadArtifactVersions(_, repositories, versionTools))
       .toList
 }
 

@@ -3,11 +3,16 @@ package ru.d10xa.jadd
 import org.scalatest.FunSuite
 import org.scalatest.Matchers
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
+import ru.d10xa.jadd.shortcuts.RepositoryShortcutsImpl
+import ru.d10xa.jadd.shortcuts.ArtifactShortcuts.ArtifactShortcutsClasspath
 import ru.d10xa.jadd.troubles.ArtifactNotFoundByAlias
 
 class ArtifactInfoFinderTest extends FunSuite with Matchers {
 
-  val artifactInfoFinder: ArtifactInfoFinder = new ArtifactInfoFinder()
+  val artifactInfoFinder: ArtifactInfoFinder = new ArtifactInfoFinder(
+    artifactShortcuts = ArtifactShortcutsClasspath,
+    repositoryShortcuts = RepositoryShortcutsImpl
+  )
 
   import artifactInfoFinder._
 
@@ -21,17 +26,19 @@ class ArtifactInfoFinderTest extends FunSuite with Matchers {
   }
 
   test("find existent artifact info") {
-    findArtifactInfo("junit:junit") shouldEqual Some(ArtifactInfo(
-      scope = Some("test"),
-      repository = None
-    ))
+    findArtifactInfo("junit:junit") shouldEqual Some(
+      ArtifactInfo(
+        scope = Some("test"),
+        repository = None
+      ))
   }
 
   test("find artifactInfo with bintray repository") {
-    findArtifactInfo("de.heikoseeberger:akka-http-circe%%") shouldEqual Some(ArtifactInfo(
-      scope = None,
-      repository = Some("bintray/hseeberger/maven")
-    ))
+    findArtifactInfo("de.heikoseeberger:akka-http-circe%%") shouldEqual Some(
+      ArtifactInfo(
+        scope = None,
+        repository = Some("bintray/hseeberger/maven")
+      ))
   }
 
   test("find artifact with bintray repository") {
@@ -47,8 +54,9 @@ class ArtifactInfoFinderTest extends FunSuite with Matchers {
     findArtifactInfo("com.example:example") shouldEqual None
   }
 
-  test("unknown shortcut"){
-    artifactFromString("safojasfoi").left.get shouldEqual ArtifactNotFoundByAlias("safojasfoi")
+  test("unknown shortcut") {
+    artifactFromString("safojasfoi").left.get shouldEqual ArtifactNotFoundByAlias(
+      "safojasfoi")
   }
 
 }

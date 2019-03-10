@@ -2,7 +2,7 @@ package ru.d10xa.jadd.shortcuts
 
 import scala.io.Source
 
-class ArtifactShortcuts(source: Source = Source.fromResource("jadd-shortcuts.csv")) {
+class ArtifactShortcuts(source: Source) {
 
   lazy val shortcuts: Map[String, String] = {
     val lines = source
@@ -18,10 +18,12 @@ class ArtifactShortcuts(source: Source = Source.fromResource("jadd-shortcuts.csv
       .toMap
   }
 
-  //  private lazy val shortcutsReversed: Map[String, String] =
-  //    shortcuts.toSeq.map { case (a, b) => (b, a) }.toMap
-
   def unshort(rawArtifact: String): Option[String] =
     shortcuts.get(rawArtifact)
 
+}
+
+object ArtifactShortcuts {
+  object ArtifactShortcutsClasspath
+      extends ArtifactShortcuts(Source.fromResource("jadd-shortcuts.csv"))
 }

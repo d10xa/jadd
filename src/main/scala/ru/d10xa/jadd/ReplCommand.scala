@@ -54,9 +54,13 @@ object ReplCommand extends StrictLogging {
     private val commandsNeedCompletion = Set("install", "search", "i", "s")
     private val replCommands = Seq("install", "search", "show", "help", "exit")
 
+    // TODO Make ability to specify source of shortcuts
+    private val shortcuts: Map[String, String] =
+      ArtifactShortcuts.ArtifactShortcutsClasspath.shortcuts
+
     val autocomplete = new ReplAutocomplete(
       new ArtifactAutocompleteCache(
-        mutable.Set(new ArtifactShortcuts().shortcuts.values.toSeq: _*)
+        mutable.Set(shortcuts.values.toSeq: _*)
       ))
 
     override def complete(

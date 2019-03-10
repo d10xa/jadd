@@ -5,12 +5,13 @@ import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
+import ru.d10xa.jadd.Utils
+import ru.d10xa.jadd.troubles
 import ru.d10xa.jadd.repository.MavenMetadata
 import ru.d10xa.jadd.repository.RepositoryApi
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
 import ru.d10xa.jadd.shortcuts.RepositoryShortcutsImpl
-import ru.d10xa.jadd.troubles
 
 trait AnalyzeCommand {
   def run(ctx: Ctx): Unit
@@ -21,7 +22,8 @@ class AnalyzeCommandImpl extends AnalyzeCommand with StrictLogging {
   override def run(ctx: Ctx): Unit = {
     val config = ctx.config
     val repositoryShortcuts = RepositoryShortcutsImpl
-    val artifactShortcuts = new ArtifactShortcuts()
+    val artifactShortcuts =
+      new ArtifactShortcuts(Utils.sourceFromSpringUri(ctx.config.shortcutsUri))
     val artifactInfoFinder =
       new ArtifactInfoFinder(artifactShortcuts, repositoryShortcuts)
     val artifacts =

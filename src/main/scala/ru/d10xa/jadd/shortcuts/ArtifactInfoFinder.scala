@@ -8,8 +8,8 @@ import ru.d10xa.jadd.Utils
 import scala.util.Try
 
 class ArtifactInfoFinder(
-  artifactShortcuts: ArtifactShortcuts = new ArtifactShortcuts(),
-  repositoryShortcuts: RepositoryShortcuts = RepositoryShortcutsImpl,
+  artifactShortcuts: ArtifactShortcuts,
+  repositoryShortcuts: RepositoryShortcuts,
   artifactInfoBasePath: String =
     ArtifactInfoFinder.DEFAULT_ARTIFACT_INFO_BASE_PATH
 ) {

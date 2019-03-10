@@ -35,11 +35,12 @@ class CommandExecutorImpl extends CommandExecutor {
     }
 
   def executePipelines(config: Config): Unit = {
+    val repositoryShortcuts = RepositoryShortcutsImpl
     val artifactInfoFinder: ArtifactInfoFinder =
       new ArtifactInfoFinder(
         artifactShortcuts =
           new ArtifactShortcuts(Utils.sourceFromSpringUri(config.shortcutsUri)),
-        repositoryShortcuts = RepositoryShortcutsImpl
+        repositoryShortcuts = repositoryShortcuts
       )
     val ctx = Ctx(config)
     val pipelines: List[Pipeline] = List(
@@ -53,7 +54,7 @@ class CommandExecutorImpl extends CommandExecutor {
         .filter(_.nonEmpty)
         .getOrElse(Seq(new UnknownProjectPipeline(ctx, artifactInfoFinder)))
 
-    activePipelines.foreach(_.run(artifactInfoFinder))
+    activePipelines.foreach(p => p.run(artifactInfoFinder, repositoryShortcuts))
   }
 
 }

@@ -4,14 +4,18 @@ import cats._
 import cats.implicits._
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
+import ru.d10xa.jadd.ProjectFileReader
 import ru.d10xa.jadd.experimental.CodeBlock
 import ru.d10xa.jadd.generated.antlr.SbtDependenciesBaseVisitor
 import ru.d10xa.jadd.generated.antlr.SbtDependenciesLexer
 import ru.d10xa.jadd.generated.antlr.SbtDependenciesParser
+import ru.d10xa.jadd.regex.SbtVerbalExpressions
 
 import scala.collection.JavaConverters.asScalaBufferConverter
 
-class SbtShowCommand(buildFileSource: String) {
+class SbtShowCommand(
+  buildFileSource: String,
+  projectFileReader: ProjectFileReader) {
   import SbtShowCommand._
 
   def show(): String = {
@@ -33,10 +37,11 @@ class SbtShowCommand(buildFileSource: String) {
         v.visitMultipleDependencies(p.multipleDependencies())
     }
 
-    import ru.d10xa.jadd.regex.SbtVerbalExpressions._
-
     val list: List[String] =
-      singleLibraryDependency.getTextGroups(buildFileSource, 1).asScala.toList
+      SbtVerbalExpressions.singleLibraryDependency
+        .getTextGroups(buildFileSource, 1)
+        .asScala
+        .toList
 
     val visitor = new SingleDependencyVisitor()
 
@@ -46,6 +51,29 @@ class SbtShowCommand(buildFileSource: String) {
       .map(_.singleDependency())
       .flatMap(visitor.visitSingleDependency)
 
+    val fromDependenciesExternalFile: Seq[Art] =
+      if (buildFileSource.contains("import Dependencies._")) {
+        def tupleToArt(t: (String, String, String, String)): Art =
+          Art(
+            g = t._1,
+            a = t._3,
+            v = t._4,
+            isScala = t._2 == "%%",
+            scope = None)
+        import ru.d10xa.jadd.regex.RegexImplicits._
+        projectFileReader
+          .read("project/Dependencies.scala")
+          .map { source =>
+            SbtVerbalExpressions.declaredDependency.groups4(source)
+          }
+          .map { tuples =>
+            tuples.map(tupleToArt)
+          }
+          .unsafeRunSync()
+      } else {
+        Seq.empty
+      }
+
     implicit val showArt: Show[Art] =
       Show[Art](
         a =>
@@ -53,7 +81,7 @@ class SbtShowCommand(buildFileSource: String) {
           else s"${a.g}:${a.a}:${a.v}"
       )
 
-    (multiple ++ single).distinct
+    (multiple ++ single ++ fromDependenciesExternalFile).distinct
       .map(_.show)
       .mkString("\n")
   }
@@ -62,17 +90,17 @@ class SbtShowCommand(buildFileSource: String) {
 
 object SbtShowCommand {
   case class Art(
-      g: String,
-      a: String,
-      v: String,
-      scope: Option[String],
-      isScala: Boolean)
+    g: String,
+    a: String,
+    v: String,
+    scope: Option[String],
+    isScala: Boolean)
 
   class LibraryDependenciesVisitor
       extends SbtDependenciesBaseVisitor[List[Art]] {
 
     override def visitMultipleDependencies(
-        ctx: SbtDependenciesParser.MultipleDependenciesContext
+      ctx: SbtDependenciesParser.MultipleDependenciesContext
     ): List[Art] = {
       val v = new SingleDependencyVisitor
       ctx.singleDependency().asScala.toList.flatMap(v.visitSingleDependency)
@@ -82,7 +110,7 @@ object SbtShowCommand {
   class SingleDependencyVisitor
       extends SbtDependenciesBaseVisitor[Option[Art]] {
     override def visitSingleDependency(
-        ctx: SbtDependenciesParser.SingleDependencyContext
+      ctx: SbtDependenciesParser.SingleDependencyContext
     ): Option[Art] = {
       val arr: List[String] =
         ctx
@@ -110,7 +138,7 @@ object SbtShowCommand {
 
   class PercentsVisitor extends SbtDependenciesBaseVisitor[Int] {
     override def visitPercents(
-        ctx: SbtDependenciesParser.PercentsContext
+      ctx: SbtDependenciesParser.PercentsContext
     ): Int =
       ctx.getText.length
   }

@@ -5,17 +5,28 @@ import ru.lanwen.verbalregex.VerbalExpression
 import scala.util.matching.Regex
 
 object RegexImplicits {
-  implicit class VerbalExpressionImplicits(ve: VerbalExpression) {
-    def pattern: Regex = ve.toString.r
-    def groups3(text: String, g1: Int = 1, g2: Int = 2, g3: Int = 3): Seq[(String, String, String)] = {
-      pattern.findAllIn(text).matchData.map { m =>
-        (m.group(g1), m.group(g2), m.group(g3))
-      }.toList
-    }
-    def groups2(text: String, g1: Int = 1, g2: Int = 2): Seq[(String, String)] = {
-      pattern.findAllIn(text).matchData.map { m =>
-        (m.group(g1), m.group(g2))
-      }.toList
-    }
+
+  implicit class VerbalExpressionGroups(val verbalExpression: VerbalExpression)
+      extends AnyVal {
+
+    def pattern: Regex = verbalExpression.toString.r
+
+    def groups[T](f: Regex.Match => T)(text: String): Seq[T] =
+      pattern
+        .findAllIn(text)
+        .matchData
+        .map(f)
+        .toList
+
+    def groups2(text: String): Seq[(String, String)] =
+      groups(m => (m.group(1), m.group(2)))(text)
+
+    def groups3(text: String): Seq[(String, String, String)] =
+      groups(m => (m.group(1), m.group(2), m.group(3)))(text)
+
+    def groups4(text: String): Seq[(String, String, String, String)] =
+      groups(m => (m.group(1), m.group(2), m.group(3), m.group(4)))(text)
+
   }
+
 }

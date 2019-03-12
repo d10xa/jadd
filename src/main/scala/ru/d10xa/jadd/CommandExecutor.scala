@@ -1,5 +1,7 @@
 package ru.d10xa.jadd
 
+import java.io.File
+
 import ru.d10xa.jadd.analyze.AnalyzeCommandImpl
 import ru.d10xa.jadd.cli.Command.Analyze
 import ru.d10xa.jadd.cli.Command.Help
@@ -46,7 +48,11 @@ class CommandExecutorImpl extends CommandExecutor {
     val pipelines: List[Pipeline] = List(
       new GradlePipeline(ctx, artifactInfoFinder),
       new MavenPipeline(ctx, artifactInfoFinder),
-      new SbtPipeline(ctx, artifactInfoFinder)
+      new SbtPipeline(
+        ctx,
+        artifactInfoFinder,
+        new ProjectFileReaderImpl(new File(config.projectDir))
+      )
     )
 
     val activePipelines =

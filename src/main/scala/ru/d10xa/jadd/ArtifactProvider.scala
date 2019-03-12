@@ -12,11 +12,13 @@ trait ArtifactProvider[T] {
 object ArtifactProvider {
   case class GradleBuildDescription(buildFileSource: String)
 
-  implicit val gradleArtifactProvider: ArtifactProvider[GradleBuildDescription] =
+  implicit val gradleArtifactProvider
+    : ArtifactProvider[GradleBuildDescription] =
     (d: GradleBuildDescription) => {
 
       import ru.d10xa.jadd.regex.RegexImplicits._
-      val map: Map[String, String] = variableAssignment.build().groups2(d.buildFileSource).toMap
+      val map: Map[String, String] =
+        variableAssignment.build().groups2(d.buildFileSource).toMap
       val interpolated = GStr.interpolate(map)
 
       val t3 = stringWithGroupIdArtifactIdVersion()
@@ -34,7 +36,8 @@ object ArtifactProvider {
         .map(_.right.get) // TODO .get
     }
 
-  implicit class BuildDescriptionImplicits[T](val buildDescription: T)(implicit artifactProvider: ArtifactProvider[T]) {
+  implicit class BuildDescriptionImplicits[T](val buildDescription: T)(
+    implicit artifactProvider: ArtifactProvider[T]) {
     def artifacts: Seq[Artifact] = artifactProvider.provide(buildDescription)
   }
 

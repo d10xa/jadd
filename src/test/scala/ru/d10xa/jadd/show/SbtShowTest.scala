@@ -2,8 +2,11 @@ package ru.d10xa.jadd.show
 
 import org.scalatest.FunSuite
 import org.scalatest.Matchers
+import ru.d10xa.jadd.ProjectFileReaderMemory
 
 class SbtShowTest extends FunSuite with Matchers {
+
+  val emptyProjectFileReader = new ProjectFileReaderMemory(Map.empty)
 
   test("seq") {
     val source =
@@ -17,7 +20,7 @@ class SbtShowTest extends FunSuite with Matchers {
          |)
        """.stripMargin
 
-    val result = new SbtShowCommand(source).show()
+    val result = new SbtShowCommand(source, emptyProjectFileReader).show()
 
     result shouldEqual
       """|ch.qos.logback:logback-classic:1.2.3
@@ -36,10 +39,39 @@ class SbtShowTest extends FunSuite with Matchers {
          |libraryDependencies += "org.typelevel" %% "cats-core" % "1.1.0"
        """.stripMargin
 
-    val result = new SbtShowCommand(source).show()
+    val result = new SbtShowCommand(source, emptyProjectFileReader).show()
 
     result shouldEqual
       """|com.typesafe.scala-logging:scala-logging_2.12:3.9.0
+         |org.typelevel:cats-core_2.12:1.1.0""".stripMargin
+  }
+
+  test("Dependencies import") {
+    val source =
+      s"""
+         |import Dependencies._
+         |libraryDependencies ++= Seq(
+         |  "com.typesafe.scala-logging" %% "scala-logging" % "3.9.0"
+         |)
+       """.stripMargin
+
+    val dependenciesFile =
+      """
+        |import sbt._
+        |object Dependencies {
+        |  lazy val junit = "junit" % "junit" % "4.12"
+        |  lazy val catsCore = "org.typelevel" %% "cats-core" % "1.1.0"
+        |}""".stripMargin
+    val result = new SbtShowCommand(
+      source,
+      new ProjectFileReaderMemory(
+        Map("project/Dependencies.scala" ->
+          dependenciesFile))
+    ).show()
+
+    result shouldEqual
+      """|com.typesafe.scala-logging:scala-logging_2.12:3.9.0
+         |junit:junit:4.12
          |org.typelevel:cats-core_2.12:1.1.0""".stripMargin
   }
 

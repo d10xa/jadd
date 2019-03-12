@@ -19,4 +19,33 @@ object SbtVerbalExpressions {
       .endOfLine()
       .build()
 
+  val declaredDependency: VerbalExpression = {
+    VerbalExpression
+      .regex()
+      .add("\"")
+      .capt()
+      .anything()
+      .endCapt()
+      .add("\"")
+      .space()
+      .zeroOrMore()
+      .capt()
+      .add("%{1,2}")
+      .endCapt()
+      .space()
+      .zeroOrMore()
+      .add("\"")
+      .capt()
+      .anything()
+      .endCapt()
+      .add("\"")
+      .add("\\s?%\\s?")
+      .add("\"")
+      .capt()
+      .anything()
+      .endCapt()
+      .add("\"")
+      .build()
+  }
+
 }

@@ -2,27 +2,35 @@ package ru.d10xa.jadd.pipelines
 
 import java.io.File
 
+import cats.effect.SyncIO
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
+import ru.d10xa.jadd.ProjectFileReader
 import ru.d10xa.jadd.SafeFileWriter
 import ru.d10xa.jadd.inserts.SbtFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.show.SbtShowCommand
 
-import scala.io.Source
-
-class SbtPipeline(override val ctx: Ctx, artifactInfoFinder: ArtifactInfoFinder)
+class SbtPipeline(
+  override val ctx: Ctx,
+  artifactInfoFinder: ArtifactInfoFinder,
+  projectFileReader: ProjectFileReader)
     extends Pipeline
     with StrictLogging {
 
+  val buildFileName = "build.sbt"
+
   import ru.d10xa.jadd.implicits.sbt._
 
-  lazy val buildFile = new File(ctx.config.projectDir, "build.sbt")
+  val buildFile: SyncIO[File] =
+    projectFileReader.file(buildFileName)
 
-  override def applicable: Boolean = buildFile.exists()
+  override def applicable: Boolean =
+    projectFileReader.exists(buildFileName).unsafeRunSync()
 
-  def buildFileSource: String = Source.fromFile(buildFile).mkString
+  def buildFileSource: String =
+    projectFileReader.read(buildFileName).unsafeRunSync()
 
   def install(artifacts: List[Artifact]): Unit = {
 
@@ -34,12 +42,16 @@ class SbtPipeline(override val ctx: Ctx, artifactInfoFinder: ArtifactInfoFinder)
     val newSource: String =
       new SbtFileInserts().appendAll(buildFileSource, artifacts)
 
+    val fileUpdate = buildFile.map { f =>
+      new SafeFileWriter().write(f, newSource)
+    }
+
     if (this.needWrite) {
-      new SafeFileWriter().write(buildFile, newSource)
+      fileUpdate.unsafeRunSync()
     }
   }
 
   override def show(): Unit =
-    logger.info(new SbtShowCommand(buildFileSource).show())
+    logger.info(new SbtShowCommand(buildFileSource, projectFileReader).show())
 
 }

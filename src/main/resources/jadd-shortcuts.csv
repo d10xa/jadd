@@ -124,6 +124,13 @@ monix-eval,io.monix:monix-eval%%
 monix-execution,io.monix:monix-execution%%
 monix-reactive,io.monix:monix-reactive%%
 monix-tail,io.monix:monix-tail
+§monocle-core,com.github.julien-truffaut:monocle-core%%
+monocle-generic,com.github.julien-truffaut:monocle-generic%%
+monocle-law,com.github.julien-truffaut:monocle-law%%
+monocle-macro,com.github.julien-truffaut:monocle-macro%%
+monocle-refined,com.github.julien-truffaut:monocle-refined%%
+monocle-state,com.github.julien-truffaut:monocle-state%%
+monocle-unsafe,com.github.julien-truffaut:monocle-unsafe%%
 mysql,mysql:mysql-connector-java
 play-test,com.typesafe.play:play-test%%
 poi,org.apache.poi:poi

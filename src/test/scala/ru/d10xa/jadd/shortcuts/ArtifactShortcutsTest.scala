@@ -1,10 +1,9 @@
 package ru.d10xa.jadd.shortcuts
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts.ArtifactShortcutsClasspath
 
-class ArtifactShortcutsTest extends FunSuite with Matchers {
+class ArtifactShortcutsTest extends TestBase {
 
   import ru.d10xa.jadd.Utils._
 

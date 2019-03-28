@@ -1,9 +1,8 @@
 package ru.d10xa.jadd.regex
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import ru.d10xa.jadd.testkit.TestBase
 
-class GradleVerbalExpressionsTest extends FunSuite with Matchers {
+class GradleVerbalExpressionsTest extends TestBase {
 
   import ru.d10xa.jadd.regex.RegexImplicits._
 

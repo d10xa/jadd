@@ -10,7 +10,7 @@ trait ArtifactProvider[T] {
 }
 
 object ArtifactProvider {
-  case class GradleBuildDescription(buildFileSource: String)
+  final case class GradleBuildDescription(buildFileSource: String)
 
   implicit val gradleArtifactProvider
     : ArtifactProvider[GradleBuildDescription] =

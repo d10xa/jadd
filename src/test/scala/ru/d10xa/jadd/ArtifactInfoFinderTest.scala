@@ -1,13 +1,12 @@
 package ru.d10xa.jadd
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.shortcuts.RepositoryShortcutsImpl
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts.ArtifactShortcutsClasspath
+import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.troubles.ArtifactNotFoundByAlias
 
-class ArtifactInfoFinderTest extends FunSuite with Matchers {
+class ArtifactInfoFinderTest extends TestBase {
 
   val artifactInfoFinder: ArtifactInfoFinder = new ArtifactInfoFinder(
     artifactShortcuts = ArtifactShortcutsClasspath,

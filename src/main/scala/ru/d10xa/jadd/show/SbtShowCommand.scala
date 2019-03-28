@@ -89,7 +89,7 @@ class SbtShowCommand(
 }
 
 object SbtShowCommand {
-  case class Art(
+  final case class Art(
     g: String,
     a: String,
     v: String,

@@ -1,12 +1,11 @@
 package ru.d10xa.jadd
 import java.io.File
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import ru.d10xa.jadd.testkit.TestBase
 
 import scala.io.Source
 
-class ProjectFileReaderMemoryTest extends FunSuite with Matchers {
+class ProjectFileReaderMemoryTest extends TestBase {
 
   val r = new ProjectFileReaderMemory(
     Map(

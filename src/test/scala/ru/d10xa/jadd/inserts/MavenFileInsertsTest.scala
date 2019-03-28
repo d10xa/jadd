@@ -1,10 +1,9 @@
 package ru.d10xa.jadd.inserts
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.Indentation
 
-class MavenFileInsertsTest extends FunSuite with Matchers {
+class MavenFileInsertsTest extends TestBase {
 
   test("add dependency to pom.xml") {
     val content =
@@ -40,11 +39,13 @@ class MavenFileInsertsTest extends FunSuite with Matchers {
         |</dependency>""".stripMargin
 
     val lines = content.split('\n')
-    val result = MavenFileInserts.append(
-      content,
-      List(dependency.split('\n')),
-      Indentation.predictIndentation(lines)
-    ).mkString("\n")
+    val result = MavenFileInserts
+      .append(
+        content,
+        List(dependency.split('\n')),
+        Indentation.predictIndentation(lines)
+      )
+      .mkString("\n")
 
     result shouldEqual """<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         |  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -76,7 +77,8 @@ class MavenFileInsertsTest extends FunSuite with Matchers {
 
   }
 
-  test("add dependency to pom.xml without dependencies tag with indent 2 spaces") {
+  test(
+    "add dependency to pom.xml without dependencies tag with indent 2 spaces") {
     val content =
       """<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         |  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -98,11 +100,13 @@ class MavenFileInsertsTest extends FunSuite with Matchers {
         |</dependency>""".stripMargin
 
     val lines = content.split('\n')
-    val result = MavenFileInserts.append(
-      content,
-      List(dependency.split('\n')),
-      Indentation.predictIndentation(lines)
-    ).mkString("\n")
+    val result = MavenFileInserts
+      .append(
+        content,
+        List(dependency.split('\n')),
+        Indentation.predictIndentation(lines)
+      )
+      .mkString("\n")
 
     result shouldEqual
       """<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -148,11 +152,13 @@ class MavenFileInsertsTest extends FunSuite with Matchers {
     )
 
     val lines = content.split('\n')
-    val result = MavenFileInserts.append(
-      content,
-      List(dependency.split('\n')),
-      Indentation.predictIndentation(lines)
-    ).mkString("\n")
+    val result = MavenFileInserts
+      .append(
+        content,
+        List(dependency.split('\n')),
+        Indentation.predictIndentation(lines)
+      )
+      .mkString("\n")
 
     result shouldEqual StringContext.treatEscapes(
       """<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

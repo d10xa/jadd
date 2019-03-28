@@ -1,10 +1,10 @@
 package ru.d10xa.jadd.versions
 
 import cats.implicits._
-import org.scalatest.{FunSuite, Matchers}
 import ru.d10xa.jadd.Artifact
+import ru.d10xa.jadd.testkit.TestBase
 
-class ArtifactVersionsDownloaderTest extends FunSuite with Matchers {
+class ArtifactVersionsDownloaderTest extends TestBase {
 
   test("version received from repository initialized") {
     val a = ArtifactVersionsDownloader

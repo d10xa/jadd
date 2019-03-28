@@ -28,7 +28,7 @@ class JaddRunner(
 
     def initProxy(proxyStr: String): Unit = {
       val proxyUri = new URI(proxyStr)
-      val proxySettings = ProxySettings(proxyUri)
+      val proxySettings = ProxySettings.fromURI(proxyUri)
       ProxySettings.set(proxySettings)
       (proxySettings.httpProxyUser, proxySettings.httpProxyPassword) match {
         case (Some(u), Some(p)) => ProxySettings.setupAuthenticator(u, p)

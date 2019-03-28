@@ -1,12 +1,11 @@
 package ru.d10xa.jadd.experimental
 
-import org.scalatest.FunSuiteLike
-import org.scalatest.Matchers
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.inserts.SbtArtifactMatcher
+import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.view.ArtifactView.Match
 
-class ArtifactViewTest extends FunSuiteLike with Matchers {
+class ArtifactViewTest extends TestBase {
 
   val sbtSource: String =
     """
@@ -21,17 +20,21 @@ class ArtifactViewTest extends FunSuiteLike with Matchers {
       |
       """.stripMargin
 
-  def find(artifact: Artifact, source: String): Seq[Match] = new SbtArtifactMatcher(source).find(artifact)
+  def find(artifact: Artifact, source: String): Seq[Match] =
+    new SbtArtifactMatcher(source).find(artifact)
 
   test("sbt find artifact") {
-    val artifact = Artifact("com.typesafe.scala-logging", "scala-logging%%", maybeScalaVersion = Some("2.12"))
+    val artifact = Artifact(
+      "com.typesafe.scala-logging",
+      "scala-logging%%",
+      maybeScalaVersion = Some("2.12"))
     find(artifact, sbtSource).head.value should be(
       """libraryDependencies += "com.typesafe.scala-logging" % "scala-logging_2.12" % "3.8.0""""
     )
   }
 
   test("sbt find artifact with Test configuration") {
-    find(Artifact("ch.qos.logback:logback-classic"), sbtSource).head.value should be(
+    find(art("ch.qos.logback:logback-classic"), sbtSource).head.value should be(
       """libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3" % Test"""
     )
   }
@@ -45,7 +48,7 @@ class ArtifactViewTest extends FunSuiteLike with Matchers {
         |libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3" % Test
       """.stripMargin
 
-    val matches = find(Artifact("ch.qos.logback:logback-classic"), sbtSource)
+    val matches = find(art("ch.qos.logback:logback-classic"), sbtSource)
 
     matches.size shouldEqual 2
 

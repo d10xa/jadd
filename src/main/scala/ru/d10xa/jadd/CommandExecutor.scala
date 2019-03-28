@@ -27,7 +27,7 @@ class CommandExecutorImpl extends CommandExecutor {
   override def execute(config: Config, showUsage: () => Unit): Unit =
     config match {
       case c if c.command == Repl =>
-        Unit // already in repl
+        () // already in repl
       case c if c.command == Analyze =>
         analyzeCommand.run(Ctx(c))
       case c if c.command == Help =>

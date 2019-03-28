@@ -1,10 +1,9 @@
 package ru.d10xa.jadd.shortcuts
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.shortcuts.RepositoryShortcutsImpl.unshortRepository
 
-class UnshortRepositoryTest extends FunSuite with Matchers {
+class UnshortRepositoryTest extends TestBase {
 
   test("unshort bintray") {
     unshortRepository("bintray/groovy/maven") shouldEqual "https://dl.bintray.com/groovy/maven"

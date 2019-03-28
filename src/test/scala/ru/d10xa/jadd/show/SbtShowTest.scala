@@ -1,10 +1,9 @@
 package ru.d10xa.jadd.show
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.ProjectFileReaderMemory
 
-class SbtShowTest extends FunSuite with Matchers {
+class SbtShowTest extends TestBase {
 
   val emptyProjectFileReader = new ProjectFileReaderMemory(Map.empty)
 

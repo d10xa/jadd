@@ -1,12 +1,11 @@
 package ru.d10xa.jadd.requirements
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.cli.Config
 import ru.d10xa.jadd.pipelines.Pipeline
 
-class RequirementsTest extends FunSuite with Matchers {
+class RequirementsTest extends TestBase {
   test("read requirements") {
     val artifacts = Pipeline.extractArtifacts(
       Ctx(

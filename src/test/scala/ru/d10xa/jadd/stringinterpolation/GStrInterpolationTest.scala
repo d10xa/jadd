@@ -1,12 +1,8 @@
 package ru.d10xa.jadd.stringinterpolation
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import ru.d10xa.jadd.testkit.TestBase
 
-
-class GStrInterpolationTest
-  extends FunSuite
-  with Matchers {
+class GStrInterpolationTest extends TestBase {
 
   test("GStr placeholders") {
     val gstr = new GStr("!$hello.${world}!!!$123")

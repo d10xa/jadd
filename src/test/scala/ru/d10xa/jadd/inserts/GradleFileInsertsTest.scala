@@ -1,10 +1,8 @@
 package ru.d10xa.jadd.inserts
 
-import org.scalatest.FunSuiteLike
-import org.scalatest.Matchers
-import ru.d10xa.jadd.Artifact
+import ru.d10xa.jadd.testkit.TestBase
 
-class GradleFileInsertsTest extends FunSuiteLike with Matchers {
+class GradleFileInsertsTest extends TestBase {
 
   test("4 spaces insert") {
     def buildFileSource =
@@ -15,7 +13,7 @@ class GradleFileInsertsTest extends FunSuiteLike with Matchers {
 
     val result = new GradleFileInserts().appendAll(
       buildFileSource,
-      Seq(Artifact("a:b:2.0"), Artifact("x:y:3.0"))
+      Seq(art("a:b:2.0"), art("x:y:3.0"))
     )
 
     result shouldEqual
@@ -40,7 +38,7 @@ class GradleFileInsertsTest extends FunSuiteLike with Matchers {
     )
 
     val newContent = new GradleFileInserts()
-      .appendAll(content, Seq(Artifact("org.codehaus.groovy:groovy-all:2.4.15")))
+      .appendAll(content, Seq(art("org.codehaus.groovy:groovy-all:2.4.15")))
 
     newContent shouldEqual
       StringContext.treatEscapes(
@@ -65,7 +63,7 @@ class GradleFileInsertsTest extends FunSuiteLike with Matchers {
 
     val result = new GradleFileInserts().appendAll(
       buildFileSource,
-      Seq(Artifact("u:u:2.0"))
+      Seq(art("u:u:2.0"))
     )
 
     result shouldEqual
@@ -83,7 +81,7 @@ class GradleFileInsertsTest extends FunSuiteLike with Matchers {
 
     val result = new GradleFileInserts().appendAll(
       buildFileSource,
-      Seq(Artifact("a:a:1.0"), Artifact("b:b:2.0"))
+      Seq(art("a:a:1.0"), art("b:b:2.0"))
     )
 
     result shouldEqual

@@ -11,14 +11,16 @@ trait ArtifactView[T] {
 
 object ArtifactView {
 
-  case class Match(start: Int, value: String, inSequence: Boolean = false) {
+  final case class Match(
+    start: Int,
+    value: String,
+    inSequence: Boolean = false) {
     require(value.nonEmpty, "match must be non empty")
     require(start > 0, "start of match must be positive")
-    def replace(source: String, replacement: String): String = {
+    def replace(source: String, replacement: String): String =
       source.substring(0, start) +
         replacement +
         source.substring(start + value.length)
-    }
     def inBlock(blocks: Seq[CodeBlock]): Boolean =
       blocks.exists(b => b.innerStartIndex <= start && b.innerEndIndex >= start)
   }
@@ -36,7 +38,8 @@ object ArtifactView {
     def self: A
     def showLines: Seq[String] = typeClassInstance.showLines(self)
   }
-  implicit def artifactViewOps[T](target: T)(implicit t: ArtifactView[T]): Ops[T] = new Ops[T] {
+  implicit def artifactViewOps[T](target: T)(
+    implicit t: ArtifactView[T]): Ops[T] = new Ops[T] {
     val self: T = target
     val typeClassInstance: ArtifactView[T] = t
   }

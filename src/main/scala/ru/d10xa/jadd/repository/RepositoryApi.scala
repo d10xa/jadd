@@ -14,15 +14,15 @@ import scala.collection.immutable.Stream.cons
 import scala.util.control.NonFatal
 import scala.xml.XML
 
-sealed trait RepositoryApi[+T <: ArtifactRepositoryMeta] {
+sealed trait RepositoryApi {
   def repository: String
   def receiveRepositoryMeta(
-    artifact: Artifact): EitherNel[MetadataLoadTrouble, T]
+    artifact: Artifact): EitherNel[MetadataLoadTrouble, MavenMetadata]
 }
 
 object RepositoryApi {
 
-  def fromString(repository: String): RepositoryApi[MavenMetadata] =
+  def fromString(repository: String): RepositoryApi =
     if (repository.startsWith("http")) {
       new MavenRemoteMetadataRepositoryApi(repository)
     } else {
@@ -78,8 +78,8 @@ trait MavenMetadataBase extends LazyLogging {
   }
 }
 
-class MavenRemoteMetadataRepositoryApi(val repository: String)
-    extends RepositoryApi[MavenMetadata]
+final class MavenRemoteMetadataRepositoryApi(val repository: String)
+    extends RepositoryApi
     with MavenMetadataBase {
 
   override def mavenMetadataXmlName: String = "maven-metadata.xml"
@@ -107,8 +107,8 @@ class MavenRemoteMetadataRepositoryApi(val repository: String)
     }
 }
 
-class MavenLocalMetadataRepositoryApi(val repository: String)
-    extends RepositoryApi[MavenMetadata]
+final class MavenLocalMetadataRepositoryApi(val repository: String)
+    extends RepositoryApi
     with MavenMetadataBase {
 
   override def absoluteRepositoryPath: String =

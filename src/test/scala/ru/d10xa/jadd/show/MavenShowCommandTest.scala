@@ -1,9 +1,8 @@
 package ru.d10xa.jadd.show
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import ru.d10xa.jadd.testkit.TestBase
 
-class MavenShowCommandTest extends FunSuite with Matchers {
+class MavenShowCommandTest extends TestBase {
   test("show") {
     val pom =
       """<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

@@ -1,15 +1,16 @@
 package ru.d10xa.jadd.shortcuts
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import ru.d10xa.jadd.testkit.TestBase
 
 import scala.io.Source
 
-class ArtifactShortcutsCsvFileTest extends FunSuite with Matchers {
+class ArtifactShortcutsCsvFileTest extends TestBase {
 
-  val lines: Vector[String] = Source.fromResource("jadd-shortcuts.csv").getLines().toVector
+  val lines: Vector[String] =
+    Source.fromResource("jadd-shortcuts.csv").getLines().toVector
   lazy val shortcuts: Vector[String] = lines.tail.map(_.split(",").head)
-  lazy val groupAndArtifactIds: Vector[String] = lines.tail.map(_.split(",").last)
+  lazy val groupAndArtifactIds: Vector[String] =
+    lines.tail.map(_.split(",").last)
 
   test("csv has header") {
     // github has a pretty view for csv files and it requires header

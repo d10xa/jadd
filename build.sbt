@@ -24,6 +24,19 @@ lazy val root = project
   )
 
 enablePlugins(JavaAppPackaging)
+//wartremoverErrors ++= Warts.unsafe
+wartremoverErrors in (Compile, compile) ++= Seq(
+  Wart.FinalCaseClass,
+  Wart.ImplicitParameter,
+  Wart.JavaConversions,
+  Wart.LeakingSealed,
+  Wart.Overloading,
+  Wart.Product,
+  Wart.PublicInference,
+  Wart.Serializable,
+  Wart.StringPlusAny,
+  Wart.ToString
+)
 
 libraryDependencies ++= Seq(
   "org.scala-lang.modules" %% "scala-xml" % "1.1.0",

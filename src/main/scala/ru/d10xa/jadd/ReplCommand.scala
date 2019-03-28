@@ -58,7 +58,7 @@ object ReplCommand extends StrictLogging {
     private val shortcuts: Map[String, String] =
       ArtifactShortcuts.ArtifactShortcutsClasspath.shortcuts
 
-    val autocomplete = new ReplAutocomplete(
+    private val autocomplete = new ReplAutocomplete(
       new ArtifactAutocompleteCache(
         mutable.Set(shortcuts.values.toSeq: _*)
       ))

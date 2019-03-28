@@ -50,19 +50,20 @@ final case class Artifact(
     artifactId.replace("%%", s"_$v")
   }
 
-  def merge(mavenMetadata: MavenMetadata): Artifact =
-    this
+  def merge(mavenMetadata: MavenMetadata): Artifact = {
+    val updated = this
       .copy(
         availableVersions = mavenMetadata.versions.reverse,
         mavenMetadata = Some(mavenMetadata),
         maybeScalaVersion =
           this.maybeScalaVersion.orElse(mavenMetadata.maybeScalaVersion)
       )
-      .withMetadataUrl(mavenMetadata.url.toString)
+    mavenMetadata.url.fold(updated)(updated.withMetadataUrl)
+  }
 
   def withMetadataUrl(url: String): Artifact = {
     val newMeta: Option[MavenMetadata] =
-      mavenMetadata
+      this.mavenMetadata
         .map(meta => meta.copy(url = Some(url)))
         .orElse(Some(MavenMetadata(url = Some(url))))
     this.copy(mavenMetadata = newMeta)
@@ -86,8 +87,6 @@ final case class Artifact(
 }
 
 object Artifact {
-
-  def apply(s: String): Artifact = fromString(s).right.get
 
   def fromTuple3(t: (String, String, String)): Artifact =
     Artifact(t._1, t._2, Some(t._3))

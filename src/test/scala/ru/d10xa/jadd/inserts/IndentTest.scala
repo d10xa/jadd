@@ -1,10 +1,9 @@
 package ru.d10xa.jadd.inserts
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.Indent
 
-class IndentTest extends FunSuite with Matchers {
+class IndentTest extends TestBase {
   test("take") {
     val space = " "
     Indent.space(2).take(1) shouldEqual space * 2

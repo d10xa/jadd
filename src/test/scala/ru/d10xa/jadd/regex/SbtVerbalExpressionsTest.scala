@@ -1,8 +1,8 @@
 package ru.d10xa.jadd.regex
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
 
-class SbtVerbalExpressionsTest extends FunSuite with Matchers {
+import ru.d10xa.jadd.testkit.TestBase
+
+class SbtVerbalExpressionsTest extends TestBase {
   test("testDeclaredDependency") {
     import RegexImplicits._
     val source =

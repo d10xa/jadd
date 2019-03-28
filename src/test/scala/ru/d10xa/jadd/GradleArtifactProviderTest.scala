@@ -1,10 +1,9 @@
 package ru.d10xa.jadd
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
 import ru.d10xa.jadd.ArtifactProvider.GradleBuildDescription
+import ru.d10xa.jadd.testkit.TestBase
 
-class GradleArtifactProviderTest extends FunSuite with Matchers {
+class GradleArtifactProviderTest extends TestBase {
 
   test("GradleBuildDescription as artifacts") {
     val d = GradleBuildDescription(

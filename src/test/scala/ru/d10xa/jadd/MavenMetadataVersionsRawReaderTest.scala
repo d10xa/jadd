@@ -1,22 +1,23 @@
 package ru.d10xa.jadd
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.repository.MavenMetadata
 import ru.d10xa.jadd.xml.MavenMetadataVersionsRawReader
 
 import scala.xml.XML
 
-class MavenMetadataVersionsRawReaderTest extends FunSuite with Matchers {
+class MavenMetadataVersionsRawReaderTest extends TestBase {
 
-  val resource = getClass.getResourceAsStream("/maven-metadata/scala-maven-metadata.xml")
+  val resource =
+    getClass.getResourceAsStream("/maven-metadata/scala-maven-metadata.xml")
   val text = scala.io.Source.fromInputStream(resource).mkString
   val elem = XML.loadString(text)
 
   test("parse xml") {
 
     val version =
-      MavenMetadata.readFromXml(MavenMetadata(), elem)
+      MavenMetadata
+        .readFromXml(MavenMetadata(), elem)
         .versions
         .reverse
         .toStream
@@ -41,7 +42,8 @@ class MavenMetadataVersionsRawReaderTest extends FunSuite with Matchers {
          |  </versioning>
          |</metadata>
       """.stripMargin
-    val lastUpdated = MavenMetadataVersionsRawReader.lastUpdated(XML.loadString(xmlString))
+    val lastUpdated =
+      MavenMetadataVersionsRawReader.lastUpdated(XML.loadString(xmlString))
 
     lastUpdated shouldEqual Some("42")
   }
@@ -55,7 +57,8 @@ class MavenMetadataVersionsRawReaderTest extends FunSuite with Matchers {
          |  </versioning>
          |</metadata>
       """.stripMargin
-    val lastUpdated = MavenMetadataVersionsRawReader.lastUpdated(XML.loadString(xmlString))
+    val lastUpdated =
+      MavenMetadataVersionsRawReader.lastUpdated(XML.loadString(xmlString))
 
     lastUpdated shouldEqual None
   }

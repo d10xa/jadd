@@ -8,12 +8,14 @@ object troubles {
 
   sealed abstract class ArtifactTrouble
 
-  case class RepositoryUndefined(artifact: Artifact) extends ArtifactTrouble
-
-  case class MetadataLoadTrouble(artifact: Artifact, cause: String)
+  final case class RepositoryUndefined(artifact: Artifact)
       extends ArtifactTrouble
 
-  case class ArtifactNotFoundByAlias(alias: String) extends ArtifactTrouble
+  final case class MetadataLoadTrouble(artifact: Artifact, cause: String)
+      extends ArtifactTrouble
+
+  final case class ArtifactNotFoundByAlias(alias: String)
+      extends ArtifactTrouble
 
   case object WrongArtifactRaw extends ArtifactTrouble
 

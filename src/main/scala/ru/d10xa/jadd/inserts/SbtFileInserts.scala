@@ -11,18 +11,20 @@ class SbtFileInserts extends LazyLogging {
 
   def debugMatches(artifact: Artifact, matches: Seq[Match]): Unit = {
     def matchesCount = s"matches count: ${matches.size}"
-    def matchesView = matches.map(m => m.start + " " + m.value)
-    logger.debug(s"""${artifact.groupId}:${artifact.artifactId} $matchesCount ($matchesView)""")
+    def matchesView = matches.map(m => s"${m.start} ${m.value}")
+    logger.debug(
+      s"""${artifact.groupId}:${artifact.artifactId} $matchesCount ($matchesView)""")
   }
 
   def appendAll(source: String, artifacts: Seq[Artifact]): String =
     artifacts.foldLeft(source) { case (s, artifact) => append(s, artifact) }
 
   /**
-   * @return updated source
-   */
+    * @return updated source
+    */
   def append[T](buildFileSource: String, artifact: Artifact): String = {
-    val matches: Seq[Match] = new SbtArtifactMatcher(buildFileSource).find(artifact)
+    val matches: Seq[Match] =
+      new SbtArtifactMatcher(buildFileSource).find(artifact)
 
     debugMatches(artifact, matches)
 
@@ -38,7 +40,8 @@ class SbtFileInserts extends LazyLogging {
 
     def ins(a: Artifact = artifact): String = {
       val insertStrings = a.showLines
-      appendLines(buildFileSource.split('\n'), insertStrings).mkString("\n") + "\n"
+      appendLines(buildFileSource.split('\n'), insertStrings)
+        .mkString("\n") + "\n"
     }
 
     maybeFirstMatch match {
@@ -49,6 +52,8 @@ class SbtFileInserts extends LazyLogging {
     }
   }
 
-  def appendLines(buildFileLines: Array[String], dependencies: Seq[String]): Seq[String] =
+  def appendLines(
+    buildFileLines: Array[String],
+    dependencies: Seq[String]): Seq[String] =
     buildFileLines.toVector ++ dependencies
 }

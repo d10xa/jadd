@@ -1,9 +1,8 @@
 package ru.d10xa.jadd.show
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import ru.d10xa.jadd.testkit.TestBase
 
-class GradleShowTest extends FunSuite with Matchers {
+class GradleShowTest extends TestBase {
 
   test("single project") {
     val source: String =

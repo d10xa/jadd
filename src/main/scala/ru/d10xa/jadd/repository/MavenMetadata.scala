@@ -8,15 +8,13 @@ import ru.d10xa.jadd.xml.MavenMetadataVersionsRawReader
 import scala.util.Try
 import scala.xml.Elem
 
-sealed trait ArtifactRepositoryMeta
-
-sealed case class MavenMetadata(
+final case class MavenMetadata(
   url: Option[String] = None,
   repository: Option[String] = None,
   versions: Seq[String] = Seq.empty,
   lastUpdated: Option[String] = None,
   maybeScalaVersion: Option[String] = None // Metadata from newer to older (scala 2.12, 2.11..)
-) extends ArtifactRepositoryMeta {
+) {
   lazy val lastUpdatedPretty: Option[String] =
     lastUpdated.map(MavenMetadata.lastUpdatedPretty)
 }

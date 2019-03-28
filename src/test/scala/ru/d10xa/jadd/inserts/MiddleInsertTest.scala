@@ -1,9 +1,8 @@
 package ru.d10xa.jadd.inserts
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import ru.d10xa.jadd.testkit.TestBase
 
-class MiddleInsertTest extends FunSuite with Matchers {
+class MiddleInsertTest extends TestBase {
   test("check insert") {
     val result = MiddleInsert.insert(List("1", "2", "3"), List("0", "-1"), 1)
 
@@ -11,7 +10,8 @@ class MiddleInsertTest extends FunSuite with Matchers {
   }
 
   test("negative") {
-    val result = MiddleInsert.insert(List("1", "2", "3", "4"), List("0", "-1"), -1)
+    val result =
+      MiddleInsert.insert(List("1", "2", "3", "4"), List("0", "-1"), -1)
 
     result shouldEqual List("1", "2", "3", "0", "-1", "4")
   }

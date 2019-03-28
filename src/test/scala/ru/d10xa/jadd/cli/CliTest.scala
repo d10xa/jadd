@@ -1,14 +1,13 @@
 package ru.d10xa.jadd.cli
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
 import ru.d10xa.jadd.cli.Command.Analyze
 import ru.d10xa.jadd.cli.Command.Help
 import ru.d10xa.jadd.cli.Command.Show
 import ru.d10xa.jadd.cli.Command.Install
 import ru.d10xa.jadd.cli.Command.Search
+import ru.d10xa.jadd.testkit.TestBase
 
-class CliTest extends FunSuite with Matchers {
+class CliTest extends TestBase {
 
   val cli: Cli = Cli
 
@@ -36,11 +35,12 @@ class CliTest extends FunSuite with Matchers {
   }
 
   test("parse --repository") {
-    val config = parse(Array(
-      "install",
-      "--repository",
-      "https://jcenter.bintray.com,https://repo1.maven.org/maven2,google"
-    ))
+    val config = parse(
+      Array(
+        "install",
+        "--repository",
+        "https://jcenter.bintray.com,https://repo1.maven.org/maven2,google"
+      ))
 
     config.command shouldEqual Install
     config.repositories shouldEqual Seq(
@@ -83,7 +83,8 @@ class CliTest extends FunSuite with Matchers {
   }
 
   test("parse --shortcuts-uri") {
-    val config = parse(Array("install", "junit", "--shortcuts-uri=classpath:jadd-shortcuts.csv"))
+    val config = parse(
+      Array("install", "junit", "--shortcuts-uri=classpath:jadd-shortcuts.csv"))
     config.shortcutsUri shouldEqual "classpath:jadd-shortcuts.csv"
     config.artifacts shouldEqual Seq("junit")
   }

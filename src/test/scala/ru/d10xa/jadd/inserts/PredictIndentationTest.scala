@@ -1,11 +1,10 @@
 package ru.d10xa.jadd.inserts
 
-import org.scalatest.FunSuite
-import org.scalatest.Matchers
+import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.Indent
 import ru.d10xa.jadd.Indentation
 
-class PredictIndentationTest extends FunSuite with Matchers {
+class PredictIndentationTest extends TestBase {
 
   test("single line indentation") {
     import Indentation._
@@ -34,7 +33,8 @@ class PredictIndentationTest extends FunSuite with Matchers {
         |</project>
         |""".stripMargin
 
-    val Indent(style, size) = Indentation.predictIndentation(content.split("\n").toList)
+    val Indent(style, size) =
+      Indentation.predictIndentation(content.split("\n").toList)
 
     style shouldEqual ' '
     size shouldEqual 2
@@ -57,7 +57,8 @@ class PredictIndentationTest extends FunSuite with Matchers {
         |</project>
         |""".stripMargin
 
-    val Indent(style, size) = Indentation.predictIndentation(content.split("\n").toList)
+    val Indent(style, size) =
+      Indentation.predictIndentation(content.split("\n").toList)
 
     style shouldEqual ' '
     size shouldEqual 4
@@ -81,7 +82,8 @@ class PredictIndentationTest extends FunSuite with Matchers {
         |""".stripMargin
     )
 
-    val Indent(style, size) = Indentation.predictIndentation(content.split("\n").toList)
+    val Indent(style, size) =
+      Indentation.predictIndentation(content.split("\n").toList)
 
     style shouldEqual '\t'
     size shouldEqual 2
@@ -99,14 +101,15 @@ class PredictIndentationTest extends FunSuite with Matchers {
         |""".stripMargin
     )
 
-    val Indent(style, size) = Indentation.predictIndentation(content.split("\n").toList)
+    val Indent(style, size) =
+      Indentation.predictIndentation(content.split("\n").toList)
 
     // some defaults
     style shouldEqual ' '
     size shouldEqual 4
   }
 
-  test("one level indent"){
+  test("one level indent") {
     val content =
       """<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         |  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -120,7 +123,8 @@ class PredictIndentationTest extends FunSuite with Matchers {
         |</project>
         |""".stripMargin
 
-    val Indent(style, size) = Indentation.predictIndentation(content.split("\n").toList)
+    val Indent(style, size) =
+      Indentation.predictIndentation(content.split("\n").toList)
 
     // some defaults
     style shouldEqual ' '

@@ -4,7 +4,7 @@ import java.net.Authenticator
 import java.net.PasswordAuthentication
 import java.net.URI
 
-case class ProxySettings(
+final case class ProxySettings(
   httpHost: Option[String],
   httpsHost: Option[String],
   httpPort: Option[String],
@@ -30,7 +30,7 @@ object ProxySettings {
   val tunnelingDisabledSchemes = "jdk.http.auth.tunneling.disabledSchemes"
   val proxyingDisabledSchemes = "jdk.http.auth.proxying.disabledSchemes"
 
-  def apply(proxy: URI): ProxySettings = {
+  def fromURI(proxy: URI): ProxySettings = {
 
     val host = proxy.getHost
     val port = proxy.getPort.toString
@@ -38,7 +38,6 @@ object ProxySettings {
       Option(proxy.getUserInfo)
         .map(_.split(':'))
         .collect { case Array(u, pass) => (u, pass) }
-
 
     ProxySettings(
       httpHost = Some(host),
@@ -55,39 +54,39 @@ object ProxySettings {
 
   }
 
-  private def prop(key: String): Option[String] = Option(System.getProperty(key))
+  private def optProp(key: String): Option[String] =
+    Option(System.getProperty(key))
 
-  private def prop(key: String, value: Option[String]): Unit = value match {
+  private def propSet(key: String, value: Option[String]): Unit = value match {
     case Some(v) => System.setProperty(key, v)
     case None => System.clearProperty(key)
   }
 
-  def get(): ProxySettings = {
+  def get(): ProxySettings =
     ProxySettings(
-      httpHost = prop(httpProxyHost),
-      httpsHost = prop(httpsProxyHost),
-      httpPort = prop(httpProxyPort),
-      httpsPort = prop(httpsProxyPort),
-      httpProxyUser = prop(httpProxyUser),
-      httpsProxyUser = prop(httpsProxyUser),
-      httpProxyPassword = prop(httpProxyPassword),
-      httpsProxyPassword = prop(httpsProxyPassword),
-      tunnelingDisabledSchemes = prop(tunnelingDisabledSchemes),
-      proxyingDisabledSchemes = prop(proxyingDisabledSchemes)
+      httpHost = optProp(httpProxyHost),
+      httpsHost = optProp(httpsProxyHost),
+      httpPort = optProp(httpProxyPort),
+      httpsPort = optProp(httpsProxyPort),
+      httpProxyUser = optProp(httpProxyUser),
+      httpsProxyUser = optProp(httpsProxyUser),
+      httpProxyPassword = optProp(httpProxyPassword),
+      httpsProxyPassword = optProp(httpsProxyPassword),
+      tunnelingDisabledSchemes = optProp(tunnelingDisabledSchemes),
+      proxyingDisabledSchemes = optProp(proxyingDisabledSchemes)
     )
-  }
 
   def set(proxySettings: ProxySettings): Unit = {
-    prop(httpProxyHost, proxySettings.httpHost)
-    prop(httpsProxyHost, proxySettings.httpsHost)
-    prop(httpProxyPort, proxySettings.httpPort)
-    prop(httpsProxyPort, proxySettings.httpsPort)
-    prop(httpProxyUser, proxySettings.httpProxyUser)
-    prop(httpsProxyUser, proxySettings.httpsProxyUser)
-    prop(httpProxyPassword, proxySettings.httpProxyPassword)
-    prop(httpsProxyPassword, proxySettings.httpsProxyPassword)
-    prop(tunnelingDisabledSchemes, proxySettings.tunnelingDisabledSchemes)
-    prop(proxyingDisabledSchemes, proxySettings.proxyingDisabledSchemes)
+    propSet(httpProxyHost, proxySettings.httpHost)
+    propSet(httpsProxyHost, proxySettings.httpsHost)
+    propSet(httpProxyPort, proxySettings.httpPort)
+    propSet(httpsProxyPort, proxySettings.httpsPort)
+    propSet(httpProxyUser, proxySettings.httpProxyUser)
+    propSet(httpsProxyUser, proxySettings.httpsProxyUser)
+    propSet(httpProxyPassword, proxySettings.httpProxyPassword)
+    propSet(httpsProxyPassword, proxySettings.httpsProxyPassword)
+    propSet(tunnelingDisabledSchemes, proxySettings.tunnelingDisabledSchemes)
+    propSet(proxyingDisabledSchemes, proxySettings.proxyingDisabledSchemes)
   }
 
   def setupAuthenticator(user: String, password: String): Unit = {

@@ -2,8 +2,8 @@ package ru.d10xa.jadd.versions
 
 import cats.data.EitherNel
 import cats.data.NonEmptyList
+import cats.implicits._
 import ru.d10xa.jadd.Artifact
-import ru.d10xa.jadd.repository.MavenMetadata
 import ru.d10xa.jadd.repository.RepositoryApi
 import ru.d10xa.jadd.troubles.ArtifactTrouble
 import ru.d10xa.jadd.troubles.RepositoryUndefined
@@ -18,21 +18,19 @@ trait VersionTools {
 
 object VersionTools extends VersionTools {
 
-  def loadVersions(artifact: Artifact): EitherNel[ArtifactTrouble, Artifact] = {
+  def repositoryApiFromArtifact(
+    artifact: Artifact
+  ): Either[ArtifactTrouble, RepositoryApi] =
+    artifact.repository match {
+      case Some(r) => Right(RepositoryApi.fromString(r))
+      case None => Left(RepositoryUndefined(artifact))
+    }
 
-    val errOrApi: Either[RepositoryUndefined, RepositoryApi[MavenMetadata]] =
-      artifact.repository match {
-        case Some(r) => Right(RepositoryApi.fromString(r))
-        case None => Left(RepositoryUndefined(artifact))
-      }
-    val errOrMeta: Either[NonEmptyList[ArtifactTrouble], MavenMetadata] =
-      errOrApi.left
-        .map(NonEmptyList.one)
-        .flatMap(_.receiveRepositoryMeta(artifact))
-
-    val errOrNewArt = errOrMeta.map(artifact.merge)
-    errOrNewArt
-  }
+  def loadVersions(artifact: Artifact): EitherNel[ArtifactTrouble, Artifact] =
+    repositoryApiFromArtifact(artifact)
+      .leftMap(NonEmptyList.one)
+      .flatMap(_.receiveRepositoryMeta(artifact))
+      .map(artifact.merge)
 
   override def loadVersionAndInitLatest(
     artifact: Artifact

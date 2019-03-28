@@ -1,12 +1,10 @@
 package ru.d10xa.jadd.repository
 
 import cats.data.EitherNel
-import org.scalatest.FunSuiteLike
-import org.scalatest.Matchers
-import ru.d10xa.jadd.Artifact
+import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.troubles
 
-class MavenLocalMetadataRepositoryTest extends FunSuiteLike with Matchers {
+class MavenLocalMetadataRepositoryTest extends TestBase {
 
   test("m2 custom artifact") {
 
@@ -14,7 +12,7 @@ class MavenLocalMetadataRepositoryTest extends FunSuiteLike with Matchers {
       new MavenLocalMetadataRepositoryApi("src/test/resources/m2/repository/")
 
     val result: EitherNel[troubles.MetadataLoadTrouble, MavenMetadata] =
-      api.receiveRepositoryMeta(Artifact("com.example:projectname"))
+      api.receiveRepositoryMeta(art("com.example:projectname"))
 
     val meta = result.right.get
     meta.versions shouldEqual Seq("2.5", "12.5")

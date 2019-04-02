@@ -73,11 +73,6 @@ final case class Artifact(
 
   def versionsForPrint: String = availableVersions.mkString(", ")
 
-  def canonicalView: String = maybeVersion match {
-    case Some(v) => s"$groupId:$artifactId:$v"
-    case None => s"$groupId:$artifactId"
-  }
-
   def initLatestVersion(
     versionFilter: VersionFilter = VersionFilter): Artifact =
     copy(

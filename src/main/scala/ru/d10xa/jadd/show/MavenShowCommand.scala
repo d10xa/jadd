@@ -1,26 +1,24 @@
 package ru.d10xa.jadd.show
 
 import com.typesafe.scalalogging.StrictLogging
+import ru.d10xa.jadd.Artifact
 
 import scala.xml.Node
 import scala.xml.XML
 
 class MavenShowCommand(buildFileSource: String) extends StrictLogging {
-  def show(): String = {
+  def show(): Seq[Artifact] = {
     val xml = XML.loadString(buildFileSource)
-    def parseDependencyNode(n: Node): (String, String, Option[String]) = {
+    def node2artifacts(n: Node): Artifact = {
       val versionNode = n \ "version"
       val v = if (versionNode.nonEmpty) Some(versionNode.text) else None
-      ((n \ "groupId").text, (n \ "artifactId").text, v)
+      Artifact(
+        groupId = (n \ "groupId").text,
+        artifactId = (n \ "artifactId").text,
+        maybeVersion = v
+      )
     }
     (xml \\ "project" \\ "dependencies" \\ "dependency")
-      .map(parseDependencyNode)
-      .map({
-        case (g, a, Some(v)) =>
-          s"$g:$a:$v"
-        case (g, a, None) =>
-          s"$g:$a"
-      })
-      .mkString("\n")
+      .map(node2artifacts)
   }
 }

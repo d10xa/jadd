@@ -3,7 +3,7 @@ package ru.d10xa.jadd.show
 import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.ProjectFileReaderMemory
 
-class SbtShowTest extends TestBase {
+class SbtShowCommandTest extends TestBase {
 
   val emptyProjectFileReader = new ProjectFileReaderMemory(Map.empty)
 
@@ -20,13 +20,15 @@ class SbtShowTest extends TestBase {
        """.stripMargin
 
     val result = new SbtShowCommand(source, emptyProjectFileReader).show()
+    val expected = Seq(
+      art("ch.qos.logback:logback-classic:1.2.3"),
+      art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_12,
+      art("io.circe:circe-parser%%:0.9.3").scala2_12,
+      art("io.circe:circe-generic%%:0.9.3").scala2_12,
+      art("org.jline:jline:3.7.1")
+    )
 
-    result shouldEqual
-      """|ch.qos.logback:logback-classic:1.2.3
-       |com.typesafe.scala-logging:scala-logging_2.12:3.9.0
-       |io.circe:circe-parser_2.12:0.9.3
-       |io.circe:circe-generic_2.12:0.9.3
-       |org.jline:jline:3.7.1""".stripMargin
+    result shouldEqual expected
   }
 
   test("seq and single") {
@@ -39,10 +41,11 @@ class SbtShowTest extends TestBase {
        """.stripMargin
 
     val result = new SbtShowCommand(source, emptyProjectFileReader).show()
-
-    result shouldEqual
-      """|com.typesafe.scala-logging:scala-logging_2.12:3.9.0
-         |org.typelevel:cats-core_2.12:1.1.0""".stripMargin
+    val expected = Seq(
+      art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_12,
+      art("org.typelevel:cats-core%%:1.1.0").scala2_12
+    )
+    result shouldEqual expected
   }
 
   test("Dependencies import") {
@@ -68,10 +71,12 @@ class SbtShowTest extends TestBase {
           dependenciesFile))
     ).show()
 
-    result shouldEqual
-      """|com.typesafe.scala-logging:scala-logging_2.12:3.9.0
-         |junit:junit:4.12
-         |org.typelevel:cats-core_2.12:1.1.0""".stripMargin
+    val expected = Seq(
+      art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_12,
+      art("junit:junit:4.12"),
+      art("org.typelevel:cats-core%%:1.1.0").scala2_12
+    )
+    result shouldEqual expected
   }
 
 }

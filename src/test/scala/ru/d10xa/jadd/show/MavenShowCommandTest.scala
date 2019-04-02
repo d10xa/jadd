@@ -28,7 +28,11 @@ class MavenShowCommandTest extends TestBase {
         |    </dependency>
         |  </dependencies>
         |</project>""".stripMargin
-    val showStr = new MavenShowCommand(pom).show()
-    showStr shouldEqual "ch.qos.logback:logback-classic:1.2.3\njunit:junit:4.12"
+    val artifacts = new MavenShowCommand(pom).show()
+    val expected = Seq(
+      art("ch.qos.logback:logback-classic:1.2.3"),
+      art("junit:junit:4.12")
+    )
+    artifacts shouldEqual expected
   }
 }

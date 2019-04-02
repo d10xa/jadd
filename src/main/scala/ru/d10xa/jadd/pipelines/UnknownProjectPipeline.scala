@@ -37,7 +37,9 @@ class UnknownProjectPipeline(
       .foreach(i => logger.info(i))
   }
 
-  override def show(): Unit =
+  override def show(): Seq[Artifact] = {
     logger.info("Unknown project type. Nothing to show")
+    Seq.empty
+  }
 
 }

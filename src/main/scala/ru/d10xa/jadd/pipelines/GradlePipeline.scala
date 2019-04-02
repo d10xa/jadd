@@ -40,7 +40,7 @@ class GradlePipeline(
     }
   }
 
-  override def show(): Unit =
-    logger.info(new GradleShowCommand(buildFileSource).show())
+  override def show(): Seq[Artifact] =
+    new GradleShowCommand(buildFileSource).show()
 
 }

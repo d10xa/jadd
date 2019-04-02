@@ -51,7 +51,7 @@ class SbtPipeline(
     }
   }
 
-  override def show(): Unit =
-    logger.info(new SbtShowCommand(buildFileSource, projectFileReader).show())
+  override def show(): Seq[Artifact] =
+    new SbtShowCommand(buildFileSource, projectFileReader).show()
 
 }

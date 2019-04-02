@@ -23,7 +23,7 @@ trait Pipeline extends StrictLogging {
     repositoryShortcuts: RepositoryShortcuts
   ): Unit =
     if (ctx.config.command == Show) {
-      show()
+      logger.info(ctx.config.showPrinter.mkString(show().toList))
     } else {
       val artifacts = Pipeline.extractArtifacts(ctx)
       val unshorted: Seq[Artifact] = Utils
@@ -39,7 +39,7 @@ trait Pipeline extends StrictLogging {
       handleTroubles(x, s => logger.info(s))
     }
   def install(artifacts: List[Artifact]): Unit
-  def show(): Unit
+  def show(): Seq[Artifact]
   def ctx: Ctx
   def needWrite: Boolean = ctx.config.command == Install && !ctx.config.dryRun
   def asPrintLines[A](a: A)(implicit view: ArtifactView[A]): Seq[String] =

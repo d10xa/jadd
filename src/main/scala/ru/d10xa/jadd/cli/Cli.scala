@@ -6,6 +6,7 @@ import ru.d10xa.jadd.cli.Command.Help
 import ru.d10xa.jadd.cli.Command.Install
 import ru.d10xa.jadd.cli.Command.Search
 import ru.d10xa.jadd.cli.Command.Show
+import ru.d10xa.jadd.show.AmmoniteFormatShowPrinter
 import scopt.OptionDef
 import scopt.OptionParser
 
@@ -83,6 +84,15 @@ object Cli extends Cli {
     cmd("show")
       .text("print dependencies")
       .action((_, c) => c.copy(command = Show))
+      .children(
+        opt[String]("output-format")
+          .text("artifacts output format")
+          .action((x, c) =>
+            x match {
+              case "ammonite" => c.copy(showPrinter = AmmoniteFormatShowPrinter)
+              case "" => c
+          })
+      )
 
     cmd("analyze")
       .text(

@@ -23,12 +23,12 @@ class GradleShowTest extends TestBase {
 
     val show = new GradleShowCommand(source).show()
 
-    val expected: String =
-      """a:b:1.0
-        |com.example42:y:2.3.4-SNAPSHOT
-        |e:h:9.9.9
-        |org.springframework.boot:spring-boot-starter-web""".stripMargin
-
+    val expected = Seq(
+      art("a:b:1.0"),
+      art("com.example42:y:2.3.4-SNAPSHOT"),
+      art("e:h:9.9.9"),
+      art("org.springframework.boot:spring-boot-starter-web")
+    )
     show shouldEqual expected
   }
 
@@ -54,9 +54,10 @@ class GradleShowTest extends TestBase {
 
     val show = new GradleShowCommand(source).show()
 
-    val expected: String =
-      """org.scala-lang:scala-library:2.12.6
-        |org.scalatest:scalatest_2.12:3.0.4""".stripMargin
+    val expected = Seq(
+      art("org.scala-lang:scala-library:2.12.6"),
+      art("org.scalatest:scalatest_2.12:3.0.4")
+    )
 
     show shouldEqual expected
   }

@@ -60,7 +60,7 @@ class MavenPipeline(
     }
   }
 
-  override def show(): Unit =
-    logger.info(new MavenShowCommand(buildFileSource).show())
+  override def show(): Seq[Artifact] =
+    new MavenShowCommand(buildFileSource).show()
 
 }

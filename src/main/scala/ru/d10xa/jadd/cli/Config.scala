@@ -1,6 +1,8 @@
 package ru.d10xa.jadd.cli
 
 import ru.d10xa.jadd.cli.Command.Repl
+import ru.d10xa.jadd.show.JaddFormatShowPrinter
+import ru.d10xa.jadd.show.ShowPrinter
 
 final case class Config(
   usage: String = "",
@@ -15,6 +17,7 @@ final case class Config(
     // TODO support for ~
     s"${System.getProperty("user.home")}/.m2/repository"
   ),
+  showPrinter: ShowPrinter = JaddFormatShowPrinter,
   proxy: Option[String] = None,
   dryRun: Boolean = false,
   quiet: Boolean = false,

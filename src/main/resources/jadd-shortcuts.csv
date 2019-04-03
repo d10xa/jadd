@@ -16,6 +16,7 @@ antlr4,org.antlr:antlr4
 antlr4-runtime,org.antlr:antlr4-runtime
 apache-httpclient,org.apache.httpcomponents:httpclient
 async-http-client,org.asynchttpclient:async-http-client
+better-files,com.github.pathikrit:better-files%%
 cassandra-driver-core,com.datastax.cassandra:cassandra-driver-core
 cassandra-driver-extras,com.datastax.cassandra:cassandra-driver-extras
 cassandra-driver-mapping,com.datastax.cassandra:cassandra-driver-mapping
@@ -149,6 +150,7 @@ quill-jdbc,io.getquill:quill-jdbc%%
 quill-orientdb,io.getquill:quill-orientdb%%
 quill-spark,io.getquill:quill-spark%%
 quill-sql,io.getquill:quill-sql%%
+requests-scala,com.lihaoyi:requests%%
 rest-assured,io.rest-assured:rest-assured
 retrofit,com.squareup.retrofit2:retrofit
 sbt,org.scala-sbt:sbt

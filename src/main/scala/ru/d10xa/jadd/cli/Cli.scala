@@ -7,6 +7,9 @@ import ru.d10xa.jadd.cli.Command.Install
 import ru.d10xa.jadd.cli.Command.Search
 import ru.d10xa.jadd.cli.Command.Show
 import ru.d10xa.jadd.show.AmmoniteFormatShowPrinter
+import ru.d10xa.jadd.show.GradleFormatShowPrinter
+import ru.d10xa.jadd.show.GroovyFormatShowPrinter
+import ru.d10xa.jadd.show.LeiningenFormatShowPrinter
 import scopt.OptionDef
 import scopt.OptionParser
 
@@ -86,11 +89,18 @@ object Cli extends Cli {
       .action((_, c) => c.copy(command = Show))
       .children(
         opt[String]("output-format")
-          .text("artifacts output format")
+          .text("artifacts output format (ammonite, groovy, gradle, leiningen)")
           .action((x, c) =>
             x match {
-              case "ammonite" => c.copy(showPrinter = AmmoniteFormatShowPrinter)
-              case "" => c
+              case "ammonite" =>
+                c.copy(showPrinter = AmmoniteFormatShowPrinter)
+              case "groovy" =>
+                c.copy(showPrinter = GroovyFormatShowPrinter)
+              case "leiningen" =>
+                c.copy(showPrinter = LeiningenFormatShowPrinter)
+              case "gradle" =>
+                c.copy(showPrinter = GradleFormatShowPrinter)
+              case _ => c
           })
       )
 

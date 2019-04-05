@@ -17,6 +17,8 @@ final case class Artifact(
   maybeScalaVersion: Option[String] = None,
   availableVersions: Seq[String] = Seq.empty,
   explicitScalaVersion: Boolean = false,
+  doubleQuotes: Boolean = true, // required for gradle update
+  configuration: Option[String] = None, // required for gradle update
   inSequence: Boolean = false // required for ArtifactView
 ) extends StrictLogging {
 

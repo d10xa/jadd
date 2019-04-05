@@ -4,6 +4,7 @@ import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.inserts.SbtArtifactMatcher
 import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.view.ArtifactView.Match
+import ru.d10xa.jadd.view.ArtifactView.MatchImpl
 
 class ArtifactViewTest extends TestBase {
 
@@ -70,7 +71,7 @@ class ArtifactViewTest extends TestBase {
       """.stripMargin
 
     val result =
-      Match(start = source.indexOf("dependency1"), value = "dependency1")
+      MatchImpl(start = source.indexOf("dependency1"), value = "dependency1")
         .replace(source, "dep42")
 
     result shouldEqual

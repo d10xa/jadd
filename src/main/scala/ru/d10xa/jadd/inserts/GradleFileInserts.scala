@@ -19,33 +19,43 @@ class GradleFileInserts extends StrictLogging {
     val indent: Indent = Indentation.predictIndentation(sourceLines)
     val blocks: Seq[CodeBlock] = CodeBlock.find(source, "dependencies {")
 
-    val matches: Seq[Match] = new GradleArtifactMatcher(source).find(artifact)
+    val matches = new GradleArtifactMatcher(source).find(artifact)
     val maybeFirstMatch = matches.sortBy(_.start).headOption
 
-    val artifactAsString = artifact.showLines.mkString("\n")
+    def insertOrUpdate(artifact: Artifact): String = {
+      val artifactAsString = artifact.showLines.mkString("\n")
 
-    def insert(): String = {
-
-      if(blocks.isEmpty) {
+      def insert(): String =
+        if (blocks.isEmpty) {
           s"""$source
-            |dependencies {
-            |${indent.take(1)}$artifactAsString
-            |}
-            |""".stripMargin
-      } else {
-        val b = blocks.head
-        val (begin, end) = source.splitAt(b.innerEndIndex)
-        begin + s"""${indent.take(1)}$artifactAsString""" + "\n" + end
+             |dependencies {
+             |${indent.take(1)}$artifactAsString
+             |}
+             |""".stripMargin
+        } else {
+          val b = blocks.head
+          val (begin, end) = source.splitAt(b.innerEndIndex)
+          begin + s"""${indent.take(1)}$artifactAsString""" + "\n" + end
+        }
+      def update(m: Match): String =
+        m.replace(source, artifactAsString)
+
+      maybeFirstMatch match {
+        case Some(m: Match) => update(m)
+        case None => insert()
       }
     }
-    def update(m: Match): String = {
-      m.replace(source, artifactAsString)
-    }
 
-    maybeFirstMatch match {
-      case Some(m: Match) => update(m)
-      case None => insert()
-    }
+    val matchedArtifact = maybeFirstMatch
+      .map(
+        m =>
+          artifact
+            .copy(
+              configuration = Some(m.configuration),
+              doubleQuotes = m.doubleQuotes))
+      .getOrElse(artifact)
+
+    insertOrUpdate(matchedArtifact)
   }
 
 }

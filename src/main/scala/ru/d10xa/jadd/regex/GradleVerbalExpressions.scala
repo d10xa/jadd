@@ -5,6 +5,20 @@ import ru.d10xa.jadd.regex.CommonVerbalExpressions._
 
 object GradleVerbalExpressions {
 
+  val gradleAllowedConfigurations: List[String] = List(
+    "api",
+    "implementation",
+    "compileOnly",
+    "runtimeOnly",
+    "testImplementation",
+    "testCompileOnly",
+    "testRuntimeOnly",
+    "compile",
+    "testCompile",
+    "runtime",
+    "testRuntime"
+  )
+
   val spaceOrTabOrOpenParenthesis: VerbalExpression.Builder = VerbalExpression
     .regex()
     .oneOf(" ", "\t", "\\(")
@@ -18,9 +32,11 @@ object GradleVerbalExpressions {
     .capt()
     .add(validNameWithPlaceholders)
     .endCapt()
-    .add(spaceOrTab).zeroOrMore()
+    .add(spaceOrTab)
+    .zeroOrMore()
     .`then`("=")
-    .add(spaceOrTab).zeroOrMore()
+    .add(spaceOrTab)
+    .zeroOrMore()
     .add(anyQuote)
     .capt()
     .anything()
@@ -30,36 +46,48 @@ object GradleVerbalExpressions {
   val validVariableNameRegex: String = "[a-zA-Z_$][a-zA-Z_$0-9]*"
 
   def stringWithGroupIdArtifactIdVersion(
-    configurations: Seq[String] = Seq("compile", "testCompile")
-  ): VerbalExpression = {
-
-    VerbalExpression.regex()
-      .add(spaceOrTab).zeroOrMore()
+    configurations: List[String] = gradleAllowedConfigurations
+  ): VerbalExpression =
+    VerbalExpression
+      .regex()
+      .add(spaceOrTab)
+      .zeroOrMore()
       .oneOf(configurations: _*)
-      .add(spaceOrTabOrOpenParenthesis).oneOrMore()
+      .add(spaceOrTabOrOpenParenthesis)
+      .oneOrMore()
       .add(anyQuote)
-      .capt().add(validNameWithPlaceholders).endCapt()
+      .capt()
+      .add(validNameWithPlaceholders)
+      .endCapt()
       .`then`(":")
-      .capt().add(validNameWithPlaceholders).endCapt()
+      .capt()
+      .add(validNameWithPlaceholders)
+      .endCapt()
       .`then`(":")
-      .capt().add(validNameWithPlaceholders).endCapt()
+      .capt()
+      .add(validNameWithPlaceholders)
+      .endCapt()
       .add(anyQuote)
       .build()
-  }
 
   def stringWithGroupIdArtifactId(
-    configurations: Seq[String] = Seq("compile", "testCompile")
-  ): VerbalExpression = {
-
-    VerbalExpression.regex()
-      .add(spaceOrTab).zeroOrMore()
+    configurations: List[String] = gradleAllowedConfigurations
+  ): VerbalExpression =
+    VerbalExpression
+      .regex()
+      .add(spaceOrTab)
+      .zeroOrMore()
       .oneOf(configurations: _*)
-      .add(spaceOrTabOrOpenParenthesis).oneOrMore()
+      .add(spaceOrTabOrOpenParenthesis)
+      .oneOrMore()
       .add(anyQuote)
-      .capt().add(validNameWithPlaceholders).endCapt()
+      .capt()
+      .add(validNameWithPlaceholders)
+      .endCapt()
       .`then`(":")
-      .capt().add(validNameWithPlaceholders).endCapt()
+      .capt()
+      .add(validNameWithPlaceholders)
+      .endCapt()
       .add(anyQuote)
       .build()
-  }
 }

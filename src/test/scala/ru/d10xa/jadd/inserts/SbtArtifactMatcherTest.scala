@@ -4,14 +4,15 @@ import org.scalatest.FunSuiteLike
 import org.scalatest.Matchers
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.view.ArtifactView
-import ru.d10xa.jadd.view.ArtifactView.Match
+import ru.d10xa.jadd.view.ArtifactView.MatchImpl
 
 class SbtArtifactMatcherTest extends FunSuiteLike with Matchers {
 
-  private val scalaLogging = Artifact("com.typesafe.scala-logging", "scala-logging%%")
+  private val scalaLogging =
+    Artifact("com.typesafe.scala-logging", "scala-logging%%")
   private val logbackClassic = Artifact("ch.qos.logback", "logback-classic")
 
-  test("find in sequence and standalone in single source"){
+  test("find in sequence and standalone in single source") {
     val source =
       """
         |libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.8.0"
@@ -22,7 +23,8 @@ class SbtArtifactMatcherTest extends FunSuiteLike with Matchers {
       """.stripMargin
     val matcher = new SbtArtifactMatcher(source)
 
-    val inSeqMatches: Seq[ArtifactView.Match] = matcher.findInSequence(logbackClassic)
+    val inSeqMatches: Seq[ArtifactView.Match] =
+      matcher.findInSequence(logbackClassic)
     inSeqMatches.size shouldEqual 1
     inSeqMatches.head.value shouldEqual """"ch.qos.logback" % "logback-classic" % "1.2.2""""
     inSeqMatches.head.start shouldEqual 113
@@ -56,11 +58,19 @@ class SbtArtifactMatcherTest extends FunSuiteLike with Matchers {
     val matcher = new SbtArtifactMatcher(source)
 
     matcher
-      .isCommented(Match(start = 4, value = """libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.8.0""""))
+      .isCommented(
+        MatchImpl(
+          start = 4,
+          value =
+            """libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.8.0""""))
       .shouldEqual(true)
 
     matcher
-      .isCommented(Match(start = 85, value = """libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.8.0""""))
+      .isCommented(
+        MatchImpl(
+          start = 85,
+          value =
+            """libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.8.0""""))
       .shouldEqual(false)
   }
 

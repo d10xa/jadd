@@ -19,8 +19,8 @@ class GradleFileInsertsTest extends TestBase {
     result shouldEqual
       """|dependencies {
          |    testCompile 't:t:1.0'
-         |    compile "a:b:2.0"
-         |    compile "x:y:3.0"
+         |    implementation "a:b:2.0"
+         |    implementation "x:y:3.0"
          |}
          |""".stripMargin
   }
@@ -48,7 +48,7 @@ class GradleFileInsertsTest extends TestBase {
           |}
           |dependencies {
           |\ttestCompile 'junit:junit:4.12'
-          |\tcompile "org.codehaus.groovy:groovy-all:2.4.15"
+          |\timplementation "org.codehaus.groovy:groovy-all:2.4.15"
           |}
           |""".stripMargin
       )
@@ -58,17 +58,19 @@ class GradleFileInsertsTest extends TestBase {
     def buildFileSource =
       """|dependencies {
          |    compile 'u:u:1.0'
+         |    api "y:y:1.0"
          |}
          |""".stripMargin
 
     val result = new GradleFileInserts().appendAll(
       buildFileSource,
-      Seq(art("u:u:2.0"))
+      Seq(art("u:u:2.0"), art("y:y:2.0"))
     )
 
     result shouldEqual
       """|dependencies {
-         |    compile "u:u:2.0"
+         |    compile 'u:u:2.0'
+         |    api "y:y:2.0"
          |}
          |""".stripMargin
   }
@@ -89,8 +91,8 @@ class GradleFileInsertsTest extends TestBase {
          |    jcenter()
          |}
          |dependencies {
-         |    compile "a:a:1.0"
-         |    compile "b:b:2.0"
+         |    implementation "a:a:1.0"
+         |    implementation "b:b:2.0"
          |}
          |""".stripMargin
   }

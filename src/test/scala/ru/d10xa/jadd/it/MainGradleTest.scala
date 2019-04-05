@@ -36,7 +36,7 @@ class MainGradleTest
       """
         |dependencies {
         |    compile "commons-io:commons-io:2.6"
-        |    testCompile "junit:junit:4.12"
+        |    testImplementation "junit:junit:4.12"
         |}
       """.stripMargin
   }
@@ -45,7 +45,7 @@ class MainGradleTest
     write(
       """
         |dependencies {
-        |    compile "commons-io:commons-io:2.6"
+        |    implementation "commons-io:commons-io:2.6"
         |}
       """.stripMargin
     )
@@ -62,8 +62,8 @@ class MainGradleTest
     read() shouldEqual
       """
         |dependencies {
-        |    compile "commons-io:commons-io:2.6"
-        |    compile "io.circe:circe-generic_2.12:0.9.3"
+        |    implementation "commons-io:commons-io:2.6"
+        |    implementation "io.circe:circe-generic_2.12:0.9.3"
         |}
       """.stripMargin
   }

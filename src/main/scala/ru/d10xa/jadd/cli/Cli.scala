@@ -8,8 +8,13 @@ import ru.d10xa.jadd.cli.Command.Search
 import ru.d10xa.jadd.cli.Command.Show
 import ru.d10xa.jadd.show.AmmoniteFormatShowPrinter
 import ru.d10xa.jadd.show.GradleFormatShowPrinter
+import ru.d10xa.jadd.show.GradleLang.Groovy
+import ru.d10xa.jadd.show.GradleLang.Kotlin
 import ru.d10xa.jadd.show.GroovyFormatShowPrinter
 import ru.d10xa.jadd.show.LeiningenFormatShowPrinter
+import ru.d10xa.jadd.show.MavenFormatShowPrinter
+import ru.d10xa.jadd.show.MillFormatShowPrinter
+import ru.d10xa.jadd.show.SbtFormatShowPrinter
 import scopt.OptionDef
 import scopt.OptionParser
 
@@ -89,17 +94,25 @@ object Cli extends Cli {
       .action((_, c) => c.copy(command = Show))
       .children(
         opt[String]("output-format")
-          .text("artifacts output format (ammonite, groovy, gradle, leiningen)")
+          .text("artifacts output format (ammonite, gradle, groovy, leiningen, maven, mill, sbt)")
           .action((x, c) =>
             x match {
               case "ammonite" =>
                 c.copy(showPrinter = AmmoniteFormatShowPrinter)
+              case "gradle" =>
+                c.copy(showPrinter = new GradleFormatShowPrinter(Groovy))
+              case "gradle-kotlin" =>
+                c.copy(showPrinter = new GradleFormatShowPrinter(Kotlin))
               case "groovy" =>
                 c.copy(showPrinter = GroovyFormatShowPrinter)
               case "leiningen" =>
                 c.copy(showPrinter = LeiningenFormatShowPrinter)
-              case "gradle" =>
-                c.copy(showPrinter = GradleFormatShowPrinter)
+              case "maven" =>
+                c.copy(showPrinter = MavenFormatShowPrinter)
+              case "mill" =>
+                c.copy(showPrinter = MillFormatShowPrinter)
+              case "sbt" =>
+                c.copy(showPrinter = SbtFormatShowPrinter)
               case _ => c
           })
       )

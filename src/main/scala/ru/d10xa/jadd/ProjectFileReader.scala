@@ -1,11 +1,7 @@
 package ru.d10xa.jadd
 
-import java.io.File
-import java.io.PrintWriter
-
+import better.files._
 import cats.effect.SyncIO
-
-import scala.io.Source
 
 trait ProjectFileReader {
   def read(relative: String): SyncIO[String]
@@ -32,13 +28,10 @@ class ProjectFileReaderMemory(m: Map[String, String])
           .replace("/", "_")
           .replace("\\", "_")
           .split("\\.")
-        val tempFile =
-          File.createTempFile("tempfile", fileName.last)
-        val pw = new PrintWriter(tempFile)
-        pw.write(content)
-        pw.close()
-        tempFile.deleteOnExit()
-        tempFile
+        File
+          .newTemporaryFile("tempfile", fileName.last)
+          .deleteOnExit()
+          .write(content)
       }
   }
 }
@@ -48,15 +41,15 @@ class ProjectFileReaderImpl(root: File) extends ProjectFileReader {
   override def file(relative: String): SyncIO[File] = SyncIO {
     require(!relative.startsWith("."), "relative can not starts with '.'")
     require(!relative.startsWith("/"), "relative can not starts with '/'")
-    new File(root, relative)
+    File(root, relative)
   }
 
   override def read(relative: String): SyncIO[String] =
     file(relative)
-      .map(Source.fromFile)
-      .map(_.mkString)
+      .map(_.contentAsString)
 
   override def exists(relative: String): SyncIO[Boolean] =
     file(relative)
       .map(_.exists())
+
 }

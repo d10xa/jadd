@@ -1,7 +1,6 @@
 package ru.d10xa.jadd.pipelines
 
-import java.io.File
-
+import better.files._
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
@@ -11,8 +10,6 @@ import ru.d10xa.jadd.inserts.MavenFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.show.MavenShowCommand
 
-import scala.io.Source
-
 class MavenPipeline(
   override val ctx: Ctx,
   artifactInfoFinder: ArtifactInfoFinder
@@ -21,9 +18,9 @@ class MavenPipeline(
 
   import ru.d10xa.jadd.implicits.maven._
 
-  lazy val buildFile = new File(ctx.config.projectDir, "pom.xml")
+  lazy val buildFile = File(ctx.config.projectDir, "pom.xml")
 
-  lazy val buildFileSource: String = Source.fromFile(buildFile).mkString
+  lazy val buildFileSource: String = buildFile.contentAsString
 
   override def applicable: Boolean = buildFile.exists()
 

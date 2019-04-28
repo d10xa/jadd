@@ -1,7 +1,6 @@
 package ru.d10xa.jadd
 
-import java.io.File
-
+import better.files._
 import ru.d10xa.jadd.analyze.AnalyzeCommandImpl
 import ru.d10xa.jadd.cli.Command.Analyze
 import ru.d10xa.jadd.cli.Command.Help
@@ -51,7 +50,7 @@ class CommandExecutorImpl extends CommandExecutor {
       new SbtPipeline(
         ctx,
         artifactInfoFinder,
-        new ProjectFileReaderImpl(new File(config.projectDir))
+        new ProjectFileReaderImpl(File(config.projectDir))
       )
     )
 

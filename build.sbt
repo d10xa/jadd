@@ -1,7 +1,7 @@
 name := "jadd"
 organization in ThisBuild := "ru.d10xa"
 scalaVersion in ThisBuild := "2.12.8"
-version in ThisBuild := scala.io.Source.fromFile("VERSION").mkString.trim
+version in ThisBuild := IO.read(new File("VERSION")).trim
 mainClass in Compile := Some("ru.d10xa.jadd.Jadd")
 
 lazy val antlrSbtDependencies = project.in(file("antlr-sbt-dependencies"))
@@ -52,3 +52,4 @@ libraryDependencies ++= Seq(
 )
 libraryDependencies += "org.jsoup" % "jsoup" % "1.11.3"
 libraryDependencies += "org.typelevel" %% "cats-effect" % "1.2.0"
+libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.7.1"

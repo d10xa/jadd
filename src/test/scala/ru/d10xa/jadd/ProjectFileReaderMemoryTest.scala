@@ -1,9 +1,6 @@
 package ru.d10xa.jadd
-import java.io.File
 
 import ru.d10xa.jadd.testkit.TestBase
-
-import scala.io.Source
 
 class ProjectFileReaderMemoryTest extends TestBase {
 
@@ -24,8 +21,9 @@ class ProjectFileReaderMemoryTest extends TestBase {
   }
 
   test("testFile") {
-    val file: File = r.file("directory/filename").unsafeRunSync()
-    Source.fromFile(file).mkString shouldEqual "content"
+    val str =
+      r.file("directory/filename").map(_.contentAsString).unsafeRunSync()
+    str shouldEqual "content"
   }
 
   test("testExists") {

@@ -1,7 +1,7 @@
 package ru.d10xa.jadd.pipelines
 
-import cats.implicits._
 import cats.data.NonEmptyList
+import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx

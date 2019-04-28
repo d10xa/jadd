@@ -1,8 +1,8 @@
 package ru.d10xa.jadd.repository
 
-import java.io.File
 import java.net.URL
 
+import better.files._
 import cats.data.EitherNel
 import cats.data.NonEmptyList
 import com.typesafe.scalalogging.LazyLogging
@@ -12,6 +12,7 @@ import ru.d10xa.jadd.troubles.MetadataLoadTrouble
 import scala.collection.immutable.Stream
 import scala.collection.immutable.Stream.cons
 import scala.util.control.NonFatal
+import scala.xml.Elem
 import scala.xml.XML
 
 sealed trait RepositoryApi {
@@ -112,7 +113,7 @@ final class MavenLocalMetadataRepositoryApi(val repository: String)
     with MavenMetadataBase {
 
   override def absoluteRepositoryPath: String =
-    new File(repository).getAbsolutePath
+    File(repository).canonicalPath
 
   override def mavenMetadataXmlName: String = "maven-metadata-local.xml"
 
@@ -122,7 +123,8 @@ final class MavenLocalMetadataRepositoryApi(val repository: String)
   ): Either[MetadataLoadTrouble, MavenMetadata] =
     try {
       val url = makeFullMetadataUrl(path)
-      val rootElem = XML.loadFile(new File(url))
+      val rootElem: Elem =
+        File(url).bufferedReader.map(XML.load).get()
       val meta =
         MavenMetadata
           .readFromXml(MavenMetadata(url = Some(url)), rootElem)

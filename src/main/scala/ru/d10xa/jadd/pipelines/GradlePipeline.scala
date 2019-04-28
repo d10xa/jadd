@@ -1,7 +1,5 @@
 package ru.d10xa.jadd.pipelines
 
-import java.io.File
-
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
@@ -9,8 +7,7 @@ import ru.d10xa.jadd.SafeFileWriter
 import ru.d10xa.jadd.inserts.GradleFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.show.GradleShowCommand
-
-import scala.io.Source
+import better.files._
 
 class GradlePipeline(
   override val ctx: Ctx,
@@ -20,9 +17,9 @@ class GradlePipeline(
 
   import ru.d10xa.jadd.implicits.gradle._
 
-  lazy val buildFile = new File(ctx.config.projectDir, "build.gradle")
+  lazy val buildFile: File = File(ctx.config.projectDir, "build.gradle")
 
-  def buildFileSource: String = Source.fromFile(buildFile).mkString
+  def buildFileSource: String = buildFile.contentAsString
 
   override def applicable: Boolean = buildFile.exists()
 

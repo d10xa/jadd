@@ -1,7 +1,6 @@
 package ru.d10xa.jadd.pipelines
 
-import java.io.File
-
+import better.files._
 import cats.effect.SyncIO
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.Artifact

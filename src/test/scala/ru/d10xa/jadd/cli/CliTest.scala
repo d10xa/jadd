@@ -5,9 +5,7 @@ import ru.d10xa.jadd.cli.Command.Help
 import ru.d10xa.jadd.cli.Command.Show
 import ru.d10xa.jadd.cli.Command.Install
 import ru.d10xa.jadd.cli.Command.Search
-import ru.d10xa.jadd.show.GradleLang.Kotlin
 import ru.d10xa.jadd.show.AmmoniteFormatShowPrinter
-import ru.d10xa.jadd.show.GradleFormatShowPrinter
 import ru.d10xa.jadd.show.MavenFormatShowPrinter
 import ru.d10xa.jadd.testkit.TestBase
 

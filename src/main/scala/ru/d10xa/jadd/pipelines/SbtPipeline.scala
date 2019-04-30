@@ -20,8 +20,6 @@ class SbtPipeline(
 
   val buildFileName = "build.sbt"
 
-  import ru.d10xa.jadd.implicits.sbt._
-
   val buildFile: SyncIO[File] =
     projectFileReader.file(buildFileName)
 
@@ -32,12 +30,6 @@ class SbtPipeline(
     projectFileReader.read(buildFileName).unsafeRunSync()
 
   def install(artifacts: List[Artifact]): Unit = {
-
-    val artifactStrings: Seq[String] = artifacts
-      .flatMap(a => asPrintLines(a) ++ availableVersionsAsPrintLines(a))
-
-    artifactStrings.foreach(s => logger.info(s))
-
     val newSource: String =
       new SbtFileInserts().appendAll(buildFileSource, artifacts)
 

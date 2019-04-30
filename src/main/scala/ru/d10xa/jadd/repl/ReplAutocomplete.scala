@@ -1,13 +1,11 @@
-package ru.d10xa.jadd
+package ru.d10xa.jadd.repl
 
-import cats.implicits._
 import cats.effect._
+import cats.implicits._
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import ru.d10xa.jadd.ReplAutocomplete.ArtifactAutocompleteCache
 import ru.d10xa.jadd.repository.RepositoryConstants
 
-import scala.collection.mutable
 import scala.collection.JavaConverters.asScalaBufferConverter
 import scala.util.Try
 
@@ -33,18 +31,6 @@ class ReplAutocomplete(val cache: ArtifactAutocompleteCache) {
 }
 
 object ReplAutocomplete {
-
-  final class ArtifactAutocompleteCache(val deps: mutable.Set[String]) {
-
-    private val visitedRemotely: mutable.HashSet[String] =
-      mutable.HashSet[String]()
-
-    def cache(completeModulePart: String, v: Vector[String]): IO[Unit] = IO {
-      visitedRemotely.add(completeModulePart)
-      v.foreach(deps.add)
-    }
-
-  }
 
   def fetchJsoupDocument(url: String): IO[Document] =
     IO.fromEither(Try(Jsoup.connect(url).get()).toEither)

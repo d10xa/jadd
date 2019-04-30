@@ -2,6 +2,7 @@ package ru.d10xa.jadd
 
 import org.jsoup.Jsoup
 import org.scalatest.FunSuite
+import ru.d10xa.jadd.repl.ReplAutocomplete
 
 import scala.io.Source
 

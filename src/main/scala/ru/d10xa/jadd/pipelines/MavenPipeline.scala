@@ -6,6 +6,7 @@ import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.Indentation
 import ru.d10xa.jadd.SafeFileWriter
+import ru.d10xa.jadd.implicits.MavenImplicits
 import ru.d10xa.jadd.inserts.MavenFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.show.MavenShowCommand
@@ -16,7 +17,7 @@ class MavenPipeline(
 ) extends Pipeline
     with StrictLogging {
 
-  import ru.d10xa.jadd.implicits.maven._
+  import MavenImplicits.mavenArtifactView
 
   lazy val buildFile = File(ctx.config.projectDir, "pom.xml")
 
@@ -24,25 +25,16 @@ class MavenPipeline(
 
   override def applicable: Boolean = buildFile.exists()
 
+  def fix(artifacts: List[Artifact]): List[Artifact] =
+    artifacts.map(_.inlineScalaVersion)
+
   override def install(artifacts: List[Artifact]): Unit = {
 
     val indent = Indentation.predictIndentation(buildFileSource.split('\n'))
 
-    val artifactsWithVersions = artifacts.map(_.inlineScalaVersion)
-
-    // TODO stringsForPrint, stringsForInsert refactoring
-    val stringsForPrint = artifactsWithVersions
-      .map(_ -> indent)
-      .flatMap {
-        case t @ (artifact, _) =>
-          asPrintLines(t) ++ availableVersionsAsPrintLines(artifact)
-      }
-
-    val stringsForInsert = artifactsWithVersions
+    val stringsForInsert = fix(artifacts)
       .map(_ -> indent)
       .flatMap(asPrintLines(_))
-
-    stringsForPrint.foreach(s => logger.info(s))
 
     def newContent =
       MavenFileInserts

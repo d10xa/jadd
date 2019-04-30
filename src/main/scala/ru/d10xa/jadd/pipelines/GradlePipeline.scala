@@ -15,8 +15,6 @@ class GradlePipeline(
 ) extends Pipeline
     with StrictLogging {
 
-  import ru.d10xa.jadd.implicits.gradle._
-
   lazy val buildFile: File = File(ctx.config.projectDir, "build.gradle")
 
   def buildFileSource: String = buildFile.contentAsString
@@ -24,11 +22,6 @@ class GradlePipeline(
   override def applicable: Boolean = buildFile.exists()
 
   override def install(artifacts: List[Artifact]): Unit = {
-    val artifactStrings: Seq[String] = artifacts
-      .flatMap(a => asPrintLines(a) ++ availableVersionsAsPrintLines(a))
-
-    artifactStrings.foreach(s => logger.info(s))
-
     val newSource: String = new GradleFileInserts()
       .appendAll(buildFileSource, artifacts)
 

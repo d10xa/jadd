@@ -3,12 +3,51 @@ package ru.d10xa.jadd.show
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Indent
 import ru.d10xa.jadd.Scope.Test
+import ru.d10xa.jadd.show.GradleLang.Groovy
 import ru.d10xa.jadd.show.GradleLang.Kotlin
 
 sealed trait ShowPrinter {
   def single(a: Artifact): String
   def mkString(artifacts: List[Artifact]): String =
     artifacts.map(single).mkString("\n")
+}
+
+object ShowPrinter {
+  import cats.syntax.option._
+
+  val printerNames: List[String] =
+    List(
+      "ammonite",
+      "gradle",
+      "gradle-kotlin",
+      "groovy",
+      "jadd",
+      "leiningen",
+      "maven",
+      "mill",
+      "sbt"
+    )
+
+  def fromString(str: String): Option[ShowPrinter] = str match {
+    case "ammonite" | "amm" =>
+      AmmoniteFormatShowPrinter.some
+    case "gradle" =>
+      new GradleFormatShowPrinter(Groovy).some
+    case "gradle-kotlin" =>
+      new GradleFormatShowPrinter(Kotlin).some
+    case "groovy" =>
+      GroovyFormatShowPrinter.some
+    case "jadd" =>
+      JaddFormatShowPrinter.some
+    case "leiningen" | "lein" =>
+      LeiningenFormatShowPrinter.some
+    case "maven" | "mvn" =>
+      MavenFormatShowPrinter.some
+    case "mill" =>
+      MillFormatShowPrinter.some
+    case "sbt" =>
+      SbtFormatShowPrinter.some
+  }
 }
 
 object JaddFormatShowPrinter extends ShowPrinter {

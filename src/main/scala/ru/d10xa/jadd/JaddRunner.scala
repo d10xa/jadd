@@ -6,6 +6,7 @@ import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.cli.Cli
 import ru.d10xa.jadd.cli.Command.Repl
 import ru.d10xa.jadd.cli.Config
+import ru.d10xa.jadd.repl.ReplCommand
 
 class JaddRunner(
   cli: Cli,

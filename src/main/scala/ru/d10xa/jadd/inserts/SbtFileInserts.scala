@@ -2,12 +2,12 @@ package ru.d10xa.jadd.inserts
 
 import com.typesafe.scalalogging.LazyLogging
 import ru.d10xa.jadd.Artifact
+import ru.d10xa.jadd.show.SbtFormatShowPrinter
 import ru.d10xa.jadd.view.ArtifactView
 
 class SbtFileInserts extends LazyLogging {
 
   import ArtifactView._
-  import ru.d10xa.jadd.implicits.sbt._
 
   def debugMatches(artifact: Artifact, matches: Seq[Match]): Unit = {
     def matchesCount = s"matches count: ${matches.size}"
@@ -39,8 +39,8 @@ class SbtFileInserts extends LazyLogging {
         .find(_._2.nonEmpty)
 
     def ins(a: Artifact = artifact): String = {
-      val insertStrings = a.showLines
-      appendLines(buildFileSource.split('\n'), insertStrings)
+      val insertStrings = SbtFormatShowPrinter.single(a)
+      appendLines(buildFileSource.split('\n'), insertStrings :: Nil)
         .mkString("\n") + "\n"
     }
 
@@ -48,7 +48,8 @@ class SbtFileInserts extends LazyLogging {
       case None =>
         ins()
       case Some((a, ms)) =>
-        ms.minBy(_.start).replace(buildFileSource, a.showLines.mkString("\n"))
+        ms.minBy(_.start)
+          .replace(buildFileSource, SbtFormatShowPrinter.single(a))
     }
   }
 

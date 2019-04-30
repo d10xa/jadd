@@ -5,7 +5,7 @@ import ru.d10xa.jadd.Indent
 import ru.d10xa.jadd.show.MavenFormatShowPrinter
 import ru.d10xa.jadd.view.ArtifactView
 
-trait MavenImplicits {
+object MavenImplicits {
 
   implicit val mavenArtifactView: ArtifactView[(Artifact, Indent)] =
     (artifactAndIndent: (Artifact, Indent)) => {

@@ -5,11 +5,12 @@ import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Indent
 import ru.d10xa.jadd.Indentation
 import ru.d10xa.jadd.experimental.CodeBlock
+import ru.d10xa.jadd.show.GradleFormatShowPrinter
+import ru.d10xa.jadd.show.GradleLang.Groovy
 
 class GradleFileInserts extends StrictLogging {
 
   import ru.d10xa.jadd.view.ArtifactView._
-  import ru.d10xa.jadd.implicits.gradle._
 
   def appendAll(source: String, artifacts: Seq[Artifact]): String =
     artifacts.foldLeft(source) { case (s, artifact) => append(s, artifact) }
@@ -23,22 +24,23 @@ class GradleFileInserts extends StrictLogging {
     val maybeFirstMatch = matches.sortBy(_.start).headOption
 
     def insertOrUpdate(artifact: Artifact): String = {
-      val artifactAsString = artifact.showLines.mkString("\n")
+      val str = new GradleFormatShowPrinter(Groovy) // TODO add kotlin
+        .single(artifact.inlineScalaVersion)
 
       def insert(): String =
         if (blocks.isEmpty) {
           s"""$source
              |dependencies {
-             |${indent.take(1)}$artifactAsString
+             |${indent.take(1)}$str
              |}
              |""".stripMargin
         } else {
           val b = blocks.head
           val (begin, end) = source.splitAt(b.innerEndIndex)
-          begin + s"""${indent.take(1)}$artifactAsString""" + "\n" + end
+          begin + s"""${indent.take(1)}$str""" + "\n" + end
         }
       def update(m: Match): String =
-        m.replace(source, artifactAsString)
+        m.replace(source, str)
 
       maybeFirstMatch match {
         case Some(m: Match) => update(m)

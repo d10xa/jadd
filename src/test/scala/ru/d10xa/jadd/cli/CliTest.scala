@@ -71,11 +71,6 @@ class CliTest extends TestBase {
     parse("install", "--debug").debug.shouldBe(true)
   }
 
-  test("parse --dry-run") {
-    parse("install").dryRun.shouldBe(false)
-    parse("install", "--dry-run").dryRun.shouldBe(true)
-  }
-
   test("parse --project-dir") {
     parse("install", "--project-dir=/tmp").projectDir.shouldBe("/tmp")
     parse("install", "--project-dir", "/tmp").projectDir.shouldBe("/tmp")

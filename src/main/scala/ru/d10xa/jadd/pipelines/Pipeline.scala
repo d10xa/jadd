@@ -65,7 +65,6 @@ trait Pipeline extends StrictLogging {
   def install(artifacts: List[Artifact]): Unit
   def show(): Seq[Artifact]
   def ctx: Ctx
-  def needWrite: Boolean = ctx.config.command == Install && !ctx.config.dryRun
   def asPrintLines[A](a: A)(implicit view: ArtifactView[A]): Seq[String] =
     view.showLines(a)
 

@@ -19,7 +19,6 @@ final case class Config(
   ),
   showPrinter: ShowPrinter = JaddFormatShowPrinter,
   proxy: Option[String] = None,
-  dryRun: Boolean = false,
   quiet: Boolean = false,
   debug: Boolean = false
 )

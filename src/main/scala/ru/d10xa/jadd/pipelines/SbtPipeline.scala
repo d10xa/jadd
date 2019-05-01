@@ -37,9 +37,7 @@ class SbtPipeline(
       new SafeFileWriter().write(f, newSource)
     }
 
-    if (this.needWrite) {
-      fileUpdate.unsafeRunSync()
-    }
+    fileUpdate.unsafeRunSync()
   }
 
   override def show(): Seq[Artifact] =

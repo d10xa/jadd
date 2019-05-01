@@ -25,9 +25,7 @@ class GradlePipeline(
     val newSource: String = new GradleFileInserts()
       .appendAll(buildFileSource, artifacts)
 
-    if (this.needWrite) {
-      new SafeFileWriter().write(buildFile, newSource)
-    }
+    new SafeFileWriter().write(buildFile, newSource)
   }
 
   override def show(): Seq[Artifact] =

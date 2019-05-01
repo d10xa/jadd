@@ -30,10 +30,6 @@ object Cli extends Cli {
         .unbounded()
         .optional()
 
-    opt[Unit]("dry-run")
-      .text("read-only mode")
-      .action((_, c) => c.copy(dryRun = true))
-
     opt[Unit]('q', "quiet")
       .text("log errors only")
       .action((_, c) => c.copy(quiet = true))

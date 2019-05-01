@@ -44,9 +44,7 @@ class MavenPipeline(
           indent
         )
         .mkString("\n") + "\n"
-    if (this.needWrite) {
-      new SafeFileWriter().write(buildFile, newContent)
-    }
+    new SafeFileWriter().write(buildFile, newContent)
   }
 
   override def show(): Seq[Artifact] =

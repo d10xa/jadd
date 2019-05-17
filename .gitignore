@@ -10,3 +10,5 @@ lib/
 zip/
 .attach_pid*
 .antlr-tmp/
+.bloop
+.metals

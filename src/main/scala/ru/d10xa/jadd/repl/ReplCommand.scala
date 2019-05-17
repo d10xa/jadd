@@ -4,6 +4,7 @@ import com.typesafe.scalalogging.StrictLogging
 import org.jline.reader._
 import org.jline.terminal.Terminal
 import org.jline.terminal.TerminalBuilder
+import ru.d10xa.jadd.RunParams
 
 import scala.util.Try
 
@@ -33,7 +34,7 @@ object ReplCommand extends StrictLogging {
         null)
   }
 
-  def runRepl(action: Array[String] => Unit): Unit = {
+  def runRepl(runParams: RunParams, action: RunParams => Unit): Unit = {
     logger.info("Welcome to jadd REPL!")
     val replContext = new ReplContext
     var running = true
@@ -41,7 +42,7 @@ object ReplCommand extends StrictLogging {
       val line: String = readReplString(replContext)
       running = needContinue(line)
       if (running) {
-        action(line.split(" "))
+        action(runParams.copy(args = line.split(" ")))
       }
     }
   }

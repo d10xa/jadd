@@ -7,10 +7,9 @@ object Jadd {
   def main(args: Array[String]): Unit = {
     val runner = new JaddRunner(
       cli = Cli,
-      commandExecutor = new CommandExecutorImpl,
       loggingUtil = LoggingUtil
     )
-    runner.run(args)
+    runner.run(RunParams(args, new CommandExecutorImpl))
   }
 
 }

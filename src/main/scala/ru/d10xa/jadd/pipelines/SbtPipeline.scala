@@ -1,7 +1,7 @@
 package ru.d10xa.jadd.pipelines
 
 import better.files._
-import cats.effect.SyncIO
+import cats.effect._
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
@@ -20,14 +20,14 @@ class SbtPipeline(
 
   val buildFileName = "build.sbt"
 
-  val buildFile: SyncIO[File] =
-    projectFileReader.file(buildFileName)
+  val buildFile: IO[File] =
+    projectFileReader.file[IO](buildFileName)
 
   override def applicable: Boolean =
-    projectFileReader.exists(buildFileName).unsafeRunSync()
+    projectFileReader.exists[IO](buildFileName).unsafeRunSync()
 
   def buildFileSource: String =
-    projectFileReader.read(buildFileName).unsafeRunSync()
+    projectFileReader.read[IO](buildFileName).unsafeRunSync()
 
   def install(artifacts: List[Artifact]): Unit = {
     val newSource: String =

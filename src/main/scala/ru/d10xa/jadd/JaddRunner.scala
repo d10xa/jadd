@@ -38,17 +38,19 @@ class JaddRunner(
     }
 
     def runOnceForRepl(runParams: RunParams): Unit =
-      JaddRunner.runOnce(readAndEvalConfig(runParams.args), runParams)
+      JaddRunner.runOnce(
+        readAndEvalConfig(runParams.args),
+        runParams.commandExecutor)
 
     val config: Config = readAndEvalConfig(runParams.args)
     if (config.command == Repl) ReplCommand.runRepl(runParams, runOnceForRepl)
-    else JaddRunner.runOnce(config, runParams)
+    else JaddRunner.runOnce(config, runParams.commandExecutor)
   }
 
 }
 
 object JaddRunner extends StrictLogging {
-  def runOnce(config: Config, runParams: RunParams): Unit = {
+  def runOnce(config: Config, commandExecutor: CommandExecutor): Unit = {
     val repositoryShortcuts = RepositoryShortcutsImpl
     val artifactInfoFinder: ArtifactInfoFinder =
       new ArtifactInfoFinder(
@@ -57,9 +59,6 @@ object JaddRunner extends StrictLogging {
         repositoryShortcuts = repositoryShortcuts
       )
     val loader = new LoaderImpl(artifactInfoFinder, repositoryShortcuts)
-    runParams.commandExecutor.execute(
-      config,
-      loader,
-      () => logger.info(config.usage))
+    commandExecutor.execute(config, loader, () => logger.info(config.usage))
   }
 }

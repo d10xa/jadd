@@ -43,9 +43,12 @@ class CommandExecutorImpl extends CommandExecutor {
               Utils.sourceFromSpringUri(config.shortcutsUri)),
             repositoryShortcuts = repositoryShortcuts
           )
-        executePipelines(c, loader, artifactInfoFinder)
+        CommandExecutorImpl.executePipelines(c, loader, artifactInfoFinder)
     }
 
+}
+
+object CommandExecutorImpl {
   def executePipelines(
     config: Config,
     loader: Loader,
@@ -74,5 +77,4 @@ class CommandExecutorImpl extends CommandExecutor {
       .sequence_
       .unsafeRunSync()
   }
-
 }

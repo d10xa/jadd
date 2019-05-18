@@ -1,5 +1,7 @@
 package ru.d10xa.jadd
 
+import better.files.File
+import cats.effect.IO
 import ru.d10xa.jadd.testkit.TestBase
 
 class ProjectFileReaderMemoryTest extends TestBase {
@@ -9,31 +11,33 @@ class ProjectFileReaderMemoryTest extends TestBase {
       "directory/filename" -> "content"
     ))
 
+  def read(s: String): String = r.read[IO](s).unsafeRunSync()
+  def file(s: String): File = r.file[IO](s).unsafeRunSync()
+  def exists(s: String): Boolean = r.exists[IO](s).unsafeRunSync()
+
   test("testRead") {
-    val content = r.read("directory/filename").unsafeRunSync()
+    val content = read("directory/filename")
     content shouldEqual "content"
   }
 
   test("testRead non-existent file") {
     assertThrows[RuntimeException] {
-      r.read("nonexistentfile").unsafeRunSync()
+      read("nonexistentfile")
     }
   }
 
   test("testFile") {
     val str =
-      r.file("directory/filename").map(_.contentAsString).unsafeRunSync()
+      file("directory/filename").contentAsString
     str shouldEqual "content"
   }
 
   test("testExists") {
-    val exists = r.exists("directory/filename").unsafeRunSync()
-    exists shouldBe true
+    exists("directory/filename") shouldBe true
   }
 
   test("testExists non-existent file") {
-    val exists = r.exists("nonexistentfile").unsafeRunSync()
-    exists shouldBe false
+    exists("nonexistentfile") shouldBe false
   }
 
 }

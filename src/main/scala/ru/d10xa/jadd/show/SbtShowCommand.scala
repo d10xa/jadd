@@ -1,5 +1,6 @@
 package ru.d10xa.jadd.show
 
+import cats.effect.IO
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import ru.d10xa.jadd.Artifact
@@ -64,7 +65,7 @@ class SbtShowCommand(
         }
         import ru.d10xa.jadd.regex.RegexImplicits._
         projectFileReader
-          .read("project/Dependencies.scala")
+          .read[IO]("project/Dependencies.scala")
           .map { source =>
             SbtVerbalExpressions.declaredDependency.groups4(source)
           }

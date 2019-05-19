@@ -91,20 +91,39 @@ object Artifact {
   def fromTuple2(t: (String, String)): Artifact =
     Artifact(t._1, t._2, None)
 
+  /**
+    * Example: Split artifact id cats-core_2.12 to tuple (cats-core%%, Some(2.12))
+    */
+  def scalaVersionAsPlaceholders(
+    artifactId: String): (String, Option[String]) = {
+    val scalaVersions = Seq("2.11", "2.12")
+    val foundScalaVersion: Option[String] =
+      scalaVersions.find(v => artifactId.contains(s"_$v"))
+    foundScalaVersion match {
+      case Some(v) =>
+        (artifactId.dropRight("_".length + v.length) + "%%", Some(v))
+      case None => (artifactId, None)
+    }
+  }
+
   def fromString(artifactRaw: String): Either[ArtifactTrouble, Artifact] =
     artifactRaw.split(":") match {
       case Array(g, a) =>
+        val (artifactId, maybeScalaVersion) = scalaVersionAsPlaceholders(a)
         Right(
           Artifact(
             groupId = g,
-            artifactId = a
+            artifactId = artifactId,
+            maybeScalaVersion = maybeScalaVersion
           ))
       case Array(g, a, v) =>
+        val (artifactId, maybeScalaVersion) = scalaVersionAsPlaceholders(a)
         Right(
           Artifact(
             groupId = g,
-            artifactId = a,
-            maybeVersion = Some(v)
+            artifactId = artifactId,
+            maybeVersion = Some(v),
+            maybeScalaVersion = maybeScalaVersion
           ))
       case _ => Left(WrongArtifactRaw)
     }

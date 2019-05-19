@@ -4,6 +4,8 @@ import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.ArtifactInfo
 import ru.d10xa.jadd.Scope
 import ru.d10xa.jadd.Utils
+import ru.d10xa.jadd.troubles
+import cats.implicits._
 
 import scala.util.Try
 
@@ -69,9 +71,6 @@ class ArtifactInfoFinder(
     artifactRaw: String
   ): Either[ArtifactTrouble, Artifact] = {
 
-    // TODO move to either
-    require(!artifactRaw.contains("("), "artifact contain illegal symbol (")
-
     def shortcutToArtifact: Option[Artifact] =
       artifactShortcuts
         .unshort(artifactRaw)
@@ -81,12 +80,12 @@ class ArtifactInfoFinder(
             Artifact(groupId = a, artifactId = b, shortcut = Some(artifactRaw))
         }
 
-    val artifact: Either[ArtifactTrouble, Artifact] =
-      if (artifactRaw.contains(":")) {
-        Artifact.fromString(artifactRaw)
+    def full(str: String): Either[ArtifactTrouble, Artifact] =
+      if (str.contains(":")) {
+        Artifact.fromString(str)
       } else {
         shortcutToArtifact match {
-          case None => Left(ArtifactNotFoundByAlias(artifactRaw))
+          case None => Left(ArtifactNotFoundByAlias(str))
           case Some(a) => Right(a)
         }
       }
@@ -105,7 +104,10 @@ class ArtifactInfoFinder(
       a.copy(scope = scope, repository = repositoryPath)
     }
 
-    artifact.map(addInfoToArtifact)
+    val valid: Either[troubles.ArtifactTrouble, Unit] = Either
+      .cond(!artifactRaw.contains("("), (), WrongArtifactRaw)
+
+    (valid >> full(artifactRaw)).map(addInfoToArtifact)
   }
 
 }

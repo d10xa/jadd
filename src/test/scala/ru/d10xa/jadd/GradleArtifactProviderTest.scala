@@ -34,8 +34,9 @@ class GradleArtifactProviderTest extends TestBase {
     )
     artifacts(1) shouldEqual Artifact(
       groupId = "org.scalatest",
-      artifactId = "scalatest_2.12",
-      maybeVersion = Some("3.0.4")
+      artifactId = "scalatest%%",
+      maybeVersion = Some("3.0.4"),
+      maybeScalaVersion = Some("2.12")
     )
   }
 }

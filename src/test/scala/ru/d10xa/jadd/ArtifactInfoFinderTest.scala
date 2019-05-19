@@ -58,4 +58,14 @@ class ArtifactInfoFinderTest extends TestBase {
       "safojasfoi")
   }
 
+  test("aware scala version") {
+    val a = artifactFromString("a:b_2.12:1.1.0").right.get
+    a shouldEqual Artifact(
+      groupId = "a",
+      artifactId = "b%%",
+      maybeScalaVersion = Some("2.12"),
+      maybeVersion = Some("1.1.0")
+    )
+  }
+
 }

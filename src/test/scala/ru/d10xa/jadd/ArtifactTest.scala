@@ -61,4 +61,11 @@ class ArtifactTest extends TestBase {
     Artifact.fromTuple2(("a", "b")) shouldEqual Artifact("a", "b", None)
   }
 
+  test("scalaVersionAsPlaceholders") {
+    val (artifactId, Some(scalaVersion)) =
+      Artifact.scalaVersionAsPlaceholders("b_2.12")
+    artifactId shouldEqual "b%%"
+    scalaVersion shouldEqual "2.12"
+  }
+
 }

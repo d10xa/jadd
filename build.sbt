@@ -39,17 +39,17 @@ wartremoverErrors in (Compile, compile) ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.scala-lang.modules" %% "scala-xml" % "1.1.0",
-  "com.github.scopt" %% "scopt" % "3.7.0",
-  "org.scalatest" %% "scalatest" % "3.0.3" % Test,
+  "org.scala-lang.modules" %% "scala-xml" % "1.2.0",
+  "com.github.scopt" %% "scopt" % "3.7.1",
   "ch.qos.logback" % "logback-classic" % "1.2.3",
-  "com.typesafe.scala-logging" %% "scala-logging" % "3.9.0",
-  "org.typelevel" %% "cats-core" % "1.1.0",
-  "org.jline" % "jline" % "3.7.1",
-  "com.lihaoyi" %% "ujson" % "0.6.6",
-  "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.5",
-  "com.github.tomakehurst" % "wiremock" % "2.18.0" % Test
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
+  "org.typelevel" %% "cats-core" % "1.6.0",
+  "org.jline" % "jline" % "3.11.0",
+  "com.lihaoyi" %% "ujson" % "0.7.4",
+  "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.6",
+  "org.scalatest" %% "scalatest" % "3.0.5" % Test,
+  "com.github.tomakehurst" % "wiremock" % "2.23.2" % Test
 )
-libraryDependencies += "org.jsoup" % "jsoup" % "1.11.3"
-libraryDependencies += "org.typelevel" %% "cats-effect" % "1.2.0"
-libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.7.1"
+libraryDependencies += "org.jsoup" % "jsoup" % "1.12.1"
+libraryDependencies += "org.typelevel" %% "cats-effect" % "1.3.0"
+libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.8.0"

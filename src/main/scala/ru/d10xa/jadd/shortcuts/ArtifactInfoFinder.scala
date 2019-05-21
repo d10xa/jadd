@@ -34,11 +34,11 @@ class ArtifactInfoFinder(
       )
 
     def readFile(fileName: String): Option[ArtifactInfo] = {
-      import ujson.Js
+      import ujson.Value
 
-      implicit class JsOptStr(js: Js) {
+      implicit class JsOptStr(v: Value) {
         def optStr(selector: String): Option[String] =
-          Try(js(selector).str).toOption
+          Try(v(selector).str).toOption
       }
 
       val artifactInfoPath: String = artifactInfoBasePath + fileName

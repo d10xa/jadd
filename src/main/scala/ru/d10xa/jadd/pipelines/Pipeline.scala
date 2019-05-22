@@ -1,38 +1,59 @@
 package ru.d10xa.jadd.pipelines
 
+import cats.data.Ior
+import cats.data.IorNel
 import cats.effect.IO
 import cats.effect.Sync
 import com.typesafe.scalalogging.StrictLogging
-import ru.d10xa.jadd.Loader.Result
 import ru.d10xa.jadd.cli.Command.Install
 import ru.d10xa.jadd.cli.Command.Search
 import ru.d10xa.jadd.cli.Command.Show
 import ru.d10xa.jadd.show.JaddFormatShowPrinter
+import ru.d10xa.jadd.troubles.ArtifactTrouble
 import ru.d10xa.jadd.troubles.handleTroubles
 import ru.d10xa.jadd.view.ArtifactView
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.Loader
 import ru.d10xa.jadd.Utils
+import ru.d10xa.jadd.troubles
+import cats.implicits._
 
 trait Pipeline extends StrictLogging {
   def applicable: Boolean
-  def handleInstall[F[_]: Sync](r: Result): F[Unit] =
-    Sync[F].delay {
-      install(r.values)
-      handleTroubles(r.errors.flatMap(_.toList), s => logger.info(s))
-    }
 
-  def handleSearch[F[_]: Sync](r: Result): F[Unit] =
-    Sync[F].delay {
-      search(r.values)
-      handleTroubles(r.errors.flatMap(_.toList), s => logger.info(s))
+  def invokeCommand[F[_]: Sync](
+    ior: IorNel[ArtifactTrouble, List[Artifact]],
+    action: List[Artifact] => F[Unit]
+  ): F[Unit] = {
+    val handle: List[ArtifactTrouble] => F[Unit] =
+      troubles => Sync[F].delay(handleTroubles(troubles, s => logger.info(s)))
+
+    ior match {
+      case Ior.Right(artifacts) =>
+        action(artifacts)
+      case Ior.Left(troubles) =>
+        handle(troubles.toList)
+      case Ior.Both(troubles, artifacts) =>
+        action(artifacts) >> handle(troubles.toList)
     }
+  }
+
+  def handleInstall[F[_]: Sync](
+    ior: IorNel[ArtifactTrouble, List[Artifact]]
+  ): F[Unit] =
+    invokeCommand(ior, artifacts => Sync[F].delay(install(artifacts)))
+
+  def handleSearch[F[_]: Sync](
+    ior: IorNel[ArtifactTrouble, List[Artifact]]
+  ): F[Unit] =
+    invokeCommand(ior, artifacts => Sync[F].delay(search(artifacts)))
 
   def run(
     loader: Loader
   ): IO[Unit] = {
-    val loaded: IO[Result] = loader.load[IO](ctx)
+    val loaded: IO[IorNel[troubles.ArtifactTrouble, List[Artifact]]] =
+      loader.load[IO](ctx)
     ctx.config.command match {
       case Show =>
         IO(show())

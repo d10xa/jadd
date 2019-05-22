@@ -66,14 +66,15 @@ object GStr {
       strs ++ newMap
     }
 
-    var currentMap = m
-    var hasChanges = true
-    do {
-      val newMap = interpolateStep(currentMap)
-      hasChanges = newMap != currentMap
-      currentMap = newMap
-    } while (hasChanges)
-    currentMap
+    Stream
+      .iterate((Map.empty[String, String], m)) {
+        case (_, cur) =>
+          cur -> interpolateStep(cur)
+      }
+      .takeWhile { case (pre, cur) => pre != cur }
+      .map { case (_, cur) => cur }
+      .lastOption
+      .getOrElse(Map.empty)
   }
 
 }

@@ -7,7 +7,6 @@ import org.jsoup.nodes.Document
 import ru.d10xa.jadd.repository.RepositoryConstants
 
 import scala.collection.JavaConverters.asScalaBufferConverter
-import scala.util.Try
 
 class ReplAutocomplete(val cache: ArtifactAutocompleteCache) {
   import ReplAutocomplete._
@@ -32,8 +31,9 @@ class ReplAutocomplete(val cache: ArtifactAutocompleteCache) {
 
 object ReplAutocomplete {
 
-  def fetchJsoupDocument(url: String): IO[Document] =
-    IO.fromEither(Try(Jsoup.connect(url).get()).toEither)
+  def fetchJsoupDocument(url: String): IO[Document] = IO {
+    Jsoup.connect(url).get()
+  }
 
   def parseMavenCentralHtml(jsoupDocument: Document): Vector[String] =
     jsoupDocument
@@ -44,6 +44,17 @@ object ReplAutocomplete {
       .map(_.text().dropRight(1))
       .toVector
 
+  def autocompleteCandidatesFromDocument(
+    d: Document,
+    completeModulePart: String): Vector[String] =
+    parseMavenCentralHtml(d)
+      .map(s => s"$completeModulePart:$s")
+
+  def autocompleteCandidateAsPath(completeModulePart: String): String =
+    completeModulePart
+      .split("[:.]")
+      .mkString("/")
+
   /**
     *
     * @param completeModulePart groupId or groupId:artifactId
@@ -52,14 +63,9 @@ object ReplAutocomplete {
   def fetchCandidates(
     repository: String,
     completeModulePart: String): IO[Vector[String]] = {
-    val y = completeModulePart
-      .split("[:.]")
-      .mkString("/")
-    val ioDoc: IO[Document] = fetchJsoupDocument(s"$repository/$y")
-    ioDoc.map(
-      d =>
-        parseMavenCentralHtml(d)
-          .map(s => s"$completeModulePart:$s"))
+    val ioDoc: IO[Document] = fetchJsoupDocument(
+      s"$repository/${autocompleteCandidateAsPath(completeModulePart)}")
+    ioDoc.map(autocompleteCandidatesFromDocument(_, completeModulePart))
   }
 
 }

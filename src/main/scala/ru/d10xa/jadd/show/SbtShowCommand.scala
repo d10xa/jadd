@@ -114,17 +114,16 @@ object SbtShowCommand {
         Option(ctx.percents())
           .map(_.getText)
           .exists(_.length == 2)
+
+      val scope: Option[Scope] =
+        Option(ctx.Scope())
+          .map(_.getText)
+          .map(_.replaceAll("\"", ""))
+          .map(_.toLowerCase)
+          .map(_ == "test")
+          .flatMap(if (_) Some(Scope.Test) else None)
+
       arr match {
-        case g :: a :: v :: scope :: Nil =>
-          Some(
-            Artifact(
-              groupId = g,
-              artifactId = if (isScala) s"$a%%" else a,
-              maybeVersion = Some(v),
-              maybeScalaVersion = if (isScala) Some("2.12") else None,
-              scope =
-                if (scope.toLowerCase() == "test") Some(Scope.Test) else None
-            ))
         case g :: a :: v :: Nil =>
           Some(
             Artifact(
@@ -132,6 +131,7 @@ object SbtShowCommand {
               artifactId = if (isScala) s"$a%%" else a,
               maybeVersion = Some(v),
               maybeScalaVersion = if (isScala) Some("2.12") else None,
+              scope = scope
             ))
         case _ => None
       }

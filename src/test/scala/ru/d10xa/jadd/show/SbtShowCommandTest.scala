@@ -2,6 +2,7 @@ package ru.d10xa.jadd.show
 
 import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.ProjectFileReaderMemory
+import ru.d10xa.jadd.Scope.Test
 
 class SbtShowCommandTest extends TestBase {
 
@@ -45,6 +46,28 @@ class SbtShowCommandTest extends TestBase {
       art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_12,
       art("org.typelevel:cats-core%%:1.1.0").scala2_12
     )
+    result shouldEqual expected
+  }
+
+  test("with scope test") {
+    val source =
+      s"""
+         |libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.5" % Test
+         |libraryDependencies ++= Vector("junit" % "junit" % "4.12" % Test)
+         |libraryDependencies += "a" % "b" % "1" % UnknownScopeShouldBeIgnored
+       """.stripMargin
+
+    val result = new SbtShowCommand(source, emptyProjectFileReader)
+      .show()
+      .sortBy(_.artifactId)
+    val expected = Seq(
+      art("org.scalatest:scalatest_2.12:3.0.5")
+        .copy(scope = Some(Test))
+        .scala2_12,
+      art("junit:junit:4.12")
+        .copy(scope = Some(Test)),
+      art("a:b:1")
+    ).sortBy(_.groupId)
     result shouldEqual expected
   }
 

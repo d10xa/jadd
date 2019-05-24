@@ -18,8 +18,8 @@ public class SbtDependenciesParser extends Parser {
 		new PredictionContextCache();
 	public static final int
 		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, T__5=6, T__6=7, T__7=8, T__8=9, 
-		T__9=10, T__10=11, T__11=12, T__12=13, ScalaString=14, WS=15, Character=16, 
-		NEWLINE=17, COMMENT=18, LINE_COMMENT=19;
+		T__9=10, T__10=11, Scope=12, ScalaString=13, WS=14, Character=15, NEWLINE=16, 
+		COMMENT=17, LINE_COMMENT=18;
 	public static final int
 		RULE_percents = 0, RULE_singleDependency = 1, RULE_multipleDependencies = 2, 
 		RULE_libraryDependencies = 3, RULE_libraryDependency = 4;
@@ -29,12 +29,12 @@ public class SbtDependenciesParser extends Parser {
 	};
 
 	private static final String[] _LITERAL_NAMES = {
-		null, "'%'", "'%%'", "'Test'", "'\"test\"'", "','", "'libraryDependencies'", 
-		"'++='", "'Seq'", "'List'", "'Vector'", "'('", "')'", "'+='"
+		null, "'%'", "'%%'", "','", "'libraryDependencies'", "'++='", "'Seq'", 
+		"'List'", "'Vector'", "'('", "')'", "'+='"
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
 		null, null, null, null, null, null, null, null, null, null, null, null, 
-		null, null, "ScalaString", "WS", "Character", "NEWLINE", "COMMENT", "LINE_COMMENT"
+		"Scope", "ScalaString", "WS", "Character", "NEWLINE", "COMMENT", "LINE_COMMENT"
 	};
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
@@ -143,6 +143,7 @@ public class SbtDependenciesParser extends Parser {
 		public PercentsContext percents() {
 			return getRuleContext(PercentsContext.class,0);
 		}
+		public TerminalNode Scope() { return getToken(SbtDependenciesParser.Scope, 0); }
 		public SingleDependencyContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -187,15 +188,7 @@ public class SbtDependenciesParser extends Parser {
 				setState(17);
 				match(T__0);
 				setState(18);
-				_la = _input.LA(1);
-				if ( !(_la==T__2 || _la==T__3) ) {
-				_errHandler.recoverInline(this);
-				}
-				else {
-					if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
-					_errHandler.reportMatch(this);
-					consume();
-				}
+				match(Scope);
 				}
 			}
 
@@ -250,11 +243,11 @@ public class SbtDependenciesParser extends Parser {
 			setState(26);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while (_la==T__4) {
+			while (_la==T__2) {
 				{
 				{
 				setState(22);
-				match(T__4);
+				match(T__2);
 				setState(23);
 				singleDependency();
 				}
@@ -307,12 +300,12 @@ public class SbtDependenciesParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(29);
-			match(T__5);
+			match(T__3);
 			setState(30);
-			match(T__6);
+			match(T__4);
 			setState(31);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__7) | (1L << T__8) | (1L << T__9))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__5) | (1L << T__6) | (1L << T__7))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			else {
@@ -321,7 +314,7 @@ public class SbtDependenciesParser extends Parser {
 				consume();
 			}
 			setState(32);
-			match(T__10);
+			match(T__8);
 			setState(34);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
@@ -333,7 +326,7 @@ public class SbtDependenciesParser extends Parser {
 			}
 
 			setState(36);
-			match(T__11);
+			match(T__9);
 			}
 		}
 		catch (RecognitionException re) {
@@ -377,9 +370,9 @@ public class SbtDependenciesParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			setState(38);
-			match(T__5);
+			match(T__3);
 			setState(39);
-			match(T__12);
+			match(T__10);
 			setState(40);
 			singleDependency();
 			}
@@ -396,18 +389,18 @@ public class SbtDependenciesParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\25-\4\2\t\2\4\3\t"+
+		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\3\24-\4\2\t\2\4\3\t"+
 		"\3\4\4\t\4\4\5\t\5\4\6\t\6\3\2\3\2\3\3\3\3\3\3\3\3\3\3\3\3\3\3\5\3\26"+
 		"\n\3\3\4\3\4\3\4\7\4\33\n\4\f\4\16\4\36\13\4\3\5\3\5\3\5\3\5\3\5\5\5%"+
-		"\n\5\3\5\3\5\3\6\3\6\3\6\3\6\3\6\2\2\7\2\4\6\b\n\2\5\3\2\3\4\3\2\5\6\3"+
-		"\2\n\f\2*\2\f\3\2\2\2\4\16\3\2\2\2\6\27\3\2\2\2\b\37\3\2\2\2\n(\3\2\2"+
-		"\2\f\r\t\2\2\2\r\3\3\2\2\2\16\17\7\20\2\2\17\20\5\2\2\2\20\21\7\20\2\2"+
-		"\21\22\7\3\2\2\22\25\7\20\2\2\23\24\7\3\2\2\24\26\t\3\2\2\25\23\3\2\2"+
-		"\2\25\26\3\2\2\2\26\5\3\2\2\2\27\34\5\4\3\2\30\31\7\7\2\2\31\33\5\4\3"+
-		"\2\32\30\3\2\2\2\33\36\3\2\2\2\34\32\3\2\2\2\34\35\3\2\2\2\35\7\3\2\2"+
-		"\2\36\34\3\2\2\2\37 \7\b\2\2 !\7\t\2\2!\"\t\4\2\2\"$\7\r\2\2#%\5\6\4\2"+
-		"$#\3\2\2\2$%\3\2\2\2%&\3\2\2\2&\'\7\16\2\2\'\t\3\2\2\2()\7\b\2\2)*\7\17"+
-		"\2\2*+\5\4\3\2+\13\3\2\2\2\5\25\34$";
+		"\n\5\3\5\3\5\3\6\3\6\3\6\3\6\3\6\2\2\7\2\4\6\b\n\2\4\3\2\3\4\3\2\b\n\2"+
+		"*\2\f\3\2\2\2\4\16\3\2\2\2\6\27\3\2\2\2\b\37\3\2\2\2\n(\3\2\2\2\f\r\t"+
+		"\2\2\2\r\3\3\2\2\2\16\17\7\17\2\2\17\20\5\2\2\2\20\21\7\17\2\2\21\22\7"+
+		"\3\2\2\22\25\7\17\2\2\23\24\7\3\2\2\24\26\7\16\2\2\25\23\3\2\2\2\25\26"+
+		"\3\2\2\2\26\5\3\2\2\2\27\34\5\4\3\2\30\31\7\5\2\2\31\33\5\4\3\2\32\30"+
+		"\3\2\2\2\33\36\3\2\2\2\34\32\3\2\2\2\34\35\3\2\2\2\35\7\3\2\2\2\36\34"+
+		"\3\2\2\2\37 \7\6\2\2 !\7\7\2\2!\"\t\3\2\2\"$\7\13\2\2#%\5\6\4\2$#\3\2"+
+		"\2\2$%\3\2\2\2%&\3\2\2\2&\'\7\f\2\2\'\t\3\2\2\2()\7\6\2\2)*\7\r\2\2*+"+
+		"\5\4\3\2+\13\3\2\2\2\5\25\34$";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

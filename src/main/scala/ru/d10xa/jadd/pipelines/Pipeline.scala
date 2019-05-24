@@ -11,7 +11,6 @@ import ru.d10xa.jadd.cli.Command.Show
 import ru.d10xa.jadd.show.JaddFormatShowPrinter
 import ru.d10xa.jadd.troubles.ArtifactTrouble
 import ru.d10xa.jadd.troubles.handleTroubles
-import ru.d10xa.jadd.view.ArtifactView
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.Loader
@@ -83,8 +82,6 @@ trait Pipeline extends StrictLogging {
   def install(artifacts: List[Artifact]): Unit
   def show(): Seq[Artifact]
   def ctx: Ctx
-  def asPrintLines[A](a: A)(implicit view: ArtifactView[A]): Seq[String] =
-    view.showLines(a)
 
 }
 

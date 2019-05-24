@@ -2,13 +2,9 @@ package ru.d10xa.jadd.view
 
 import ru.d10xa.jadd.experimental.CodeBlock
 
-import scala.language.implicitConversions
 import scala.util.matching.Regex
 
-trait ArtifactView[T] {
-  def showLines(value: T): Seq[String]
-}
-
+// TODO Rename
 object ArtifactView {
 
   sealed trait Match {
@@ -56,14 +52,4 @@ object ArtifactView {
       } yield MatchImpl(start = m.start, value = m.group(0))
   }
 
-  trait Ops[A] {
-    def typeClassInstance: ArtifactView[A]
-    def self: A
-    def showLines: Seq[String] = typeClassInstance.showLines(self)
-  }
-  implicit def artifactViewOps[T](target: T)(
-    implicit t: ArtifactView[T]): Ops[T] = new Ops[T] {
-    val self: T = target
-    val typeClassInstance: ArtifactView[T] = t
-  }
 }

@@ -8,6 +8,7 @@ import ru.d10xa.jadd.inserts.GradleFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.show.GradleShowCommand
 import better.files._
+import cats.effect.Sync
 
 class GradlePipeline(
   override val ctx: Ctx,
@@ -19,7 +20,8 @@ class GradlePipeline(
 
   def buildFileSource: String = buildFile.contentAsString
 
-  override def applicable: Boolean = buildFile.exists()
+  override def applicable[F[_]: Sync](): F[Boolean] =
+    Sync[F].delay(buildFile.exists())
 
   override def install(artifacts: List[Artifact]): Unit = {
     val newSource: String = new GradleFileInserts()

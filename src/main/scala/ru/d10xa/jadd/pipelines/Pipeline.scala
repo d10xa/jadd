@@ -2,7 +2,6 @@ package ru.d10xa.jadd.pipelines
 
 import cats.data.Ior
 import cats.data.IorNel
-import cats.effect.IO
 import cats.effect.Sync
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.cli.Command.Install
@@ -19,7 +18,7 @@ import ru.d10xa.jadd.troubles
 import cats.implicits._
 
 trait Pipeline extends StrictLogging {
-  def applicable: Boolean
+  def applicable[F[_]: Sync](): F[Boolean]
 
   def invokeCommand[F[_]: Sync](
     ior: IorNel[ArtifactTrouble, List[Artifact]],
@@ -48,23 +47,24 @@ trait Pipeline extends StrictLogging {
   ): F[Unit] =
     invokeCommand(ior, artifacts => Sync[F].delay(search(artifacts)))
 
-  def run(
+  def run[F[_]: Sync](
     loader: Loader
-  ): IO[Unit] = {
-    val loaded: IO[IorNel[troubles.ArtifactTrouble, List[Artifact]]] =
-      loader.load[IO](ctx)
+  ): F[Unit] = {
+    def loaded: F[IorNel[troubles.ArtifactTrouble, List[Artifact]]] =
+      loader.load(ctx)
     ctx.config.command match {
       case Show =>
-        IO(show())
+        Sync[F]
+          .delay(show())
           .map(_.toList)
           .map(ctx.config.showPrinter.mkString(_))
           .map(s => logger.info(s))
       case Search =>
-        loaded.flatMap(handleSearch[IO])
+        loaded.flatMap(handleSearch[F])
       case Install =>
-        loaded.flatMap(handleInstall[IO])
+        loaded.flatMap(handleInstall[F])
       case command =>
-        IO(logger.info(s"command $command not implemented"))
+        Sync[F].delay(logger.info(s"command $command not implemented"))
     }
   }
 

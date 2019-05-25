@@ -1,6 +1,7 @@
 package ru.d10xa.jadd.pipelines
 
 import better.files._
+import cats.effect.Sync
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
@@ -21,7 +22,8 @@ class MavenPipeline(
 
   lazy val buildFileSource: String = buildFile.contentAsString
 
-  override def applicable: Boolean = buildFile.exists()
+  override def applicable[F[_]: Sync](): F[Boolean] =
+    Sync[F].delay(buildFile.exists())
 
   def fix(artifacts: List[Artifact]): List[Artifact] =
     artifacts.map(_.inlineScalaVersion)

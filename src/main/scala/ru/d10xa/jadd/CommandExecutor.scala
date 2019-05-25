@@ -1,6 +1,10 @@
 package ru.d10xa.jadd
 
 import better.files._
+import cats.data.NonEmptyList
+import cats.effect.IO
+import cats.effect.Sync
+import cats.implicits._
 import ru.d10xa.jadd.analyze.AnalyzeCommandImpl
 import ru.d10xa.jadd.cli.Command.Analyze
 import ru.d10xa.jadd.cli.Command.Help
@@ -14,7 +18,6 @@ import ru.d10xa.jadd.pipelines.UnknownProjectPipeline
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
 import ru.d10xa.jadd.shortcuts.RepositoryShortcutsImpl
-import cats.implicits._
 
 trait CommandExecutor {
   def execute(config: Config, loader: Loader, showUsage: () => Unit): Unit
@@ -43,19 +46,31 @@ class CommandExecutorImpl extends CommandExecutor {
               Utils.sourceFromSpringUri(config.shortcutsUri)),
             repositoryShortcuts = repositoryShortcuts
           )
-        CommandExecutorImpl.executePipelines(c, loader, artifactInfoFinder)
+        CommandExecutorImpl
+          .executePipelines[IO](c, loader, artifactInfoFinder)
+          .unsafeRunSync()
     }
 
 }
 
 object CommandExecutorImpl {
-  def executePipelines(
+
+  def filterPipelines[F[_]: Sync](
+    pipelines: List[Pipeline]
+  ): F[List[Pipeline]] =
+    pipelines
+      .map(p => p.applicable().map(_ -> p))
+      .sequence
+      .map(_.collect { case (b, p) if b => p })
+
+  def executePipelines[F[_]: Sync](
     config: Config,
     loader: Loader,
     artifactInfoFinder: ArtifactInfoFinder
-  ): Unit = {
+  ): F[Unit] = {
 
     val ctx = Ctx(config)
+
     val pipelines: List[Pipeline] = List(
       new GradlePipeline(ctx, artifactInfoFinder),
       new MavenPipeline(ctx, artifactInfoFinder),
@@ -66,15 +81,24 @@ object CommandExecutorImpl {
       )
     )
 
-    val activePipelines =
-      Option(pipelines.filter(_.applicable))
-        .filter(_.nonEmpty)
-        .getOrElse(Seq(new UnknownProjectPipeline(ctx, artifactInfoFinder)))
+    def orDefaultPipeline(pipelines: List[Pipeline]): NonEmptyList[Pipeline] =
+      NonEmptyList
+        .fromList(pipelines)
+        .getOrElse(
+          NonEmptyList.of(new UnknownProjectPipeline(ctx, artifactInfoFinder)))
 
-    activePipelines
-      .map(p => p.run(loader))
-      .toList
-      .sequence_
-      .unsafeRunSync()
+    def runPipelines(pipelines: NonEmptyList[Pipeline]): F[Unit] =
+      pipelines.map(_.run(loader)).sequence_
+
+    def activePipelines(): F[NonEmptyList[Pipeline]] =
+      filterPipelines(pipelines)
+        .map(orDefaultPipeline)
+
+    def runActivePipelines(): F[Unit] =
+      activePipelines()
+        .flatMap(runPipelines)
+
+    runActivePipelines()
+
   }
 }

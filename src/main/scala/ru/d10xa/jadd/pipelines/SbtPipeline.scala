@@ -23,8 +23,8 @@ class SbtPipeline(
   val buildFile: IO[File] =
     projectFileReader.file[IO](buildFileName)
 
-  override def applicable: Boolean =
-    projectFileReader.exists[IO](buildFileName).unsafeRunSync()
+  override def applicable[F[_]: Sync](): F[Boolean] =
+    projectFileReader.exists(buildFileName)
 
   def buildFileSource: String =
     projectFileReader.read[IO](buildFileName).unsafeRunSync()

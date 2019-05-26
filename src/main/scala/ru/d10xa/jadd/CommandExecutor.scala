@@ -10,6 +10,7 @@ import ru.d10xa.jadd.cli.Command.Analyze
 import ru.d10xa.jadd.cli.Command.Help
 import ru.d10xa.jadd.cli.Command.Repl
 import ru.d10xa.jadd.cli.Config
+import ru.d10xa.jadd.pipelines.AmmonitePipeline
 import ru.d10xa.jadd.pipelines.GradlePipeline
 import ru.d10xa.jadd.pipelines.MavenPipeline
 import ru.d10xa.jadd.pipelines.Pipeline
@@ -71,14 +72,17 @@ object CommandExecutorImpl {
 
     val ctx = Ctx(config)
 
+    val projectFileReaderImpl = new ProjectFileReaderImpl(
+      File(config.projectDir))
     val pipelines: List[Pipeline] = List(
       new GradlePipeline(ctx, artifactInfoFinder),
       new MavenPipeline(ctx, artifactInfoFinder),
       new SbtPipeline(
         ctx,
         artifactInfoFinder,
-        new ProjectFileReaderImpl(File(config.projectDir))
-      )
+        projectFileReaderImpl
+      ),
+      new AmmonitePipeline(ctx, projectFileReaderImpl)
     )
 
     def orDefaultPipeline(pipelines: List[Pipeline]): NonEmptyList[Pipeline] =

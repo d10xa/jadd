@@ -60,7 +60,8 @@ object CommandExecutorImpl {
     pipelines: List[Pipeline]
   ): F[List[Pipeline]] =
     pipelines
-      .map(p => p.applicable().map(_ -> p))
+    // TODO recover is not safe
+      .map(p => p.applicable().recover { case _ => false }.map(_ -> p))
       .sequence
       .map(_.collect { case (b, p) if b => p })
 

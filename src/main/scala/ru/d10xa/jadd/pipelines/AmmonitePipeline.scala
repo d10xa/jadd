@@ -26,7 +26,7 @@ class AmmonitePipeline(
       isScalaScript = file.name.endsWith(".sc")
     } yield exists && isScalaScript
 
-  val buildFileSource: String =
+  lazy val buildFileSource: String =
     buildFile.map(_.contentAsString).unsafeRunSync()
 
   def install(artifacts: List[Artifact]): Unit = {

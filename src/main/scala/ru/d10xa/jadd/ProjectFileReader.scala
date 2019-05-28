@@ -44,8 +44,8 @@ class ProjectFileReaderMemory(m: Map[String, String])
 class ProjectFileReaderImpl(root: File) extends ProjectFileReader {
 
   override def file[F[_]: Sync](relative: String): F[File] = Sync[F].delay {
-    require(!relative.startsWith("."), "relative can not starts with '.'")
-    require(!relative.startsWith("/"), "relative can not starts with '/'")
+//    require(!relative.startsWith("."), "relative can not starts with '.'")
+//    require(!relative.startsWith("/"), "relative can not starts with '/'")
     File(root, relative)
   }
 

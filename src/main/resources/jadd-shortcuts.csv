@@ -33,6 +33,7 @@ dbunit,org.dbunit:dbunit
 elasticsearch,org.elasticsearch:elasticsearch
 elasticsearch-client-transport,org.elasticsearch.client:transport
 elasticsearch-rest-client,org.elasticsearch.client:elasticsearch-rest-client
+elasticsearch-rest-high-level-client,org.elasticsearch.client:elasticsearch-rest-high-level-client
 flyway-core,org.flywaydb:flyway-core
 gradle-core,org.gradle:gradle-core
 gradle-tooling-api,org.gradle:gradle-tooling-api

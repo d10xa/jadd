@@ -74,7 +74,7 @@ trait Pipeline extends StrictLogging {
     val stringsForPrint = artifactsWithVersions
       .map(
         artifact =>
-          JaddFormatShowPrinter
+          JaddFormatShowPrinter.withVersions
             .single(artifact) + " // " + artifact.versionsForPrint)
     logger.info(stringsForPrint.mkString("\n"))
   }

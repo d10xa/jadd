@@ -17,7 +17,7 @@ final case class Config(
     // TODO support for ~
     s"${System.getProperty("user.home")}/.m2/repository"
   ),
-  showPrinter: ShowPrinter = JaddFormatShowPrinter,
+  showPrinter: ShowPrinter = JaddFormatShowPrinter.withVersions,
   proxy: Option[String] = None,
   quiet: Boolean = false,
   debug: Boolean = false

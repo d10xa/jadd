@@ -17,8 +17,8 @@ class ShowPrinterTest extends TestBase {
       .typeSymbol
       .asClass
       .knownDirectSubclasses
-      .size
-    implementationsCount shouldEqual ShowPrinter.printerNames.size - 1 // gradle has 2 implementations.
+      .size + 2 // gradle +1 implementation, jadd +1 implementation
+    implementationsCount shouldEqual ShowPrinter.printerNames.size
   }
 
 }

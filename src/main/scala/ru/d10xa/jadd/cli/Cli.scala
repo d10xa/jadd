@@ -58,12 +58,16 @@ object Cli extends Cli {
       .text("Specifies uri for artifacts shortcuts csv file")
       .action((x, c) => c.copy(shortcutsUri = x))
 
+    // TODO generate list of formats automatically
     opt[String]('f', "output-format")
       .text(
-        "artifacts output format (ammonite, gradle, groovy, leiningen, maven, mill, sbt)")
-      .action((x, c) =>
-        c.copy(showPrinter =
-          ShowPrinter.fromString(x).getOrElse(JaddFormatShowPrinter)))
+        "artifacts output format (ammonite, gradle, groovy, leiningen, maven, mill, sbt, jadd, jadd-no-versions)")
+      .action(
+        (x, c) =>
+          c.copy(
+            showPrinter = ShowPrinter
+              .fromString(x)
+              .getOrElse(JaddFormatShowPrinter.withVersions)))
 
     cmd("install")
       .text("install dependency to build file")

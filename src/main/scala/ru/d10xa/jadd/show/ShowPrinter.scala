@@ -22,6 +22,7 @@ object ShowPrinter {
       "gradle-kotlin",
       "groovy",
       "jadd",
+      "jadd-no-versions",
       "leiningen",
       "maven",
       "mill",
@@ -38,7 +39,9 @@ object ShowPrinter {
     case "groovy" =>
       GroovyFormatShowPrinter.some
     case "jadd" =>
-      JaddFormatShowPrinter.some
+      JaddFormatShowPrinter.withVersions.some
+    case "jadd-no-versions" =>
+      JaddFormatShowPrinter.withoutVersions.some
     case "leiningen" | "lein" =>
       LeiningenFormatShowPrinter.some
     case "maven" | "mvn" =>
@@ -50,7 +53,8 @@ object ShowPrinter {
   }
 }
 
-object JaddFormatShowPrinter extends ShowPrinter {
+final class JaddFormatShowPrinter private (withVersions: Boolean)
+    extends ShowPrinter {
   def single(a: Artifact): String = {
     val artifactId: String =
       (a.needScalaVersionResolving, a.maybeScalaVersion) match {
@@ -58,11 +62,18 @@ object JaddFormatShowPrinter extends ShowPrinter {
           a.artifactIdWithScalaVersion(scalaVersion)
         case _ => a.artifactId
       }
-    a.maybeVersion match {
-      case Some(v) => s"${a.groupId}:$artifactId:$v"
-      case None => s"${a.groupId}:$artifactId"
+    (a.maybeVersion, withVersions) match {
+      case (Some(v), true) => s"${a.groupId}:$artifactId:$v"
+      case _ => s"${a.groupId}:$artifactId"
     }
   }
+}
+
+object JaddFormatShowPrinter {
+  val withVersions: JaddFormatShowPrinter = new JaddFormatShowPrinter(
+    withVersions = true)
+  val withoutVersions: JaddFormatShowPrinter = new JaddFormatShowPrinter(
+    withVersions = false)
 }
 
 object AmmoniteFormatShowPrinter extends ShowPrinter {

@@ -1,9 +1,8 @@
 package ru.d10xa.jadd.experimental
 
-import org.scalatest.FunSuiteLike
-import org.scalatest.Matchers
+import ru.d10xa.jadd.testkit.TestBase
 
-class CodeBlockTest extends FunSuiteLike with Matchers {
+class CodeBlockTest extends TestBase {
 
   import CodeBlock._
 
@@ -40,7 +39,8 @@ class CodeBlockTest extends FunSuiteLike with Matchers {
         |""".stripMargin
     val blockContent = find(buildFileSource, "dependencies {").head
     blockContent.innerContent shouldEqual expected
-    buildFileSource.substring(blockContent.innerStartIndex) should startWith(" // }\n    testCompile 'junit:junit:4.11'")
+    buildFileSource.substring(blockContent.innerStartIndex) should startWith(
+      " // }\n    testCompile 'junit:junit:4.11'")
   }
 
   test("block not found") {

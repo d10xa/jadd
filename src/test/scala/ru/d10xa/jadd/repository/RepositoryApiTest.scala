@@ -1,9 +1,8 @@
 package ru.d10xa.jadd.repository
 
-import org.scalatest.FunSuiteLike
-import org.scalatest.Matchers
+import ru.d10xa.jadd.testkit.TestBase
 
-class RepositoryApiTest extends FunSuiteLike with Matchers {
+class RepositoryApiTest extends TestBase {
 
   test("rtrim trailing slash") {
     RepositoryApi.rtrimSlash("http://localhost:8080/") shouldEqual "http://localhost:8080"

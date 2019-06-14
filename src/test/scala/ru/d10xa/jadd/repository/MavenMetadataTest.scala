@@ -1,9 +1,8 @@
 package ru.d10xa.jadd.repository
 
-import org.scalatest.FunSuiteLike
-import org.scalatest.Matchers
+import ru.d10xa.jadd.testkit.TestBase
 
-class MavenMetadataTest extends FunSuiteLike with Matchers {
+class MavenMetadataTest extends TestBase {
 
   test("lastUpdated pretty format") {
     val result = MavenMetadata.lastUpdatedPretty("20180131214739")

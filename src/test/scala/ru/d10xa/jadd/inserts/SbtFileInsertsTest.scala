@@ -16,7 +16,10 @@ class SbtFileInsertsTest extends TestBase {
 
     val result = add(
       content,
-      Artifact(groupId = "ch.qos.logback", artifactId = "logback-classic", maybeVersion = Some("1.2.3"))
+      Artifact(
+        groupId = "ch.qos.logback",
+        artifactId = "logback-classic",
+        maybeVersion = Some("1.2.3"))
     )
 
     result.trim shouldEqual
@@ -98,6 +101,7 @@ class SbtFileInsertsTest extends TestBase {
 
   }
 
+  // TODO this is not desired behavior
   test("update explicit scala version to implicit") {
     val content =
       """
@@ -118,6 +122,23 @@ class SbtFileInsertsTest extends TestBase {
       """
         |libraryDependencies += "org.typelevel" %% "cats-core" % "1.1.0"
         |libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"
+        |""".stripMargin
+  }
+
+  test("update implicit scala version") {
+    val content =
+      """
+        |libraryDependencies += "org.typelevel" %% "cats-core" % "1.1.0"
+        |""".stripMargin
+
+    val artifact =
+      art("org.typelevel:cats-core_2.12:1.6.0")
+
+    val result = add(content, artifact.copy(explicitScalaVersion = false))
+
+    result shouldEqual
+      """
+        |libraryDependencies += "org.typelevel" %% "cats-core" % "1.6.0"
         |""".stripMargin
   }
 
@@ -157,37 +178,37 @@ class SbtFileInsertsTest extends TestBase {
 
   }
 
-    test("update seq and standalone") {
-      val content =
-        s"""
+  test("update seq and standalone") {
+    val content =
+      s"""
            |libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.8.0"
            |libraryDependencies ++= Seq(
            |  "ch.qos.logback" % "logback-classic" % "1.2.2"
            |)
            |""".stripMargin
 
-      val a1 = Artifact(
-        groupId = "com.typesafe.scala-logging",
-        artifactId = "scala-logging%%",
-        maybeVersion = Some("3.9.0"),
-        maybeScalaVersion = Some("2.12")
-      )
+    val a1 = Artifact(
+      groupId = "com.typesafe.scala-logging",
+      artifactId = "scala-logging%%",
+      maybeVersion = Some("3.9.0"),
+      maybeScalaVersion = Some("2.12")
+    )
 
-      val a2 = Artifact(
-        groupId = "ch.qos.logback",
-        artifactId = "logback-classic",
-        maybeVersion = Some("1.2.3"),
-        inSequence = true
-      )
+    val a2 = Artifact(
+      groupId = "ch.qos.logback",
+      artifactId = "logback-classic",
+      maybeVersion = Some("1.2.3"),
+      inSequence = true
+    )
 
-      add(content, a1, a2) shouldEqual
-        s"""
+    add(content, a1, a2) shouldEqual
+      s"""
            |libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.9.0"
            |libraryDependencies ++= Seq(
            |  "ch.qos.logback" % "logback-classic" % "1.2.3"
            |)
            |""".stripMargin
 
-    }
+  }
 
 }

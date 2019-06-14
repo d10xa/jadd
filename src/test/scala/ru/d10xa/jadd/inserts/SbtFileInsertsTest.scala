@@ -1,11 +1,9 @@
 package ru.d10xa.jadd.inserts
 
-import com.typesafe.scalalogging.StrictLogging
-import org.scalatest.FunSuiteLike
-import org.scalatest.Matchers
 import ru.d10xa.jadd.Artifact
+import ru.d10xa.jadd.testkit.TestBase
 
-class SbtFileInsertsTest extends FunSuiteLike with Matchers with StrictLogging {
+class SbtFileInsertsTest extends TestBase {
 
   def add(content: String, artifacts: Artifact*): String =
     new SbtFileInserts().appendAll(content, artifacts)

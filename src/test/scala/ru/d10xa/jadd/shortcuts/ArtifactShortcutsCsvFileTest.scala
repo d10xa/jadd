@@ -26,12 +26,7 @@ class ArtifactShortcutsCsvFileTest extends TestBase {
     lines.map(_.count(_ == ',')).distinct shouldEqual Vector(1)
   }
 
-  implicit class SeqDuplicatesImplicits[T](seq: Seq[T]) {
-    def duplicates(): Iterable[T] =
-      seq
-        .groupBy(identity)
-        .collect { case (x, xs) if xs.lengthCompare(1) > 0 => x }
-  }
+  import ArtifactShortcutsCsvFileTest.SeqDuplicatesImplicits
 
   test("shortcuts unique") {
     val duplicates = shortcuts.duplicates()
@@ -47,4 +42,13 @@ class ArtifactShortcutsCsvFileTest extends TestBase {
     shortcuts.sorted shouldEqual shortcuts
   }
 
+}
+
+object ArtifactShortcutsCsvFileTest {
+  implicit class SeqDuplicatesImplicits[T](val seq: Seq[T]) extends AnyVal {
+    def duplicates(): Iterable[T] =
+      seq
+        .groupBy(identity)
+        .collect { case (x, xs) if xs.lengthCompare(1) > 0 => x }
+  }
 }

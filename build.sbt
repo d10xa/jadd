@@ -10,6 +10,9 @@ lazy val root = project
   .in(file("."))
   .dependsOn(antlrSbtDependencies)
   .settings(
+    mappings in (Compile, packageBin) ++= {
+      (mappings in (antlrSbtDependencies, Compile, packageBin)).value
+    },
     scalacOptions := Seq(
       "-encoding",
       "UTF-8", // source files are in UTF-8

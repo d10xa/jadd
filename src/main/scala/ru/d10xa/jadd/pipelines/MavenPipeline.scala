@@ -46,7 +46,7 @@ class MavenPipeline(
     new SafeFileWriter().write(buildFile, newContent)
   }
 
-  override def show(): Seq[Artifact] =
-    new MavenShowCommand(buildFileSource).show()
+  override def show[F[_]: Sync](): F[Seq[Artifact]] =
+    Sync[F].delay(new MavenShowCommand(buildFileSource).show())
 
 }

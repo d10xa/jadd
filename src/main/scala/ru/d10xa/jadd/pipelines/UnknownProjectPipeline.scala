@@ -38,9 +38,11 @@ class UnknownProjectPipeline(
       .foreach(i => logger.info(i))
   }
 
-  override def show(): Seq[Artifact] = {
-    logger.info("Unknown project type. Nothing to show")
-    Seq.empty
+  override def show[F[_]: Sync](): F[Seq[Artifact]] = {
+    val log =
+      Sync[F].delay(logger.info("Unknown project type. Nothing to show"))
+    val emptySeq: F[Seq[Artifact]] = Sync[F].pure(Seq.empty)
+    log *> emptySeq
   }
 
 }

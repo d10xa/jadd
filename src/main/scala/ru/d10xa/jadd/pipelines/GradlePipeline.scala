@@ -30,7 +30,7 @@ class GradlePipeline(
     new SafeFileWriter().write(buildFile, newSource)
   }
 
-  override def show(): Seq[Artifact] =
-    new GradleShowCommand(buildFileSource).show()
+  override def show[F[_]: Sync](): F[Seq[Artifact]] =
+    Sync[F].delay(new GradleShowCommand(buildFileSource).show())
 
 }

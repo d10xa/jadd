@@ -42,7 +42,7 @@ class AmmonitePipeline(
   }
 
   // TODO implement
-  override def show(): Seq[Artifact] =
-    ???
+  override def show[F[_]: Sync](): F[Seq[Artifact]] =
+    Sync[F].delay(???)
 
 }

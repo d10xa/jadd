@@ -40,7 +40,7 @@ class SbtPipeline(
     fileUpdate.unsafeRunSync()
   }
 
-  override def show(): Seq[Artifact] =
-    new SbtShowCommand(buildFileSource, projectFileReader).show()
+  override def show[F[_]: Sync](): F[Seq[Artifact]] =
+    Sync[F].delay(new SbtShowCommand(buildFileSource, projectFileReader).show())
 
 }

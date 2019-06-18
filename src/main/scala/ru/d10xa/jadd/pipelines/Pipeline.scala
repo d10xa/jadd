@@ -54,8 +54,7 @@ trait Pipeline extends StrictLogging {
       loader.load(ctx)
     ctx.config.command match {
       case Show =>
-        Sync[F]
-          .delay(show())
+        show()
           .map(_.toList)
           .map(ctx.config.showPrinter.mkString(_))
           .map(s => logger.info(s))
@@ -80,7 +79,7 @@ trait Pipeline extends StrictLogging {
   }
 
   def install(artifacts: List[Artifact]): Unit
-  def show(): Seq[Artifact]
+  def show[F[_]: Sync](): F[Seq[Artifact]]
   def ctx: Ctx
 
 }

@@ -137,6 +137,7 @@ mysql,mysql:mysql-connector-java
 play-test,com.typesafe.play:play-test%%
 poi,org.apache.poi:poi
 postgresql,org.postgresql:postgresql
+pprint,com.lihaoyi:pprint%%
 pureconfig,com.github.pureconfig:pureconfig%%
 quicklens,com.softwaremill.quicklens:quicklens%%
 quill,io.getquill:quill%%
@@ -163,6 +164,7 @@ scala-xml,org.scala-lang.modules:scala-xml%%
 scalacheck,org.scalacheck:scalacheck%%
 scalameta,org.scalameta:scalameta%%
 scalamock-scalatest-support,org.scalamock:scalamock-scalatest-support%%
+scalatags,com.lihaoyi:scalatags%%
 scalatest,org.scalatest:scalatest%%
 scallop,org.rogach:scallop%%
 scopt,com.github.scopt:scopt%%

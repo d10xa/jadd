@@ -1,4 +1,4 @@
-package ru.d10xa.jadd.experimental
+package ru.d10xa.jadd.view
 
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.inserts.SbtArtifactMatcher

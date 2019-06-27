@@ -4,6 +4,7 @@ import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.repository.MavenMetadata
 import ru.d10xa.jadd.troubles.ArtifactTrouble
 import ru.d10xa.jadd.troubles.WrongArtifactRaw
+import ru.d10xa.jadd.versions.ScalaVersions
 import ru.d10xa.jadd.versions.VersionFilter
 
 final case class Artifact(
@@ -96,9 +97,10 @@ object Artifact {
     */
   def scalaVersionAsPlaceholders(
     artifactId: String): (String, Option[String]) = {
-    val scalaVersions = Seq("2.11", "2.12")
+
     val foundScalaVersion: Option[String] =
-      scalaVersions.find(v => artifactId.contains(s"_$v"))
+      ScalaVersions.supportedMinorVersions.find(v =>
+        artifactId.contains(s"_$v"))
     foundScalaVersion match {
       case Some(v) =>
         (artifactId.dropRight("_".length + v.length) + "%%", Some(v))

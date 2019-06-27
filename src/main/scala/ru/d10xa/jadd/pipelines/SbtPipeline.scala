@@ -2,6 +2,7 @@ package ru.d10xa.jadd.pipelines
 
 import better.files._
 import cats.effect._
+import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
@@ -10,6 +11,8 @@ import ru.d10xa.jadd.SafeFileWriter
 import ru.d10xa.jadd.inserts.SbtFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.show.SbtShowCommand
+
+import scala.util.matching.Regex
 
 class SbtPipeline(
   override val ctx: Ctx,
@@ -20,8 +23,8 @@ class SbtPipeline(
 
   val buildFileName = "build.sbt"
 
-  val buildFile: IO[File] =
-    projectFileReader.file[IO](buildFileName)
+  def buildFile[F[_]: Sync](): F[File] =
+    projectFileReader.file(buildFileName)
 
   override def applicable[F[_]: Sync](): F[Boolean] =
     projectFileReader.exists(buildFileName)
@@ -33,14 +36,34 @@ class SbtPipeline(
     val newSource: String =
       new SbtFileInserts().appendAll(buildFileSource, artifacts)
 
-    val fileUpdate = buildFile.map { f =>
+    def fileUpdate[F[_]: Sync](): F[Unit] = buildFile().map { f =>
       new SafeFileWriter().write(f, newSource)
     }
 
-    fileUpdate.unsafeRunSync()
+    fileUpdate[IO]().unsafeRunSync()
   }
 
   override def show[F[_]: Sync](): F[Seq[Artifact]] =
     Sync[F].delay(new SbtShowCommand(buildFileSource, projectFileReader).show())
 
+  override def findScalaVersion[F[_]: Sync](): F[Option[String]] =
+    buildFile()
+      .map(_.contentAsString)
+      .map(SbtPipeline.extractScalaVersionFromBuildSbt)
+}
+
+object SbtPipeline {
+  def extractScalaVersionFromBuildSbt(
+    buildFileSource: String
+  ): Option[String] = {
+    val r1 = "scalaVersion\\s+in\\s+ThisBuild\\s*:=\\s*\"(\\d.\\d{1,2})".r
+    val r2 = "scalaVersion\\s*:=\\s*\"(\\d.\\d{1,2})".r
+    def allMatches(r: Regex): Vector[Regex.Match] =
+      r.findAllMatchIn(buildFileSource).toVector
+
+    Seq(r1, r2).map(allMatches).reduce(_ ++ _) match {
+      case matches if matches.isEmpty => None
+      case matches => matches.minBy(_.start).group(1).some
+    }
+  }
 }

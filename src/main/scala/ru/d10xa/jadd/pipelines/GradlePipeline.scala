@@ -1,5 +1,8 @@
 package ru.d10xa.jadd.pipelines
 
+import better.files._
+import cats.effect.Sync
+import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
@@ -7,8 +10,7 @@ import ru.d10xa.jadd.SafeFileWriter
 import ru.d10xa.jadd.inserts.GradleFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.show.GradleShowCommand
-import better.files._
-import cats.effect.Sync
+import ru.d10xa.jadd.versions.ScalaVersions
 
 class GradlePipeline(
   override val ctx: Ctx,
@@ -33,4 +35,6 @@ class GradlePipeline(
   override def show[F[_]: Sync](): F[Seq[Artifact]] =
     Sync[F].delay(new GradleShowCommand(buildFileSource).show())
 
+  override def findScalaVersion[F[_]: Sync](): F[Option[String]] =
+    Sync[F].pure(ScalaVersions.defaultScalaVersion.some)
 }

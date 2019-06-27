@@ -9,6 +9,7 @@ import ru.d10xa.jadd.ProjectFileReader
 import ru.d10xa.jadd.SafeFileWriter
 import ru.d10xa.jadd.show.AmmoniteFormatShowPrinter
 import cats.implicits._
+import ru.d10xa.jadd.versions.ScalaVersions
 
 class AmmonitePipeline(
   override val ctx: Ctx,
@@ -44,5 +45,8 @@ class AmmonitePipeline(
   // TODO implement
   override def show[F[_]: Sync](): F[Seq[Artifact]] =
     Sync[F].delay(???)
+
+  override def findScalaVersion[F[_]: Sync](): F[Option[String]] =
+    Sync[F].pure(ScalaVersions.defaultScalaVersion.some)
 
 }

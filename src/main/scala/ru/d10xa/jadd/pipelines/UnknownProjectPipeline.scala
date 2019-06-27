@@ -7,6 +7,7 @@ import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
+import ru.d10xa.jadd.versions.ScalaVersions
 
 class UnknownProjectPipeline(
   override val ctx: Ctx,
@@ -44,5 +45,8 @@ class UnknownProjectPipeline(
     val emptySeq: F[Seq[Artifact]] = Sync[F].pure(Seq.empty)
     log *> emptySeq
   }
+
+  override def findScalaVersion[F[_]: Sync](): F[Option[String]] =
+    Sync[F].pure(ScalaVersions.defaultScalaVersion.some)
 
 }

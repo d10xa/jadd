@@ -8,6 +8,7 @@ import cats.data.NonEmptyList
 import com.typesafe.scalalogging.LazyLogging
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.troubles.MetadataLoadTrouble
+import ru.d10xa.jadd.versions.ScalaVersions
 
 import scala.collection.immutable.Stream
 import scala.collection.immutable.Stream.cons
@@ -59,7 +60,7 @@ trait MavenMetadataBase extends LazyLogging {
     val metas: NonEmptyList[Either[MetadataLoadTrouble, MavenMetadata]] =
       if (artifact.isScala && artifact.maybeScalaVersion.isEmpty) {
 
-        List("2.12", "2.11").toStream
+        ScalaVersions.supportedMinorVersions.toStream
           .map(scalaVersion =>
             artifact.copy(maybeScalaVersion = Some(scalaVersion)))
           .map(a => receiveRepositoryMetaWithArtifactPath(a, a.asPath))

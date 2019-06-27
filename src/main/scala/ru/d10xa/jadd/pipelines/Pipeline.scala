@@ -3,6 +3,7 @@ package ru.d10xa.jadd.pipelines
 import cats.data.Ior
 import cats.data.IorNel
 import cats.effect.Sync
+import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.cli.Command.Install
 import ru.d10xa.jadd.cli.Command.Search
@@ -13,9 +14,10 @@ import ru.d10xa.jadd.troubles.handleTroubles
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.Loader
+import ru.d10xa.jadd.ProjectMeta
 import ru.d10xa.jadd.Utils
 import ru.d10xa.jadd.troubles
-import cats.implicits._
+import ru.d10xa.jadd.versions.ScalaVersions
 
 trait Pipeline extends StrictLogging {
   def applicable[F[_]: Sync](): F[Boolean]
@@ -37,6 +39,8 @@ trait Pipeline extends StrictLogging {
     }
   }
 
+  def findScalaVersion[F[_]: Sync](): F[Option[String]]
+
   def handleInstall[F[_]: Sync](
     ior: IorNel[ArtifactTrouble, List[Artifact]]
   ): F[Unit] =
@@ -51,7 +55,13 @@ trait Pipeline extends StrictLogging {
     loader: Loader
   ): F[Unit] = {
     def loaded: F[IorNel[troubles.ArtifactTrouble, List[Artifact]]] =
-      loader.load(ctx)
+      for {
+        optScalaVersion <- findScalaVersion()
+        scalaVersion = optScalaVersion.getOrElse(
+          ScalaVersions.defaultScalaVersion)
+        res <- loader.load(
+          ctx.copy(meta = ProjectMeta(scalaVersion = Some(scalaVersion))))
+      } yield res
     ctx.config.command match {
       case Show =>
         show()

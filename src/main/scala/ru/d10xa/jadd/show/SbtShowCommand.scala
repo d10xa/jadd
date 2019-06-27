@@ -10,7 +10,9 @@ import ru.d10xa.jadd.experimental.CodeBlock
 import ru.d10xa.jadd.generated.antlr.SbtDependenciesBaseVisitor
 import ru.d10xa.jadd.generated.antlr.SbtDependenciesLexer
 import ru.d10xa.jadd.generated.antlr.SbtDependenciesParser
+import ru.d10xa.jadd.pipelines.SbtPipeline
 import ru.d10xa.jadd.regex.SbtVerbalExpressions
+import ru.d10xa.jadd.versions.ScalaVersions
 
 import scala.collection.JavaConverters.asScalaBufferConverter
 
@@ -31,10 +33,14 @@ class SbtShowCommand(
     def parser(lexer: SbtDependenciesLexer): SbtDependenciesParser =
       new SbtDependenciesParser(new CommonTokenStream(lexer))
 
+    val scalaVersion = SbtPipeline
+      .extractScalaVersionFromBuildSbt(buildFileSource)
+      .getOrElse(ScalaVersions.defaultScalaVersion)
+
     val multiple: Seq[Artifact] = blocks.map(_.innerContent).flatMap {
       innerContent =>
         val p = parser(lexer(innerContent))
-        val v = new LibraryDependenciesVisitor()
+        val v = new LibraryDependenciesVisitor(scalaVersion)
         v.visitMultipleDependencies(p.multipleDependencies())
     }
 
@@ -44,7 +50,7 @@ class SbtShowCommand(
         .asScala
         .toList
 
-    val visitor = new SingleDependencyVisitor()
+    val visitor = new SingleDependencyVisitor(scalaVersion)
 
     val single = list
       .map(lexer)
@@ -60,7 +66,7 @@ class SbtShowCommand(
             groupId = t._1,
             artifactId = if (isScala) s"${t._3}%%" else t._3,
             maybeVersion = Some(t._4),
-            maybeScalaVersion = if (isScala) Some("2.12") else None
+            maybeScalaVersion = if (isScala) Some(scalaVersion) else None
           )
         }
         import ru.d10xa.jadd.regex.RegexImplicits._
@@ -84,18 +90,18 @@ class SbtShowCommand(
 
 object SbtShowCommand {
 
-  class LibraryDependenciesVisitor
+  class LibraryDependenciesVisitor(scalaVersion: String)
       extends SbtDependenciesBaseVisitor[List[Artifact]] {
 
     override def visitMultipleDependencies(
       ctx: SbtDependenciesParser.MultipleDependenciesContext
     ): List[Artifact] = {
-      val v = new SingleDependencyVisitor
+      val v = new SingleDependencyVisitor(scalaVersion)
       ctx.singleDependency().asScala.toList.flatMap(v.visitSingleDependency)
     }
   }
 
-  class SingleDependencyVisitor
+  class SingleDependencyVisitor(scalaVersion: String)
       extends SbtDependenciesBaseVisitor[Option[Artifact]] {
     override def visitSingleDependency(
       ctx: SbtDependenciesParser.SingleDependencyContext
@@ -130,7 +136,7 @@ object SbtShowCommand {
               groupId = g,
               artifactId = if (isScala) s"$a%%" else a,
               maybeVersion = Some(v),
-              maybeScalaVersion = if (isScala) Some("2.12") else None,
+              maybeScalaVersion = if (isScala) Some(scalaVersion) else None,
               scope = scope
             ))
         case _ => None

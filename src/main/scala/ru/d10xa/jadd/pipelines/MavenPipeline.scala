@@ -2,6 +2,7 @@ package ru.d10xa.jadd.pipelines
 
 import better.files._
 import cats.effect.Sync
+import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
@@ -11,6 +12,7 @@ import ru.d10xa.jadd.inserts.MavenFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.show.MavenFormatShowPrinter
 import ru.d10xa.jadd.show.MavenShowCommand
+import ru.d10xa.jadd.versions.ScalaVersions
 
 class MavenPipeline(
   override val ctx: Ctx,
@@ -48,5 +50,8 @@ class MavenPipeline(
 
   override def show[F[_]: Sync](): F[Seq[Artifact]] =
     Sync[F].delay(new MavenShowCommand(buildFileSource).show())
+
+  override def findScalaVersion[F[_]: Sync](): F[Option[String]] =
+    Sync[F].pure(ScalaVersions.defaultScalaVersion.some)
 
 }

@@ -3,6 +3,7 @@ package ru.d10xa.jadd.inserts
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.experimental.CodeBlock
 import ru.d10xa.jadd.regex.GradleVerbalExpressions
+import ru.d10xa.jadd.versions.ScalaVersions.supportedMinorVersions
 import ru.d10xa.jadd.view.ArtifactView.GradleMatchImpl
 import ru.d10xa.jadd.view.ArtifactView.Match
 
@@ -14,11 +15,8 @@ class GradleArtifactMatcher(source: String) {
     def inBlock(m: Match): Boolean = m.inBlock(blocks)
 
     val possibleArtifactIds = if (artifact.isScala) {
-      Seq(
-        artifact.artifactIdWithoutScalaVersion,
-        artifact.artifactIdWithScalaVersion("2.11"),
-        artifact.artifactIdWithScalaVersion("2.12")
-      )
+      artifact.artifactIdWithoutScalaVersion +: supportedMinorVersions.map(v =>
+        artifact.artifactIdWithScalaVersion(v))
     } else Seq(artifact.artifactId)
 
     val configurations =

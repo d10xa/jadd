@@ -28,9 +28,17 @@ object Loader {
         val artifacts = Pipeline.extractArtifacts(ctx)
         val unshorted: Seq[Artifact] = Utils
           .unshortAll(artifacts.toList, artifactInfoFinder)
+        val withScalaVersion = unshorted.map(
+          u =>
+            if (u.isScala)
+              u.copy(
+                maybeScalaVersion =
+                  u.maybeScalaVersion.orElse(ctx.meta.scalaVersion))
+            else u
+        )
         val repositoriesUnshorted: Seq[String] =
           ctx.config.repositories.map(repositoryShortcuts.unshortRepository)
-        loadAllArtifacts(unshorted, VersionTools, repositoriesUnshorted)
+        loadAllArtifacts(withScalaVersion, VersionTools, repositoriesUnshorted)
       }
 
     def loadAllArtifacts(

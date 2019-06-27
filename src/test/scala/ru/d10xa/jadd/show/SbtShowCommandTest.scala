@@ -102,4 +102,22 @@ class SbtShowCommandTest extends TestBase {
     result shouldEqual expected
   }
 
+  test("build.sbt has defined scala version 2.11") {
+    val source =
+      s"""
+         |// scalaVersion in ThisBuild := "2.11.0"
+         |libraryDependencies ++= Seq(
+         |  "com.typesafe.scala-logging" %% "scala-logging" % "3.9.0"
+         |)
+       """.stripMargin
+
+    val result =
+      new SbtShowCommand(source, new ProjectFileReaderMemory(Map.empty)).show()
+
+    val expected = Seq(
+      art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_11,
+    )
+    result shouldEqual expected
+  }
+
 }

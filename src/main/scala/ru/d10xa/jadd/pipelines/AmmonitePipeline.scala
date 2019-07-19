@@ -2,13 +2,13 @@ package ru.d10xa.jadd.pipelines
 
 import better.files._
 import cats.effect._
+import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.ProjectFileReader
 import ru.d10xa.jadd.SafeFileWriter
 import ru.d10xa.jadd.show.AmmoniteFormatShowPrinter
-import cats.implicits._
 import ru.d10xa.jadd.versions.ScalaVersions
 
 class AmmonitePipeline(
@@ -17,8 +17,11 @@ class AmmonitePipeline(
 ) extends Pipeline
     with StrictLogging {
 
-  val buildFile: IO[File] =
-    projectFileReader.file[IO](ctx.config.projectDir)
+  def buildFile[F[_]: Sync]: F[File] =
+    projectFileReader.file(ctx.config.projectDir)
+
+  def buildFileSource[F[_]: Sync]: F[String] =
+    buildFile.map(_.contentAsString)
 
   override def applicable[F[_]: Sync](): F[Boolean] =
     for {
@@ -27,19 +30,15 @@ class AmmonitePipeline(
       isScalaScript = file.name.endsWith(".sc")
     } yield exists && isScalaScript
 
-  lazy val buildFileSource: String =
-    buildFile.map(_.contentAsString).unsafeRunSync()
-
-  def install(artifacts: List[Artifact]): Unit = {
+  def install[F[_]: Sync](artifacts: List[Artifact]): F[Unit] = {
     val newDependencies = AmmoniteFormatShowPrinter.mkString(artifacts)
     val newSource: String =
       Seq(newDependencies, buildFileSource).mkString("\n")
 
-    val fileUpdate = buildFile.map { f =>
-      new SafeFileWriter().write(f, newSource)
-    }
-
-    fileUpdate.unsafeRunSync()
+    for {
+      file <- buildFile
+      _ <- Sync[F].delay(new SafeFileWriter().write(file, newSource))
+    } yield ()
   }
 
   // TODO implement

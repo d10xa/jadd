@@ -21,22 +21,28 @@ class UnknownProjectPipeline(
   override def applicable[F[_]: Sync](): F[Boolean] =
     Sync[F].pure(true)
 
-  override def install(artifacts: List[Artifact]): Unit = {
-
-    logger.info(
-      s"build tool not recognized in directory ${ctx.config.projectDir}")
+  def install[F[_]: Sync](artifacts: List[Artifact]): F[Unit] = {
+    val logMsg = Sync[F].delay(
+      logger.info(
+        s"build tool not recognized in directory ${ctx.config.projectDir}"))
 
     implicit val artifactShow: Show[Artifact] =
       Show[Artifact] { a =>
         s"""groupId: ${a.groupId}
-           |artifactId: ${a.artifactId}
-           |version: ${a.maybeVersion.getOrElse("???")}""".stripMargin
+               |artifactId: ${a.artifactId}
+               |version: ${a.maybeVersion.getOrElse("???")}""".stripMargin
       }
 
-    artifacts
-      .map(_.inlineScalaVersion)
-      .map(_.show)
-      .foreach(i => logger.info(i))
+    def stringsToPrint: List[String] =
+      artifacts
+        .map(_.inlineScalaVersion)
+        .map(_.show)
+
+    for {
+      _ <- logMsg
+      _ <- Sync[F].delay(stringsToPrint.foreach(i => logger.info(i)))
+    } yield ()
+
   }
 
   override def show[F[_]: Sync](): F[Seq[Artifact]] = {

@@ -23,31 +23,34 @@ class SbtPipeline(
 
   val buildFileName = "build.sbt"
 
-  def buildFile[F[_]: Sync](): F[File] =
+  def buildFile[F[_]: Sync]: F[File] =
     projectFileReader.file(buildFileName)
+
+  def buildFileSource[F[_]: Sync]: F[String] =
+    buildFile.map(_.contentAsString)
 
   override def applicable[F[_]: Sync](): F[Boolean] =
     projectFileReader.exists(buildFileName)
 
-  def buildFileSource: String =
-    projectFileReader.read[IO](buildFileName).unsafeRunSync()
+  def install[F[_]: Sync](artifacts: List[Artifact]): F[Unit] =
+    for {
+      source <- buildFileSource
+      newSource: String = new SbtFileInserts().appendAll(source, artifacts)
+      _ <- fileUpdate(newSource)
+    } yield ()
 
-  def install(artifacts: List[Artifact]): Unit = {
-    val newSource: String =
-      new SbtFileInserts().appendAll(buildFileSource, artifacts)
-
-    def fileUpdate[F[_]: Sync](): F[Unit] = buildFile().map { f =>
-      new SafeFileWriter().write(f, newSource)
-    }
-
-    fileUpdate[IO]().unsafeRunSync()
+  def fileUpdate[F[_]: Sync](str: String): F[Unit] = buildFile.map { f =>
+    new SafeFileWriter().write(f, str)
   }
 
   override def show[F[_]: Sync](): F[Seq[Artifact]] =
-    Sync[F].delay(new SbtShowCommand(buildFileSource, projectFileReader).show())
+    for {
+      source <- buildFileSource
+      artifacts = new SbtShowCommand(source, projectFileReader).show()
+    } yield artifacts
 
   override def findScalaVersion[F[_]: Sync](): F[Option[String]] =
-    buildFile()
+    buildFile
       .map(_.contentAsString)
       .map(SbtPipeline.extractScalaVersionFromBuildSbt)
 }

@@ -44,7 +44,7 @@ trait Pipeline extends StrictLogging {
   def handleInstall[F[_]: Sync](
     ior: IorNel[ArtifactTrouble, List[Artifact]]
   ): F[Unit] =
-    invokeCommand(ior, artifacts => Sync[F].delay(install(artifacts)))
+    invokeCommand(ior, artifacts => install(artifacts))
 
   def handleSearch[F[_]: Sync](
     ior: IorNel[ArtifactTrouble, List[Artifact]]
@@ -88,7 +88,7 @@ trait Pipeline extends StrictLogging {
     logger.info(stringsForPrint.mkString("\n"))
   }
 
-  def install(artifacts: List[Artifact]): Unit
+  def install[F[_]: Sync](artifacts: List[Artifact]): F[Unit]
   def show[F[_]: Sync](): F[Seq[Artifact]]
   def ctx: Ctx
 

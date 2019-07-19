@@ -20,20 +20,25 @@ class GradlePipeline(
 
   lazy val buildFile: File = File(ctx.config.projectDir, "build.gradle")
 
-  def buildFileSource: String = buildFile.contentAsString
+  def buildFileSource[F[_]: Sync]: F[String] =
+    Sync[F].delay(buildFile.contentAsString)
 
   override def applicable[F[_]: Sync](): F[Boolean] =
     Sync[F].delay(buildFile.exists())
 
-  override def install(artifacts: List[Artifact]): Unit = {
-    val newSource: String = new GradleFileInserts()
-      .appendAll(buildFileSource, artifacts)
-
-    new SafeFileWriter().write(buildFile, newSource)
-  }
+  def install[F[_]: Sync](artifacts: List[Artifact]): F[Unit] =
+    for {
+      source <- buildFileSource
+      newSource = new GradleFileInserts()
+        .appendAll(source, artifacts)
+      _ <- Sync[F].delay(new SafeFileWriter().write(buildFile, newSource))
+    } yield ()
 
   override def show[F[_]: Sync](): F[Seq[Artifact]] =
-    Sync[F].delay(new GradleShowCommand(buildFileSource).show())
+    for {
+      source <- buildFileSource
+      artifacts = new GradleShowCommand(source).show()
+    } yield artifacts
 
   override def findScalaVersion[F[_]: Sync](): F[Option[String]] =
     Sync[F].pure(ScalaVersions.defaultScalaVersion.some)

@@ -26,16 +26,26 @@ lazy val root = project
 enablePlugins(JavaAppPackaging)
 //wartremoverErrors ++= Warts.unsafe
 wartremoverErrors in (Compile, compile) ++= Seq(
+  Wart.Any,
+  Wart.AnyVal,
+  Wart.ArrayEquals,
+  Wart.AsInstanceOf,
   Wart.FinalCaseClass,
+  Wart.FinalVal,
+  Wart.ImplicitConversion,
   Wart.ImplicitParameter,
   Wart.JavaConversions,
   Wart.LeakingSealed,
+  Wart.Null,
+  Wart.Option2Iterable,
   Wart.Overloading,
   Wart.Product,
   Wart.PublicInference,
+  Wart.Return,
   Wart.Serializable,
   Wart.StringPlusAny,
-  Wart.ToString
+  Wart.ToString,
+  Wart.TryPartial
 )
 
 libraryDependencies ++= Seq(

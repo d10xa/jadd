@@ -30,16 +30,15 @@ class AmmonitePipeline(
       isScalaScript = file.name.endsWith(".sc")
     } yield exists && isScalaScript
 
-  def install[F[_]: Sync](artifacts: List[Artifact]): F[Unit] = {
-    val newDependencies = AmmoniteFormatShowPrinter.mkString(artifacts)
-    val newSource: String =
-      Seq(newDependencies, buildFileSource).mkString("\n")
-
+  def install[F[_]: Sync](artifacts: List[Artifact]): F[Unit] =
     for {
+      newDependencies <- Sync[F].delay(
+        AmmoniteFormatShowPrinter.mkString(artifacts))
       file <- buildFile
+      source <- buildFileSource
+      newSource = Seq(newDependencies, source).mkString("\n")
       _ <- Sync[F].delay(new SafeFileWriter().write(file, newSource))
     } yield ()
-  }
 
   // TODO implement
   override def show[F[_]: Sync](): F[Seq[Artifact]] =

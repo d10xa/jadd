@@ -12,7 +12,7 @@ import scopt.OptionDef
 import scopt.OptionParser
 
 trait Cli {
-  def parse(args: Array[String]): Config
+  def parse(args: Vector[String]): Config
 }
 
 object Cli extends Cli {
@@ -104,7 +104,7 @@ object Cli extends Cli {
       .action((_, c) => c.copy(command = Help))
   }
 
-  override def parse(args: Array[String]): Config = {
+  override def parse(args: Vector[String]): Config = {
     val config = parser
       .parse(args, Config())
       .getOrElse(Config(command = Help))

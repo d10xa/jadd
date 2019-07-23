@@ -5,7 +5,6 @@ import ru.d10xa.jadd.ArtifactInfo
 import ru.d10xa.jadd.Scope
 import ru.d10xa.jadd.Utils
 import ru.d10xa.jadd.troubles
-import cats.implicits._
 
 import scala.util.Try
 
@@ -107,7 +106,10 @@ class ArtifactInfoFinder(
     val valid: Either[troubles.ArtifactTrouble, Unit] = Either
       .cond(!artifactRaw.contains("("), (), WrongArtifactRaw)
 
-    (valid >> full(artifactRaw)).map(addInfoToArtifact)
+    for {
+      _ <- valid
+      full <- full(artifactRaw)
+    } yield addInfoToArtifact(full)
   }
 
 }

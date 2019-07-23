@@ -160,7 +160,7 @@ final class GradleFormatShowPrinter(lang: GradleLang) extends ShowPrinter {
           .getOrElse("implementation"))
 
     val moduleId =
-      (Some(a.groupId) :: Some(artifactId) :: a.maybeVersion :: Nil).flatten
+      (List(a.groupId) :: List(artifactId) :: a.maybeVersion.toList :: Nil).flatten
         .mkString(":")
 
     val moduleIdWithOptionalParentheses =

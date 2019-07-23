@@ -56,7 +56,7 @@ class SbtShowCommand(
       .map(lexer)
       .map(parser)
       .map(_.singleDependency())
-      .flatMap(visitor.visitSingleDependency)
+      .flatMap(visitor.visitSingleDependency(_).toList)
 
     val fromDependenciesExternalFile: Seq[Artifact] =
       if (buildFileSource.contains("import Dependencies._")) {
@@ -97,7 +97,11 @@ object SbtShowCommand {
       ctx: SbtDependenciesParser.MultipleDependenciesContext
     ): List[Artifact] = {
       val v = new SingleDependencyVisitor(scalaVersion)
-      ctx.singleDependency().asScala.toList.flatMap(v.visitSingleDependency)
+      ctx
+        .singleDependency()
+        .asScala
+        .toList
+        .flatMap(v.visitSingleDependency(_).toList)
     }
   }
 

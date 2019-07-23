@@ -19,7 +19,7 @@ class JaddRunner(
 
   def run(runParams: RunParams): Unit = {
 
-    def readAndEvalConfig(args: Array[String]): Config = {
+    def readAndEvalConfig(args: Vector[String]): Config = {
       val config = cli.parse(args)
       if (config.debug) loggingUtil.enableDebug()
       if (config.quiet) loggingUtil.quiet()

@@ -10,28 +10,31 @@ import scala.util.Try
 
 object ReplCommand extends StrictLogging {
 
+  @SuppressWarnings(Array("org.wartremover.warts.Null"))
+  val nullMaskingCallback: MaskingCallback = null
+  @SuppressWarnings(Array("org.wartremover.warts.Null"))
+  val nullRightPrompt: String = null
+  @SuppressWarnings(Array("org.wartremover.warts.Null"))
+  val nullBuffer: String = null
+  @SuppressWarnings(Array("org.wartremover.warts.Null"))
+  val nullParser: Parser = null
+
   class ReplContext(
     val prompt: String = "jadd> ",
-    val rightPrompt: String = null,
     val completer: Completer = new JaddJlineCompleter
   ) {
 
     val builder: TerminalBuilder = TerminalBuilder.builder
     val terminal: Terminal = builder.build
-    val parser: Parser = null
     val reader: LineReader =
       LineReaderBuilder.builder
         .terminal(terminal)
         .completer(completer)
-        .parser(parser)
+        .parser(nullParser)
         .build
 
     def readLine(): String =
-      reader.readLine(
-        prompt,
-        rightPrompt,
-        null.asInstanceOf[MaskingCallback],
-        null)
+      reader.readLine(prompt, nullRightPrompt, nullMaskingCallback, nullBuffer)
   }
 
   def runRepl(runParams: RunParams, action: RunParams => Unit): Unit = {
@@ -42,7 +45,7 @@ object ReplCommand extends StrictLogging {
       val line: String = readReplString(replContext)
       running = needContinue(line)
       if (running) {
-        action(runParams.copy(args = line.split(" ")))
+        action(runParams.copy(args = line.split(" ").toVector))
       }
     }
   }
@@ -54,6 +57,6 @@ object ReplCommand extends StrictLogging {
     Try(replContext.readLine())
       .recover { case _: UserInterruptException => "exit" } // Ctrl + C
       .recover { case _: EndOfFileException => "exit" } // Ctrl + D
-      .get
+      .getOrElse("")
 
 }

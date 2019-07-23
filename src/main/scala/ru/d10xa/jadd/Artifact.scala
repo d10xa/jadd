@@ -6,6 +6,7 @@ import ru.d10xa.jadd.troubles.ArtifactTrouble
 import ru.d10xa.jadd.troubles.WrongArtifactRaw
 import ru.d10xa.jadd.versions.ScalaVersions
 import ru.d10xa.jadd.versions.VersionFilter
+import cats.implicits._
 
 final case class Artifact(
   groupId: String,
@@ -16,7 +17,7 @@ final case class Artifact(
   repository: Option[String] = None,
   mavenMetadata: Option[MavenMetadata] = None,
   maybeScalaVersion: Option[String] = None,
-  availableVersions: Seq[String] = Seq.empty,
+  availableVersions: Seq[String] = Seq.empty[String],
   explicitScalaVersion: Boolean = false,
   doubleQuotes: Boolean = true, // required for gradle update
   configuration: Option[String] = None, // required for gradle update
@@ -112,22 +113,20 @@ object Artifact {
     artifactRaw.split(":") match {
       case Array(g, a) =>
         val (artifactId, maybeScalaVersion) = scalaVersionAsPlaceholders(a)
-        Right(
-          Artifact(
-            groupId = g,
-            artifactId = artifactId,
-            maybeScalaVersion = maybeScalaVersion
-          ))
+        Artifact(
+          groupId = g,
+          artifactId = artifactId,
+          maybeScalaVersion = maybeScalaVersion
+        ).asRight[ArtifactTrouble]
       case Array(g, a, v) =>
         val (artifactId, maybeScalaVersion) = scalaVersionAsPlaceholders(a)
-        Right(
-          Artifact(
-            groupId = g,
-            artifactId = artifactId,
-            maybeVersion = Some(v),
-            maybeScalaVersion = maybeScalaVersion
-          ))
-      case _ => Left(WrongArtifactRaw)
+        Artifact(
+          groupId = g,
+          artifactId = artifactId,
+          maybeVersion = Some(v),
+          maybeScalaVersion = maybeScalaVersion
+        ).asRight[ArtifactTrouble]
+      case _ => WrongArtifactRaw.asLeft[Artifact]
     }
 
   def inlineScalaVersion(artifact: Artifact): Artifact =

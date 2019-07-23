@@ -9,7 +9,7 @@ object Jadd {
       cli = Cli,
       loggingUtil = LoggingUtil
     )
-    runner.run(RunParams(args, new CommandExecutorImpl))
+    runner.run(RunParams(args.toVector, new CommandExecutorImpl))
   }
 
 }

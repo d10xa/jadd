@@ -13,7 +13,7 @@ class CliTest extends TestBase {
 
   val cli: Cli = Cli
 
-  def parse(strs: String*): Config = cli.parse(strs.toArray)
+  def parse(strs: String*): Config = cli.parse(strs.toVector)
 
   test("parse install") {
     val config = parse("install", "junit", "testng")

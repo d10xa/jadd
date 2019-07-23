@@ -34,7 +34,7 @@ class JaddJlineCompleter extends org.jline.reader.Completer with StrictLogging {
     line: ParsedLine,
     candidates: util.List[Candidate]
   ): Unit = {
-    val words = line.words().asScala
+    val words: Seq[String] = line.words().asScala
     val autocompleteFormat =
       JaddJlineCompleter.matchFormatOutput(words)
     if (autocompleteFormat) {
@@ -45,7 +45,7 @@ class JaddJlineCompleter extends org.jline.reader.Completer with StrictLogging {
     } else {
       candidates.clear()
       val word = line.word()
-      words.headOption.toVector
+      words.headOption.toList
         .flatMap { command =>
           if (commandsNeedCompletion.contains(command)) {
             autocomplete
@@ -74,7 +74,7 @@ object JaddJlineCompleter {
       .filter(_.nonEmpty)
       .reverse
       .take(2)
-      .filter(anyArgs.contains)
+      .filter(anyArgs.contains(_))
       .lengthCompare(1) == 0
 
   val matchFormatOutput: Seq[String] => Boolean =

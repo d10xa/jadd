@@ -1,6 +1,6 @@
 name := "jadd"
 organization in ThisBuild := "ru.d10xa"
-scalaVersion in ThisBuild := "2.12.8"
+scalaVersion in ThisBuild := "2.12.9"
 version in ThisBuild := IO.read(new File("VERSION")).trim
 mainClass in Compile := Some("ru.d10xa.jadd.Jadd")
 

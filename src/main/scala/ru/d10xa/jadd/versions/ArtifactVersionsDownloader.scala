@@ -16,31 +16,38 @@ object ArtifactVersionsDownloader {
     if (artifact.maybeVersion.isDefined) {
       artifact.rightIor
     } else {
-      val artifactWithRepoList: Stream[Artifact] =
-        if (artifact.repository.isDefined) Stream(artifact)
-        else
-          configRepositories.toStream.map(repo =>
-            artifact.copy(repository = Some(repo)))
-      val res: Seq[EitherNel[ArtifactTrouble, Artifact]] =
-        artifactWithRepoList
-          .map(versionTools.loadVersionAndInitLatest)
-
-      val o: Option[EitherNel[ArtifactTrouble, Artifact]] = res
-        .find(_.isRight)
-
-      // right.get is safe because of .find(_.isRight)
-      o match {
-        case Some(either) =>
-          either.right.get
-            .rightIor[NonEmptyList[ArtifactTrouble]]
-        case None =>
-          res
-            .collect { case e if e.isLeft => e.left.get }
-            .flatMap(_.toList)
-            .toList
-            .toNel
-            .get
-            .leftIor[Artifact]
-      }
+      loadArtifactVersionsForce(artifact, configRepositories, versionTools)
     }
+
+  def loadArtifactVersionsForce(
+    artifact: Artifact,
+    configRepositories: Seq[String],
+    versionTools: VersionTools): IorNel[ArtifactTrouble, Artifact] = {
+    val artifactWithRepoList: Stream[Artifact] =
+      if (artifact.repository.isDefined) Stream(artifact)
+      else
+        configRepositories.toStream.map(repo =>
+          artifact.copy(repository = Some(repo)))
+    val res: Seq[EitherNel[ArtifactTrouble, Artifact]] =
+      artifactWithRepoList
+        .map(versionTools.loadVersionAndInitLatest)
+
+    val o: Option[EitherNel[ArtifactTrouble, Artifact]] = res
+      .find(_.isRight)
+
+    // right.get is safe because of .find(_.isRight)
+    o match {
+      case Some(either) =>
+        either.right.get
+          .rightIor[NonEmptyList[ArtifactTrouble]]
+      case None =>
+        res
+          .collect { case e if e.isLeft => e.left.get }
+          .flatMap(_.toList)
+          .toList
+          .toNel
+          .get
+          .leftIor[Artifact]
+    }
+  }
 }

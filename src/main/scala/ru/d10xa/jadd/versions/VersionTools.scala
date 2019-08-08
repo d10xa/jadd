@@ -26,9 +26,13 @@ object VersionTools extends VersionTools {
       case None => Left(RepositoryUndefined(artifact))
     }
 
+  val repositoryApiFromArtifactNelErr
+    : Artifact => EitherNel[ArtifactTrouble, RepositoryApi] =
+    (repositoryApiFromArtifact _)
+      .rmap(_.leftMap(NonEmptyList.one))
+
   def loadVersions(artifact: Artifact): EitherNel[ArtifactTrouble, Artifact] =
-    repositoryApiFromArtifact(artifact)
-      .leftMap(NonEmptyList.one)
+    repositoryApiFromArtifactNelErr(artifact)
       .flatMap(_.receiveRepositoryMeta(artifact))
       .map(artifact.merge)
 

@@ -25,10 +25,7 @@ object Loader {
     override def load[F[_]: Sync](
       ctx: Ctx): F[IorNel[ArtifactTrouble, List[Artifact]]] =
       Sync[F].delay {
-        val artifacts = Pipeline.extractArtifacts(ctx)
-        val unshorted: Seq[Artifact] = Utils
-          .unshortAll(artifacts.toList, artifactInfoFinder)
-        val withScalaVersion = unshorted.map(
+        val withScalaVersion: Seq[Artifact] => Seq[Artifact] = _.map(
           u =>
             if (u.isScala)
               u.copy(
@@ -36,9 +33,15 @@ object Loader {
                   u.maybeScalaVersion.orElse(ctx.meta.scalaVersion))
             else u
         )
+        val artifacts = Pipeline.extractArtifacts(ctx)
+        val unshorted: Seq[Artifact] = Utils
+          .unshortAll(artifacts.toList, artifactInfoFinder)
         val repositoriesUnshorted: Seq[String] =
           ctx.config.repositories.map(repositoryShortcuts.unshortRepository)
-        loadAllArtifacts(withScalaVersion, VersionTools, repositoriesUnshorted)
+        loadAllArtifacts(
+          withScalaVersion(unshorted),
+          VersionTools,
+          repositoriesUnshorted)
       }
 
     def loadAllArtifacts(
@@ -47,14 +50,11 @@ object Loader {
       repositories: Seq[String]
     ): IorNel[ArtifactTrouble, List[Artifact]] = {
 
-      def loadVersions(a: Artifact): IorNel[ArtifactTrouble, Artifact] =
-        ArtifactVersionsDownloader
-          .loadArtifactVersions(a, repositories, versionTools)
-
       val initial: IorNel[ArtifactTrouble, List[Artifact]] = Ior.Right(List())
 
       artifacts
-        .map(loadVersions)
+        .map(ArtifactVersionsDownloader
+          .loadArtifactVersions(_, repositories, versionTools))
         .map(_.map(List(_)))
         .foldLeft(initial)((a, b) => a.combine(b))
     }

@@ -1,5 +1,6 @@
 package ru.d10xa.jadd
 
+import coursier.core.Version
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.shortcuts.RepositoryShortcutsImpl
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts.ArtifactShortcutsClasspath
@@ -64,7 +65,7 @@ class ArtifactInfoFinderTest extends TestBase {
       groupId = "a",
       artifactId = "b%%",
       maybeScalaVersion = Some("2.12"),
-      maybeVersion = Some("1.1.0")
+      maybeVersion = Some(Version("1.1.0"))
     )
   }
 

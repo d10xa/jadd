@@ -1,5 +1,6 @@
 package ru.d10xa.jadd
 
+import coursier.core.Version
 import ru.d10xa.jadd.repository.MavenMetadata
 import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.troubles.WrongArtifactRaw
@@ -18,7 +19,7 @@ class ArtifactTest extends TestBase {
 
     a.groupId shouldEqual "org.seleniumhq.selenium"
     a.artifactId shouldEqual "selenium-api"
-    a.maybeVersion shouldEqual Some("3.0.0")
+    a.maybeVersion.map(_.repr) shouldEqual Some("3.0.0")
   }
 
   test("asPath") {
@@ -57,7 +58,7 @@ class ArtifactTest extends TestBase {
     Artifact.fromTuple3(("a", "b", "1.0")) shouldEqual Artifact(
       "a",
       "b",
-      Some("1.0"))
+      Some(Version("1.0")))
     Artifact.fromTuple2(("a", "b")) shouldEqual Artifact("a", "b", None)
   }
 

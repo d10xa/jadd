@@ -23,7 +23,7 @@ object ArtifactProvider {
 
       val t3 = stringWithGroupIdArtifactIdVersion()
         .groups3(d.buildFileSource)
-        .map { case (g, a, v) => s"$g:$a:$v" }
+        .map { case (g, a, v) => s"$g:$a:${v.repr}" }
       val t2 = stringWithGroupIdArtifactId()
         .groups2(d.buildFileSource)
         .map { case (g, a) => s"$g:$a" }

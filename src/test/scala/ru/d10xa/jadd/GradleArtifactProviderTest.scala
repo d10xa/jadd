@@ -1,5 +1,6 @@
 package ru.d10xa.jadd
 
+import coursier.core.Version
 import ru.d10xa.jadd.ArtifactProvider.GradleBuildDescription
 import ru.d10xa.jadd.testkit.TestBase
 
@@ -30,12 +31,12 @@ class GradleArtifactProviderTest extends TestBase {
     artifacts(0) shouldEqual Artifact(
       groupId = "org.scala-lang",
       artifactId = "scala-library",
-      maybeVersion = Some("2.12.6")
+      maybeVersion = Some(Version("2.12.6"))
     )
     artifacts(1) shouldEqual Artifact(
       groupId = "org.scalatest",
       artifactId = "scalatest%%",
-      maybeVersion = Some("3.0.4"),
+      maybeVersion = Some(Version("3.0.4")),
       maybeScalaVersion = Some("2.12")
     )
   }

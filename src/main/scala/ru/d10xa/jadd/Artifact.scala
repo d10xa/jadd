@@ -7,17 +7,18 @@ import ru.d10xa.jadd.troubles.WrongArtifactRaw
 import ru.d10xa.jadd.versions.ScalaVersions
 import ru.d10xa.jadd.versions.VersionFilter
 import cats.implicits._
+import coursier.core.Version
 
 final case class Artifact(
   groupId: String,
   artifactId: String,
-  maybeVersion: Option[String] = None,
+  maybeVersion: Option[Version] = None,
   shortcut: Option[String] = None,
   scope: Option[Scope] = None,
   repository: Option[String] = None,
   mavenMetadata: Option[MavenMetadata] = None,
   maybeScalaVersion: Option[String] = None,
-  availableVersions: Seq[String] = Seq.empty[String],
+  availableVersions: Seq[Version] = Seq.empty[Version],
   explicitScalaVersion: Boolean = false,
   doubleQuotes: Boolean = true, // required for gradle update
   configuration: Option[String] = None, // required for gradle update
@@ -57,7 +58,7 @@ final case class Artifact(
   def merge(mavenMetadata: MavenMetadata): Artifact = {
     val updated = this
       .copy(
-        availableVersions = mavenMetadata.versions.reverse,
+        availableVersions = mavenMetadata.versions.reverse.map(Version(_)),
         mavenMetadata = Some(mavenMetadata),
         maybeScalaVersion =
           this.maybeScalaVersion.orElse(mavenMetadata.maybeScalaVersion)
@@ -75,7 +76,7 @@ final case class Artifact(
 
   def inlineScalaVersion: Artifact = Artifact.inlineScalaVersion(this)
 
-  def versionsForPrint: String = availableVersions.mkString(", ")
+  def versionsForPrint: String = availableVersions.map(_.repr).mkString(", ")
 
   def initLatestVersion(
     versionFilter: VersionFilter = VersionFilter): Artifact =
@@ -87,11 +88,22 @@ final case class Artifact(
 
 object Artifact {
 
-  def fromTuple3(t: (String, String, String)): Artifact =
-    Artifact(t._1, t._2, Some(t._3))
+  def fromTuple3(t: (String, String, String)): Artifact = t match {
+    case (groupId, artifactId, version) =>
+      Artifact(
+        groupId = groupId,
+        artifactId = artifactId,
+        maybeVersion = Some(Version(version))
+      )
+  }
 
-  def fromTuple2(t: (String, String)): Artifact =
-    Artifact(t._1, t._2, None)
+  def fromTuple2(t: (String, String)): Artifact = t match {
+    case (groupId, artifactId) =>
+      Artifact(
+        groupId = groupId,
+        artifactId = artifactId
+      )
+  }
 
   /**
     * Example: Split artifact id cats-core_2.12 to tuple (cats-core%%, Some(2.12))
@@ -123,7 +135,7 @@ object Artifact {
         Artifact(
           groupId = g,
           artifactId = artifactId,
-          maybeVersion = Some(v),
+          maybeVersion = Some(Version(v)),
           maybeScalaVersion = maybeScalaVersion
         ).asRight[ArtifactTrouble]
       case _ => WrongArtifactRaw.asLeft[Artifact]

@@ -1,6 +1,7 @@
 package ru.d10xa.jadd.show
 
 import cats.effect.IO
+import coursier.core.Version
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import ru.d10xa.jadd.Artifact
@@ -60,14 +61,20 @@ class SbtShowCommand(
 
     val fromDependenciesExternalFile: Seq[Artifact] =
       if (buildFileSource.contains("import Dependencies._")) {
-        def tupleToArt(t: (String, String, String, String)): Artifact = {
-          val isScala = t._2 == "%%"
-          Artifact(
-            groupId = t._1,
-            artifactId = if (isScala) s"${t._3}%%" else t._3,
-            maybeVersion = Some(t._4),
-            maybeScalaVersion = if (isScala) Some(scalaVersion) else None
-          )
+        val tupleToArtifact: ((String, String, String, String)) => Artifact = {
+          case (gId, "%%", aId, version) =>
+            Artifact(
+              groupId = gId,
+              artifactId = s"$aId%%",
+              maybeVersion = Some(Version(version)),
+              maybeScalaVersion = Some(scalaVersion))
+          case (gId, _, aId, version) =>
+            Artifact(
+              groupId = gId,
+              artifactId = aId,
+              maybeVersion = Some(Version(version)),
+              maybeScalaVersion = None
+            )
         }
         import ru.d10xa.jadd.regex.RegexImplicits._
         projectFileReader
@@ -75,9 +82,7 @@ class SbtShowCommand(
           .map { source =>
             SbtVerbalExpressions.declaredDependency.groups4(source)
           }
-          .map { tuples =>
-            tuples.map(tupleToArt)
-          }
+          .map { _.map(tupleToArtifact) }
           .unsafeRunSync()
       } else {
         Seq.empty
@@ -139,7 +144,7 @@ object SbtShowCommand {
             Artifact(
               groupId = g,
               artifactId = if (isScala) s"$a%%" else a,
-              maybeVersion = Some(v),
+              maybeVersion = Some(Version(v)),
               maybeScalaVersion = if (isScala) Some(scalaVersion) else None,
               scope = scope
             ))

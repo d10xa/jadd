@@ -45,6 +45,7 @@ wartremoverErrors in (Compile, compile) ++= Seq(
   Wart.Serializable,
   Wart.StringPlusAny,
   Wart.ToString,
+  Wart.StringPlusAny,
   Wart.TryPartial
 )
 
@@ -63,3 +64,4 @@ libraryDependencies ++= Seq(
 libraryDependencies += "org.jsoup" % "jsoup" % "1.12.1"
 libraryDependencies += "org.typelevel" %% "cats-effect" % "1.3.0"
 libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.8.0"
+libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.0-RC3-2"

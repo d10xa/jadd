@@ -30,7 +30,9 @@ class UnknownProjectPipeline(
       Show[Artifact] { a =>
         s"""groupId: ${a.groupId}
                |artifactId: ${a.artifactId}
-               |version: ${a.maybeVersion.getOrElse("???")}""".stripMargin
+               |version: ${a.maybeVersion
+             .map(_.repr)
+             .getOrElse("???")}""".stripMargin
       }
 
     def stringsToPrint: List[String] =

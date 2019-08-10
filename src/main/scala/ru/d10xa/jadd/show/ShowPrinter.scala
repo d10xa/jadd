@@ -63,7 +63,7 @@ final class JaddFormatShowPrinter private (withVersions: Boolean)
         case _ => a.artifactId
       }
     (a.maybeVersion, withVersions) match {
-      case (Some(v), true) => s"${a.groupId}:$artifactId:$v"
+      case (Some(v), true) => s"${a.groupId}:$artifactId:${v.repr}"
       case _ => s"${a.groupId}:$artifactId"
     }
   }
@@ -86,7 +86,7 @@ object AmmoniteFormatShowPrinter extends ShowPrinter {
         case _ => a.artifactId
       }
     a.maybeVersion match {
-      case Some(v) => s"${a.groupId}:$artifactId:$v"
+      case Some(v) => s"${a.groupId}:$artifactId:${v.repr}"
       case None => s"${a.groupId}:$artifactId"
     }
   }
@@ -112,7 +112,7 @@ object GroovyFormatShowPrinter extends ShowPrinter {
         case _ => a.artifactId
       }
     val versionKeyValue = a.maybeVersion match {
-      case Some(version) => s", version = '$version'"
+      case Some(version) => s", version = '${version.repr}'"
       case None => ""
     }
     s"@Grab(group='${a.groupId}', module='$artifactId'$versionKeyValue)"
@@ -127,7 +127,7 @@ object LeiningenFormatShowPrinter extends ShowPrinter {
           a.artifactIdWithScalaVersion(scalaVersion)
         case _ => a.artifactId
       }
-    val version = a.maybeVersion.getOrElse("LATEST")
+    val version = a.maybeVersion.map(_.repr).getOrElse("LATEST")
     val moduleId = (a.groupId, artifactId) match {
       case (gId, aId) if gId == aId => aId
       case (gId, aId) => s"$gId/$aId"
@@ -160,7 +160,9 @@ final class GradleFormatShowPrinter(lang: GradleLang) extends ShowPrinter {
           .getOrElse("implementation"))
 
     val moduleId =
-      (List(a.groupId) :: List(artifactId) :: a.maybeVersion.toList :: Nil).flatten
+      (List(a.groupId) :: List(artifactId) :: a.maybeVersion
+        .map(_.repr)
+        .toList :: Nil).flatten
         .mkString(":")
 
     val moduleIdWithOptionalParentheses =
@@ -187,7 +189,7 @@ object MavenFormatShowPrinter extends ShowPrinter {
       val requiredGroupId = nl(groupIdTag(artifact.groupId))
       val requiredArtifactId = nl(artifactIdTag(artifact.artifactId))
       val optionalVersion: String =
-        artifact.maybeVersion.fold("")(v => nl(versionTag(v)))
+        artifact.maybeVersion.map(_.repr).fold("")(v => nl(versionTag(v.repr)))
       val optionalScope: String = artifact.scope match {
         case Some(Test) => nl(scopeTag("test"))
         case None => ""
@@ -209,7 +211,8 @@ object SbtFormatShowPrinter extends ShowPrinter {
 
   def single(artifact: Artifact): String = {
     val groupId = artifact.groupId
-    val version = artifact.maybeVersion.map(v => s""""$v"""").getOrElse("???")
+    val version =
+      artifact.maybeVersion.map(v => s""""${v.repr}"""").getOrElse("???")
 
     val groupAndArtifact =
       (artifact.explicitScalaVersion, artifact.maybeScalaVersion) match {
@@ -225,9 +228,9 @@ object SbtFormatShowPrinter extends ShowPrinter {
 
     artifact.scope match {
       case Some(Test) =>
-        s"""$prefix$groupAndArtifact % $version % Test"""
+        s"""$prefix$groupAndArtifact % ${version.repr} % Test"""
       case _ =>
-        s"""$prefix$groupAndArtifact % $version"""
+        s"""$prefix$groupAndArtifact % ${version.repr}"""
     }
   }
 }

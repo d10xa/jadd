@@ -10,7 +10,11 @@ class MavenRemoteMetadataRepositoryApiTest extends WireMockTestBase {
 
   test("simple metadata read") {
     val meta =
-      api.receiveRepositoryMeta(art("ch.qos.logback:logback-classic")).right.get
+      api
+        .receiveRepositoryMetaWithMaxVersion(
+          art("ch.qos.logback:logback-classic"))
+        .right
+        .get
     meta.versions.head shouldEqual "0.2.5"
     meta.versions.last shouldEqual "1.3.0-alpha4"
     meta.versions.size shouldEqual 74
@@ -21,7 +25,11 @@ class MavenRemoteMetadataRepositoryApiTest extends WireMockTestBase {
 
   test("artifact for scala 2.11 if newer missing") {
     val meta =
-      api.receiveRepositoryMeta(art("org.apache.spark:spark-core%%")).right.get
+      api
+        .receiveRepositoryMetaWithMaxVersion(
+          art("org.apache.spark:spark-core%%"))
+        .right
+        .get
     meta.versions.last shouldEqual "2.3.1"
   }
 
@@ -30,7 +38,7 @@ class MavenRemoteMetadataRepositoryApiTest extends WireMockTestBase {
       groupId = "io.circe",
       artifactId = "circe-generic%%",
       maybeScalaVersion = Some("2.11"))
-    val meta = api.receiveRepositoryMeta(artifact).right.get
+    val meta = api.receiveRepositoryMetaWithMaxVersion(artifact).right.get
     meta.lastUpdated.get shouldEqual "20180521123606"
   }
 

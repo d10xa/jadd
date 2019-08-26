@@ -1,5 +1,6 @@
 package ru.d10xa.jadd.inserts
 
+import cats.data.NonEmptyList
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.experimental.CodeBlock
 import ru.d10xa.jadd.regex.GradleVerbalExpressions
@@ -13,18 +14,19 @@ class GradleArtifactMatcher(source: String) {
   def find(artifact: Artifact): Seq[GradleMatchImpl] = {
     val blocks: Seq[CodeBlock] = CodeBlock.find(source, "dependencies {")
     def inBlock(m: Match): Boolean = m.inBlock(blocks)
-
+    def possibleVersionsWithScala: NonEmptyList[String] =
+      supportedMinorVersions
+        .map(v => artifact.artifactIdWithScalaVersion(v))
     val possibleArtifactIds = if (artifact.isScala) {
-      artifact.artifactIdWithoutScalaVersion +: supportedMinorVersions.map(v =>
-        artifact.artifactIdWithScalaVersion(v))
-    } else Seq(artifact.artifactId)
+      possibleVersionsWithScala
+    } else NonEmptyList.of(artifact.artifactId)
 
     val configurations =
       GradleVerbalExpressions.gradleAllowedConfigurations.mkString("|")
 
-    def makeRegexes(artifactIds: Seq[String]): Seq[Regex] =
+    def makeRegexes(artifactIds: NonEmptyList[String]): NonEmptyList[Regex] =
       artifactIds.flatMap { artifactId =>
-        Seq(
+        NonEmptyList.of(
           raw"""($configurations)\s+(['"])${artifact.groupId}:$artifactId:([\w\d\._-]+)['"]""".r,
           raw"""($configurations)\s+group:\s+(['"])${artifact.groupId}['"],\s+name:\s+['"]$artifactId['"],\s+version:\s+['"]([\w\d\._-]+)['"]""".r
         )
@@ -32,9 +34,9 @@ class GradleArtifactMatcher(source: String) {
 
     def findInRegexes(
       source: String,
-      regexes: Seq[Regex]): Seq[GradleMatchImpl] =
+      regexes: NonEmptyList[Regex]): Seq[GradleMatchImpl] =
       for {
-        regex <- regexes
+        regex <- regexes.toList
         m <- regex.findAllMatchIn(source)
       } yield
         GradleMatchImpl(

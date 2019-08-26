@@ -40,7 +40,7 @@ class AnalyzeCommandImpl extends AnalyzeCommand with StrictLogging {
       a: Artifact,
       repo: String): EitherNel[troubles.ArtifactTrouble, Artifact] = {
       val errorOrMeta: EitherNel[troubles.MetadataLoadTrouble, MavenMetadata] =
-        RepositoryApi.fromString(repo).receiveRepositoryMeta(a)
+        RepositoryApi.fromString(repo).receiveRepositoryMetaWithMaxVersion(a)
       errorOrMeta.map(meta => a.merge(meta))
     }
 

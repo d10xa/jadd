@@ -5,24 +5,31 @@ import java.net.URL
 import better.files._
 import cats.data.EitherNel
 import cats.data.NonEmptyList
+import cats.implicits._
 import com.typesafe.scalalogging.LazyLogging
+import coursier.core.Version
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.troubles.MetadataLoadTrouble
 import ru.d10xa.jadd.versions.ScalaVersions
 
-import scala.collection.immutable.Stream
-import scala.collection.immutable.Stream.cons
 import scala.util.control.NonFatal
 import scala.xml.Elem
 import scala.xml.XML
 
-sealed trait RepositoryApi {
+trait RepositoryApi {
   def repository: String
-  def receiveRepositoryMeta(
+  def receiveRepositoryMetaWithMaxVersion(
     artifact: Artifact): EitherNel[MetadataLoadTrouble, MavenMetadata]
 }
 
 object RepositoryApi {
+
+  val metadataWithMaxVersion: Seq[MavenMetadata] => Option[MavenMetadata] =
+    metas =>
+      metas.filter(_.versions.nonEmpty) match {
+        case xs if xs.isEmpty => None
+        case xs => xs.maxBy(_.versions.map(Version(_)).max).some
+    }
 
   def fromString(repository: String): RepositoryApi =
     if (repository.startsWith("http")) {
@@ -36,7 +43,7 @@ object RepositoryApi {
 
 }
 
-trait MavenMetadataBase extends LazyLogging {
+trait MavenMetadataBase extends RepositoryApi with LazyLogging {
   def mavenMetadataXmlName: String
   def repository: String
   def absoluteRepositoryPath: String
@@ -45,29 +52,15 @@ trait MavenMetadataBase extends LazyLogging {
   def receiveRepositoryMetaWithArtifactPath(
     artifact: Artifact,
     artifactPath: String): Either[MetadataLoadTrouble, MavenMetadata]
-  def receiveRepositoryMeta(
+  def receiveRepositoryMetaWithMaxVersion(
     artifact: Artifact): EitherNel[MetadataLoadTrouble, MavenMetadata] = {
-
-    implicit class StreamImplicits[A](s: Stream[A]) {
-      def takeUntil(p: A => Boolean): Stream[A] =
-        if (s.isEmpty) Stream.empty
-        else if (p(s.head)) cons(s.head, s.tail.takeUntil(p))
-        else Stream(s.head)
-    }
-
-    import cats.implicits._
 
     val metas: NonEmptyList[Either[MetadataLoadTrouble, MavenMetadata]] =
       if (artifact.isScala && artifact.maybeScalaVersion.isEmpty) {
-
-        ScalaVersions.supportedMinorVersions.toStream
+        ScalaVersions.supportedMinorVersions
           .map(scalaVersion =>
             artifact.copy(maybeScalaVersion = Some(scalaVersion)))
           .map(a => receiveRepositoryMetaWithArtifactPath(a, a.asPath))
-          .takeUntil(_.isLeft) // take all Left and single Right
-          .toList
-          .toNel
-          .get // get is safe, because of explicit initial List definition
       } else {
         NonEmptyList.one(
           receiveRepositoryMetaWithArtifactPath(artifact, artifact.asPath))
@@ -75,8 +68,19 @@ trait MavenMetadataBase extends LazyLogging {
 
     val (troubles, maybeArtifactList) = metas.toList.separate
 
-    if (maybeArtifactList.nonEmpty) maybeArtifactList.head.asRight
-    else troubles.toNel.get.asLeft
+    val result: EitherNel[MetadataLoadTrouble, MavenMetadata] =
+      if (maybeArtifactList.nonEmpty) {
+        RepositoryApi.metadataWithMaxVersion(maybeArtifactList) match {
+          case Some(meta) => meta.asRight
+          case None =>
+            MetadataLoadTrouble(artifact, "Versions not found").asLeft.toEitherNel
+        }
+      } else troubles.toNel.get.asLeft
+
+    result.right.foreach((meta: MavenMetadata) =>
+      logger.debug(s"Metadata with max version: $meta"))
+
+    result
   }
 }
 

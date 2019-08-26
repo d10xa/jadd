@@ -1,6 +1,7 @@
 package ru.d10xa.jadd.cli
 
 import ru.d10xa.jadd.cli.Command.Repl
+import ru.d10xa.jadd.repository.RepositoryConstants
 import ru.d10xa.jadd.show.JaddFormatShowPrinter
 import ru.d10xa.jadd.show.ShowPrinter
 
@@ -12,7 +13,8 @@ final case class Config(
   projectDir: String = System.getProperty("user.dir"),
   shortcutsUri: String = "classpath:jadd-shortcuts.csv",
   repositories: Seq[String] = Seq(
-    "https://jcenter.bintray.com",
+    RepositoryConstants.mavenCentral,
+    RepositoryConstants.jcenter,
     // TODO get repository path from ~/.m2/settings.xml or use default
     // TODO support for ~
     s"${System.getProperty("user.home")}/.m2/repository"

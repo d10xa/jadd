@@ -12,7 +12,7 @@ class MavenLocalMetadataRepositoryTest extends TestBase {
       new MavenLocalMetadataRepositoryApi("src/test/resources/m2/repository/")
 
     val result: EitherNel[troubles.MetadataLoadTrouble, MavenMetadata] =
-      api.receiveRepositoryMeta(art("com.example:projectname"))
+      api.receiveRepositoryMetaWithMaxVersion(art("com.example:projectname"))
 
     val meta = result.right.get
     meta.versions shouldEqual Seq("2.5", "12.5")

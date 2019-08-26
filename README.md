@@ -24,8 +24,6 @@ Just run `jadd` without arguments and enjoy tab completion!
 
 - `search` (shortcut `s`) print dependency to console
 
-- `analyze` search dependency in multiple repositories and print all available versions
-
 - `show` show artifacts from build file
 
 - `help`
@@ -63,9 +61,3 @@ just run installation script
     # name [Scala Seed Project]: example-sbt
     cd example-sbt
     jadd i akka-http
-
-## analyze dependency
-
-only full artifactId supported. shortcuts not available
-
-    jadd analyze --repository=bintray/groovy/maven,google,jcenter,mavenCentral org.codehaus.groovy:groovy-eclipse-compiler

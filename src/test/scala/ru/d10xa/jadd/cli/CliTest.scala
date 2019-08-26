@@ -1,6 +1,5 @@
 package ru.d10xa.jadd.cli
 
-import ru.d10xa.jadd.cli.Command.Analyze
 import ru.d10xa.jadd.cli.Command.Help
 import ru.d10xa.jadd.cli.Command.Show
 import ru.d10xa.jadd.cli.Command.Install
@@ -20,13 +19,6 @@ class CliTest extends TestBase {
 
     config.command shouldEqual Install
     config.artifacts shouldEqual Seq("junit", "testng")
-  }
-
-  test("parse analyze") {
-    val config = parse("analyze", "junit:junit")
-
-    config.command shouldEqual Analyze
-    config.artifacts shouldEqual Seq("junit:junit")
   }
 
   test("parse help") {

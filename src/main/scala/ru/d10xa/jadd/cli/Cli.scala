@@ -1,7 +1,6 @@
 package ru.d10xa.jadd.cli
 
 import ru.d10xa.jadd.Ctx
-import ru.d10xa.jadd.cli.Command.Analyze
 import ru.d10xa.jadd.cli.Command.Help
 import ru.d10xa.jadd.cli.Command.Install
 import ru.d10xa.jadd.cli.Command.Search
@@ -92,12 +91,6 @@ object Cli extends Cli {
     cmd("show")
       .text("print dependencies")
       .action((_, c) => c.copy(command = Show))
-
-    cmd("analyze")
-      .text(
-        "search dependency in multiple repositories and print all available versions")
-      .action((_, c) => c.copy(command = Analyze))
-      .children(multipleArtifacts)
 
     cmd("help")
       .text("prints this usage text")

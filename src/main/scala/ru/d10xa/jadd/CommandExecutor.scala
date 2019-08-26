@@ -5,8 +5,6 @@ import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.effect.Sync
 import cats.implicits._
-import ru.d10xa.jadd.analyze.AnalyzeCommandImpl
-import ru.d10xa.jadd.cli.Command.Analyze
 import ru.d10xa.jadd.cli.Command.Help
 import ru.d10xa.jadd.cli.Command.Repl
 import ru.d10xa.jadd.cli.Config
@@ -26,8 +24,6 @@ trait CommandExecutor {
 
 class CommandExecutorImpl extends CommandExecutor {
 
-  lazy val analyzeCommand = new AnalyzeCommandImpl
-
   override def execute(
     config: Config,
     loader: Loader,
@@ -35,8 +31,6 @@ class CommandExecutorImpl extends CommandExecutor {
     config match {
       case c if c.command == Repl =>
         () // already in repl
-      case c if c.command == Analyze =>
-        analyzeCommand.run(Ctx(c))
       case c if c.command == Help =>
         showUsage()
       case c =>

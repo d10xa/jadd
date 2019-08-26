@@ -4,11 +4,8 @@ scalaVersion in ThisBuild := "2.12.9"
 version in ThisBuild := IO.read(new File("VERSION")).trim
 mainClass in Compile := Some("ru.d10xa.jadd.Jadd")
 
-lazy val antlrSbtDependencies = project.in(file("antlr-sbt-dependencies"))
-
 lazy val root = project
   .in(file("."))
-  .dependsOn(antlrSbtDependencies)
   .settings(
     scalacOptions := Seq(
       "-encoding",
@@ -65,3 +62,4 @@ libraryDependencies += "org.jsoup" % "jsoup" % "1.12.1"
 libraryDependencies += "org.typelevel" %% "cats-effect" % "1.3.0"
 libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.8.0"
 libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.0-RC3-2"
+libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.7.1"

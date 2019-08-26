@@ -3,8 +3,8 @@
 WORKDIR="$(pwd)/.antlr-tmp"
 ANTLR_JAR="antlr-4.7.1-complete.jar"
 ANTLR_JAR_PATH="${WORKDIR}/jar/${ANTLR_JAR}"
-ANTLR_MODULE="antlr-sbt-dependencies"
-ANTLR_OUTPUT="$(pwd)/$ANTLR_MODULE/src/main/scala/ru/d10xa/jadd/generated/antlr"
+ANTLR_MODULE="$(pwd)"
+ANTLR_OUTPUT="$ANTLR_MODULE/src/main/scala/ru/d10xa/jadd/generated/antlr"
 
 if ! [ -s  "$ANTLR_JAR_PATH" ]; then
     mkdir -p "$WORKDIR/jar"

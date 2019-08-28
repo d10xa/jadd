@@ -1,4 +1,4 @@
-// Generated from SbtDependencies.g4 by ANTLR 4.7.1
+// Generated from SbtDependencies.g4 by ANTLR 4.7.2
 package ru.d10xa.jadd.generated.antlr;
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class SbtDependenciesParser extends Parser {
-	static { RuntimeMetaData.checkVersion("4.7.1", RuntimeMetaData.VERSION); }
+	static { RuntimeMetaData.checkVersion("4.7.2", RuntimeMetaData.VERSION); }
 
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
@@ -23,24 +23,31 @@ public class SbtDependenciesParser extends Parser {
 	public static final int
 		RULE_percents = 0, RULE_singleDependency = 1, RULE_multipleDependencies = 2, 
 		RULE_libraryDependencies = 3, RULE_libraryDependency = 4;
-	public static final String[] ruleNames = {
-		"percents", "singleDependency", "multipleDependencies", "libraryDependencies", 
-		"libraryDependency"
-	};
+	private static String[] makeRuleNames() {
+		return new String[] {
+			"percents", "singleDependency", "multipleDependencies", "libraryDependencies", 
+			"libraryDependency"
+		};
+	}
+	public static final String[] ruleNames = makeRuleNames();
 
-	private static final String[] _LITERAL_NAMES = {
-		null, "'%'", "'%%'", "','", "'libraryDependencies'", "'++='", "'Seq'", 
-		"'List'", "'Vector'", "'('", "')'", "'+='"
-	};
-	private static final String[] _SYMBOLIC_NAMES = {
-		null, null, null, null, null, null, null, null, null, null, null, null, 
-		"Scope", "ScalaString", "WS", "Character", "NEWLINE", "COMMENT", "LINE_COMMENT"
-	};
+	private static String[] makeLiteralNames() {
+		return new String[] {
+			null, "'%'", "'%%'", "','", "'libraryDependencies'", "'++='", "'Seq'", 
+			"'List'", "'Vector'", "'('", "')'", "'+='"
+		};
+	}
+	private static final String[] _LITERAL_NAMES = makeLiteralNames();
+	private static String[] makeSymbolicNames() {
+		return new String[] {
+			null, null, null, null, null, null, null, null, null, null, null, null, 
+			"Scope", "ScalaString", "WS", "Character", "NEWLINE", "COMMENT", "LINE_COMMENT"
+		};
+	}
+	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
-	/**
-	 * @deprecated Use {@link #VOCABULARY} instead.
-	 */
+	
 	@Deprecated
 	public static final String[] tokenNames;
 	static {
@@ -85,6 +92,7 @@ public class SbtDependenciesParser extends Parser {
 		super(input);
 		_interp = new ParserATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
 	}
+
 	public static class PercentsContext extends ParserRuleContext {
 		public PercentsContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);

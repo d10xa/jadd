@@ -17,25 +17,25 @@ class JaddRunner(
   loggingUtil: LoggingUtil
 ) {
 
+  def readAndEvalConfig(args: Vector[String]): Config = {
+    val config = cli.parse(args)
+    if (config.debug) loggingUtil.enableDebug()
+    if (config.quiet) loggingUtil.quiet()
+    config.proxy.foreach(initProxy)
+    config
+  }
+
+  def initProxy(proxyStr: String): Unit = {
+    val proxyUri = new URI(proxyStr)
+    val proxySettings = ProxySettings.fromURI(proxyUri)
+    ProxySettings.set(proxySettings)
+    (proxySettings.httpProxyUser, proxySettings.httpProxyPassword) match {
+      case (Some(u), Some(p)) => ProxySettings.setupAuthenticator(u, p)
+      case _ => // do nothing
+    }
+  }
+
   def run(runParams: RunParams): Unit = {
-
-    def readAndEvalConfig(args: Vector[String]): Config = {
-      val config = cli.parse(args)
-      if (config.debug) loggingUtil.enableDebug()
-      if (config.quiet) loggingUtil.quiet()
-      config.proxy.foreach(initProxy)
-      config
-    }
-
-    def initProxy(proxyStr: String): Unit = {
-      val proxyUri = new URI(proxyStr)
-      val proxySettings = ProxySettings.fromURI(proxyUri)
-      ProxySettings.set(proxySettings)
-      (proxySettings.httpProxyUser, proxySettings.httpProxyPassword) match {
-        case (Some(u), Some(p)) => ProxySettings.setupAuthenticator(u, p)
-        case _ => // do nothing
-      }
-    }
 
     def runOnceForRepl(runParams: RunParams): Unit =
       JaddRunner.runOnce(

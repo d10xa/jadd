@@ -1,10 +1,12 @@
 package ru.d10xa.jadd.shortcuts
 
+import cats.effect.Sync
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.ArtifactInfo
 import ru.d10xa.jadd.Scope
 import ru.d10xa.jadd.Utils
 import ru.d10xa.jadd.troubles
+import cats.implicits._
 
 import scala.util.Try
 
@@ -17,7 +19,8 @@ class ArtifactInfoFinder(
 
   import ru.d10xa.jadd.troubles._
 
-  def findArtifactInfo(fullArtifact: String): Option[ArtifactInfo] = {
+  def findArtifactInfo[F[_]: Sync](
+    fullArtifact: String): F[Option[ArtifactInfo]] = {
 
     // if left field is empty then try to add it from right
     def combineEmptyFields(a: ArtifactInfo, b: ArtifactInfo): ArtifactInfo =
@@ -32,7 +35,7 @@ class ArtifactInfoFinder(
         }
       )
 
-    def readFile(fileName: String): Option[ArtifactInfo] = {
+    def readFile(fileName: String): F[Option[ArtifactInfo]] = {
       import ujson.Value
 
       implicit class JsOptStr(v: Value) {
@@ -40,78 +43,82 @@ class ArtifactInfoFinder(
           Try(v(selector).str).toOption
       }
 
-      val artifactInfoPath: String = artifactInfoBasePath + fileName
-      Try {
-        val jsonStr = Utils.mkStringFromResource(artifactInfoPath)
-        val json = ujson.read(jsonStr)
-        ArtifactInfo(
-          scope = json.optStr("scope"),
-          repository = json.optStr("repository")
-        )
-      }.toOption
+      Utils
+        .mkStringFromResourceF(artifactInfoBasePath + fileName)
+        .map { jsonStr =>
+          Try {
+            val json = ujson.read(jsonStr)
+            ArtifactInfo(
+              scope = json.optStr("scope"),
+              repository = json.optStr("repository")
+            )
+          }.toOption
+        }
+        .recover { case _: NullPointerException => None }
     }
 
     // find file by $groupId:$artifactId.json and then $groupId.json
-    val primary: Option[ArtifactInfo] = readFile(
+    val primary: F[Option[ArtifactInfo]] = readFile(
       fullArtifact
         .replaceFirst(":", "__")
         .replaceFirst("%%", "") + ".json")
 
-    val secondary: Option[ArtifactInfo] = readFile(
+    val secondary: F[Option[ArtifactInfo]] = readFile(
       fullArtifact.takeWhile(_ != ':') + ".json")
 
-    (primary, secondary) match {
-      case (Some(a), Some(b)) => Some(combineEmptyFields(a, b))
-      case (a, b) => a.orElse(b)
+    primary.product(secondary).map {
+      case (Some(a), Some(b)) =>
+        combineEmptyFields(a, b).some
+      case (a, b) =>
+        a.orElse(b)
     }
   }
 
-  def artifactFromString(
+  def artifactFromString[F[_]: Sync](
     artifactRaw: String
-  ): Either[ArtifactTrouble, Artifact] = {
+  ): F[Either[ArtifactTrouble, Artifact]] = {
 
-    def shortcutToArtifact: Option[Artifact] =
+    val valid: Either[troubles.ArtifactTrouble, Unit] =
+      Either
+        .cond(!artifactRaw.contains("("), (), WrongArtifactRaw)
+
+    valid
+      .flatMap(_ => full(artifactRaw))
+      .traverse((ar: Artifact) => addInfoToArtifact(ar))
+  }
+
+  val shortcutToArtifact: String => Option[Artifact] =
+    artifactRaw =>
       artifactShortcuts
         .unshort(artifactRaw)
         .map(_.split(':'))
         .collect {
           case Array(a, b) =>
             Artifact(groupId = a, artifactId = b, shortcut = Some(artifactRaw))
-        }
-
-    def full(str: String): Either[ArtifactTrouble, Artifact] =
-      if (str.contains(":")) {
-        Artifact.fromString(str)
-      } else {
-        shortcutToArtifact match {
-          case None => Left(ArtifactNotFoundByAlias(str))
-          case Some(a) => Right(a)
-        }
       }
 
-    def addInfoToArtifact(a: Artifact): Artifact = {
-      val artifactString = s"${a.groupId}:${a.artifactId}"
-      val maybeInfo: Option[ArtifactInfo] = findArtifactInfo(artifactString)
-
-      val scope: Option[Scope] =
-        maybeInfo.flatMap(_.scope).map(Scope.scope)
-
-      val repositoryPath: Option[String] =
-        maybeInfo
-          .flatMap(_.repository)
-          .map(repositoryShortcuts.unshortRepository)
-      a.copy(scope = scope, repository = repositoryPath)
+  def full(str: String): Either[ArtifactTrouble, Artifact] =
+    if (str.contains(":")) {
+      Artifact.fromString(str)
+    } else {
+      shortcutToArtifact(str) match {
+        case None => Left(ArtifactNotFoundByAlias(str))
+        case Some(a) => Right(a)
+      }
     }
 
-    val valid: Either[troubles.ArtifactTrouble, Unit] = Either
-      .cond(!artifactRaw.contains("("), (), WrongArtifactRaw)
+  def addInfoToArtifact[F[_]: Sync](a: Artifact): F[Artifact] = {
+    val artifactString = s"${a.groupId}:${a.artifactId}"
+    val maybeInfoF: F[Option[ArtifactInfo]] = findArtifactInfo(artifactString)
 
     for {
-      _ <- valid
-      full <- full(artifactRaw)
-    } yield addInfoToArtifact(full)
+      maybeInfo <- maybeInfoF
+      scope = maybeInfo.flatMap(_.scope).map(Scope.scope)
+      repositoryPath = maybeInfo
+        .flatMap(_.repository)
+        .map(repositoryShortcuts.unshortRepository)
+    } yield a.copy(scope = scope, repository = repositoryPath)
   }
-
 }
 
 object ArtifactInfoFinder {

@@ -8,15 +8,11 @@ import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.cli.Command.Install
 import ru.d10xa.jadd.cli.Command.Search
 import ru.d10xa.jadd.cli.Command.Show
+import ru.d10xa.jadd.cli.Config
 import ru.d10xa.jadd.show.JaddFormatShowPrinter
+import ru.d10xa.jadd._
 import ru.d10xa.jadd.troubles.ArtifactTrouble
 import ru.d10xa.jadd.troubles.handleTroubles
-import ru.d10xa.jadd.Artifact
-import ru.d10xa.jadd.Ctx
-import ru.d10xa.jadd.Loader
-import ru.d10xa.jadd.ProjectMeta
-import ru.d10xa.jadd.Utils
-import ru.d10xa.jadd.troubles
 import ru.d10xa.jadd.versions.ScalaVersions
 
 trait Pipeline extends StrictLogging {
@@ -96,15 +92,28 @@ trait Pipeline extends StrictLogging {
 
 object Pipeline {
 
-  def extractArtifacts(ctx: Ctx): Seq[String] =
-    if (ctx.config.requirements.nonEmpty) {
-      for {
-        requirement <- ctx.config.requirements
-        source = Utils.mkStringFromResource(requirement)
-        artifact <- source.trim.split("\\r?\\n").map(_.trim)
-      } yield artifact
-    } else {
-      ctx.config.artifacts
+  def requirementToArtifacts[F[_]: Sync](
+    requirementResourcePath: String): F[Seq[String]] =
+    Utils
+      .mkStringFromResourceF(requirementResourcePath)
+      .map(_.trim.split("\\r?\\n").map(_.trim).toVector)
+
+  def fromRequirements[F[_]: Sync](config: Config): F[Option[Seq[String]]] =
+    config.requirements match {
+      case requirements if requirements.nonEmpty =>
+        val artifactStrings = requirements.toList
+          .flatTraverse(requirement =>
+            requirementToArtifacts(requirement).map(_.toList))
+        artifactStrings.map(_.some)
+      case _ => Sync[F].pure(None)
     }
+
+  val fromConfig: Config => Option[Seq[String]] = _.artifacts.some
+
+  def extractArtifacts[F[_]: Sync](ctx: Ctx): F[Seq[String]] =
+    for {
+      fromReq <- fromRequirements(ctx.config)
+      fromConf = fromConfig(ctx.config)
+    } yield fromReq.orElse(fromConf).getOrElse(Seq.empty)
 
 }

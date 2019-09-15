@@ -22,27 +22,32 @@ object Loader {
     repositoryShortcuts: RepositoryShortcuts
   ) extends Loader {
 
+    def loadByString[F[_]: Sync](
+      ctx: Ctx,
+      artifacts: List[String]): IorNel[ArtifactTrouble, List[Artifact]] = {
+      val withScalaVersion: Seq[Artifact] => Seq[Artifact] = _.map(
+        u =>
+          if (u.isScala)
+            u.copy(
+              maybeScalaVersion =
+                u.maybeScalaVersion.orElse(ctx.meta.scalaVersion))
+          else u
+      )
+      val unshorted: Seq[Artifact] = Utils
+        .unshortAll(artifacts, artifactInfoFinder)
+      val repositoriesUnshorted: Seq[String] =
+        ctx.config.repositories.map(repositoryShortcuts.unshortRepository)
+      loadAllArtifacts(
+        withScalaVersion(unshorted),
+        VersionTools,
+        repositoriesUnshorted)
+    }
+
     override def load[F[_]: Sync](
       ctx: Ctx): F[IorNel[ArtifactTrouble, List[Artifact]]] =
-      Sync[F].delay {
-        val withScalaVersion: Seq[Artifact] => Seq[Artifact] = _.map(
-          u =>
-            if (u.isScala)
-              u.copy(
-                maybeScalaVersion =
-                  u.maybeScalaVersion.orElse(ctx.meta.scalaVersion))
-            else u
-        )
-        val artifacts = Pipeline.extractArtifacts(ctx)
-        val unshorted: Seq[Artifact] = Utils
-          .unshortAll(artifacts.toList, artifactInfoFinder)
-        val repositoriesUnshorted: Seq[String] =
-          ctx.config.repositories.map(repositoryShortcuts.unshortRepository)
-        loadAllArtifacts(
-          withScalaVersion(unshorted),
-          VersionTools,
-          repositoriesUnshorted)
-      }
+      Pipeline
+        .extractArtifacts(ctx)
+        .map(artifacts => loadByString(ctx, artifacts.toList))
 
     def loadAllArtifacts(
       artifacts: Seq[Artifact],

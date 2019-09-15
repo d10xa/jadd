@@ -6,7 +6,11 @@ import ru.d10xa.jadd.Jadd
 import ru.d10xa.jadd.testkit.BuildFileTestBase
 import ru.d10xa.jadd.testkit.WireMockTestBase
 
-class MainSbtTest extends WireMockTestBase with BuildFileTestBase with FunSuiteLike with Matchers {
+class MainSbtTest
+    extends WireMockTestBase
+    with BuildFileTestBase
+    with FunSuiteLike
+    with Matchers {
 
   override def buildFileName: String = "build.sbt"
 
@@ -17,7 +21,14 @@ class MainSbtTest extends WireMockTestBase with BuildFileTestBase with FunSuiteL
       """.stripMargin
     )
 
-    Jadd.main(Array("install", "-q", projectDirArg, "--repository", mockedRepositoryUrl, "logback-core"))
+    Jadd.main(
+      Array(
+        "install",
+        "-q",
+        projectDirArg,
+        "--repository",
+        mockedRepositoryUrl,
+        "logback-core"))
 
     read() shouldEqual
       """

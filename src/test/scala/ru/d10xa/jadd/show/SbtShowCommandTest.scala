@@ -3,6 +3,7 @@ package ru.d10xa.jadd.show
 import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.ProjectFileReaderMemory
 import ru.d10xa.jadd.Scope.Test
+import ru.d10xa.jadd.cli.Config
 
 class SbtShowCommandTest extends TestBase {
 
@@ -20,7 +21,8 @@ class SbtShowCommandTest extends TestBase {
          |)
        """.stripMargin
 
-    val result = new SbtShowCommand(source, emptyProjectFileReader).show()
+    val result =
+      new SbtShowCommand(source, emptyProjectFileReader, Config.empty).show()
     val expected = Seq(
       art("ch.qos.logback:logback-classic:1.2.3"),
       art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_12,
@@ -41,7 +43,8 @@ class SbtShowCommandTest extends TestBase {
          |libraryDependencies += "org.typelevel" %% "cats-core" % "1.1.0"
        """.stripMargin
 
-    val result = new SbtShowCommand(source, emptyProjectFileReader).show()
+    val result =
+      new SbtShowCommand(source, emptyProjectFileReader, Config.empty).show()
     val expected = Seq(
       art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_12,
       art("org.typelevel:cats-core%%:1.1.0").scala2_12
@@ -57,9 +60,10 @@ class SbtShowCommandTest extends TestBase {
          |libraryDependencies += "a" % "b" % "1" % UnknownScopeShouldBeIgnored
        """.stripMargin
 
-    val result = new SbtShowCommand(source, emptyProjectFileReader)
-      .show()
-      .sortBy(_.artifactId)
+    val result =
+      new SbtShowCommand(source, emptyProjectFileReader, Config.empty)
+        .show()
+        .sortBy(_.artifactId)
     val expected = Seq(
       art("org.scalatest:scalatest_2.12:3.0.5")
         .copy(scope = Some(Test))
@@ -87,11 +91,15 @@ class SbtShowCommandTest extends TestBase {
         |  lazy val junit = "junit" % "junit" % "4.12"
         |  lazy val catsCore = "org.typelevel" %% "cats-core" % "1.1.0"
         |}""".stripMargin
+    val projectFileReader = new ProjectFileReaderMemory(
+      Map(
+        "project/Dependencies.scala" ->
+          dependenciesFile)
+    )
     val result = new SbtShowCommand(
       source,
-      new ProjectFileReaderMemory(
-        Map("project/Dependencies.scala" ->
-          dependenciesFile))
+      projectFileReader,
+      Config.empty
     ).show()
 
     val expected = Seq(
@@ -112,7 +120,11 @@ class SbtShowCommandTest extends TestBase {
        """.stripMargin
 
     val result =
-      new SbtShowCommand(source, new ProjectFileReaderMemory(Map.empty)).show()
+      new SbtShowCommand(
+        source,
+        new ProjectFileReaderMemory(Map.empty),
+        Config.empty
+      ).show()
 
     val expected = Seq(
       art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_11,

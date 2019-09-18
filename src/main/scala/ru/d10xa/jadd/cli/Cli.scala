@@ -45,6 +45,11 @@ object Cli extends Cli {
       .text("Install from the given requirements file/url")
       .action((x, c) => c.copy(requirements = x))
 
+    opt[String]("scala-version")
+      .optional()
+      .text("Define scala version for %% resolution")
+      .action((x, c) => c.copy(scalaVersion = Some(x)))
+
     opt[Seq[String]]("repository")
       .action((x, c) => c.copy(repositories = x))
 
@@ -99,8 +104,8 @@ object Cli extends Cli {
 
   override def parse(args: Vector[String]): Config = {
     val config = parser
-      .parse(args, Config())
-      .getOrElse(Config(command = Help))
+      .parse(args, Config.empty)
+      .getOrElse(Config.empty.copy(command = Help))
     config.copy(usage = parser.usage)
   }
 

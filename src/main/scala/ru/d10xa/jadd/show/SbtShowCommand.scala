@@ -7,6 +7,7 @@ import org.antlr.v4.runtime.CommonTokenStream
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.ProjectFileReader
 import ru.d10xa.jadd.Scope
+import ru.d10xa.jadd.cli.Config
 import ru.d10xa.jadd.experimental.CodeBlock
 import ru.d10xa.jadd.generated.antlr.SbtDependenciesBaseVisitor
 import ru.d10xa.jadd.generated.antlr.SbtDependenciesLexer
@@ -19,8 +20,12 @@ import scala.collection.JavaConverters.asScalaBufferConverter
 
 class SbtShowCommand(
   buildFileSource: String,
-  projectFileReader: ProjectFileReader) {
+  projectFileReader: ProjectFileReader,
+  config: Config) {
   import SbtShowCommand._
+
+  lazy val scalaVersionFromBuildSbt: Option[String] = SbtPipeline
+    .extractScalaVersionFromBuildSbt(buildFileSource)
 
   def show(): Seq[Artifact] = {
 
@@ -34,8 +39,8 @@ class SbtShowCommand(
     def parser(lexer: SbtDependenciesLexer): SbtDependenciesParser =
       new SbtDependenciesParser(new CommonTokenStream(lexer))
 
-    val scalaVersion = SbtPipeline
-      .extractScalaVersionFromBuildSbt(buildFileSource)
+    val scalaVersion = config.scalaVersion
+      .orElse(scalaVersionFromBuildSbt)
       .getOrElse(ScalaVersions.defaultScalaVersion)
 
     val multiple: Seq[Artifact] = blocks.map(_.innerContent).flatMap {

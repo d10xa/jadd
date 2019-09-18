@@ -20,7 +20,12 @@ final case class Config(
     s"${System.getProperty("user.home")}/.m2/repository"
   ),
   showPrinter: ShowPrinter = JaddFormatShowPrinter.withVersions,
+  scalaVersion: Option[String] = None,
   proxy: Option[String] = None,
   quiet: Boolean = false,
   debug: Boolean = false
 )
+
+object Config {
+  val empty: Config = Config()
+}

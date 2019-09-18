@@ -47,14 +47,21 @@ trait Pipeline extends StrictLogging {
   ): F[Unit] =
     invokeCommand(ior, artifacts => Sync[F].delay(search(artifacts)))
 
+  def readScalaVersion[F[_]: Sync](): F[String] =
+    for {
+      predefinedScalaVersion <- Sync[F].pure(ctx.config.scalaVersion)
+      optScalaVersion <- findScalaVersion()
+    } yield
+      predefinedScalaVersion
+        .orElse(optScalaVersion)
+        .getOrElse(ScalaVersions.defaultScalaVersion)
+
   def run[F[_]: Sync](
     loader: Loader
   ): F[Unit] = {
     def loaded: F[IorNel[troubles.ArtifactTrouble, List[Artifact]]] =
       for {
-        optScalaVersion <- findScalaVersion()
-        scalaVersion = optScalaVersion.getOrElse(
-          ScalaVersions.defaultScalaVersion)
+        scalaVersion <- readScalaVersion()
         res <- loader.load(
           ctx.copy(meta = ProjectMeta(scalaVersion = Some(scalaVersion))))
       } yield res

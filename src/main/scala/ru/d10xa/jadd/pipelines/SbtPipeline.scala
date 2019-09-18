@@ -46,7 +46,8 @@ class SbtPipeline(
   override def show[F[_]: Sync](): F[Seq[Artifact]] =
     for {
       source <- buildFileSource
-      artifacts = new SbtShowCommand(source, projectFileReader).show()
+      artifacts = new SbtShowCommand(source, projectFileReader, ctx.config)
+        .show()
     } yield artifacts
 
   override def findScalaVersion[F[_]: Sync](): F[Option[String]] =

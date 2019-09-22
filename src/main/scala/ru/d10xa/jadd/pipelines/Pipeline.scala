@@ -88,7 +88,7 @@ trait Pipeline extends StrictLogging {
         artifact =>
           JaddFormatShowPrinter.withVersions
             .single(artifact) + " // " + artifact.versionsForPrint)
-    logger.info(stringsForPrint.mkString("\n"))
+    logger.debug(stringsForPrint.mkString("\n"))
   }
 
   def install[F[_]: Sync](artifacts: List[Artifact]): F[Unit]

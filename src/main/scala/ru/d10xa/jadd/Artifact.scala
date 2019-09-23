@@ -1,5 +1,6 @@
 package ru.d10xa.jadd
 
+import cats.Show
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.repository.MavenMetadata
 import ru.d10xa.jadd.troubles.ArtifactTrouble
@@ -8,6 +9,7 @@ import ru.d10xa.jadd.versions.ScalaVersions
 import ru.d10xa.jadd.versions.VersionFilter
 import cats.implicits._
 import coursier.core.Version
+import ru.d10xa.jadd.show.JaddFormatShowPrinter
 
 final case class Artifact(
   groupId: String,
@@ -87,6 +89,9 @@ final case class Artifact(
 }
 
 object Artifact {
+
+  implicit val showArtifact: Show[Artifact] = (t: Artifact) =>
+    JaddFormatShowPrinter.withVersions.single(t)
 
   def fromTuple3(t: (String, String, String)): Artifact = t match {
     case (groupId, artifactId, version) =>

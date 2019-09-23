@@ -13,7 +13,7 @@ class MavenRemoteMetadataRepositoryApiTest extends WireMockTestBase {
       api
         .receiveRepositoryMetaWithMaxVersion(
           art("ch.qos.logback:logback-classic"))
-        .right
+        .toOption
         .get
     meta.versions.head shouldEqual "0.2.5"
     meta.versions.last shouldEqual "1.3.0-alpha4"
@@ -28,7 +28,7 @@ class MavenRemoteMetadataRepositoryApiTest extends WireMockTestBase {
       api
         .receiveRepositoryMetaWithMaxVersion(
           art("org.apache.spark:spark-core%%"))
-        .right
+        .toOption
         .get
     meta.versions.last shouldEqual "2.3.1"
   }
@@ -38,7 +38,7 @@ class MavenRemoteMetadataRepositoryApiTest extends WireMockTestBase {
       groupId = "io.circe",
       artifactId = "circe-generic%%",
       maybeScalaVersion = Some("2.11"))
-    val meta = api.receiveRepositoryMetaWithMaxVersion(artifact).right.get
+    val meta = api.receiveRepositoryMetaWithMaxVersion(artifact).toOption.get
     meta.lastUpdated.get shouldEqual "20180521123606"
   }
 

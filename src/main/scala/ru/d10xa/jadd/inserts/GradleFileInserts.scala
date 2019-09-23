@@ -16,7 +16,7 @@ class GradleFileInserts extends StrictLogging {
     artifacts.foldLeft(source) { case (s, artifact) => append(s, artifact) }
 
   private def append(source: String, artifact: Artifact): String = {
-    val sourceLines = source.split('\n')
+    val sourceLines = source.split('\n').toIndexedSeq
     val indent: Indent = Indentation.predictIndentation(sourceLines)
     val blocks: Seq[CodeBlock] = CodeBlock.find(source, "dependencies {")
 

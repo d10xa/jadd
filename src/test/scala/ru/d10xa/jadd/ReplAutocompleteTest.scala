@@ -1,14 +1,14 @@
 package ru.d10xa.jadd
 
 import org.jsoup.Jsoup
-import org.scalatest.FunSuite
 import ru.d10xa.jadd.repl.ReplAutocomplete
 import ru.d10xa.jadd.repl.ReplAutocomplete.autocompleteCandidateAsPath
 import ru.d10xa.jadd.repl.ReplAutocomplete.autocompleteCandidatesFromDocument
+import ru.d10xa.jadd.testkit.TestBase
 
 import scala.io.Source
 
-class ReplAutocompleteTest extends FunSuite {
+class ReplAutocompleteTest extends TestBase {
 
   val string: String =
     Source

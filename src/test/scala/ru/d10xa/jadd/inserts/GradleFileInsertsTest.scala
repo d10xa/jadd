@@ -26,7 +26,7 @@ class GradleFileInsertsTest extends TestBase {
   }
 
   test("tab insert") {
-    val content = StringContext.treatEscapes(
+    val content = StringContext.processEscapes(
       """apply plugin: 'java'
         |repositories {
         |\tjcenter()
@@ -41,7 +41,7 @@ class GradleFileInsertsTest extends TestBase {
       .appendAll(content, Seq(art("org.codehaus.groovy:groovy-all:2.4.15")))
 
     newContent shouldEqual
-      StringContext.treatEscapes(
+      StringContext.processEscapes(
         """apply plugin: 'java'
           |repositories {
           |\tjcenter()

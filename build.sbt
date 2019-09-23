@@ -1,6 +1,7 @@
 name := "jadd"
 organization in ThisBuild := "ru.d10xa"
-scalaVersion in ThisBuild := "2.12.9"
+
+scalaVersion in ThisBuild := "2.13.1"
 version in ThisBuild := IO.read(new File("VERSION")).trim
 mainClass in Compile := Some("ru.d10xa.jadd.Jadd")
 
@@ -15,15 +16,14 @@ lazy val root = project
       "-feature", // warn about misused language features
       "-language:higherKinds", // allow higher kinded types without `import scala.language.higherKinds`
       "-Xlint", // enable handy linter warnings
-      "-Xfatal-warnings", // turn compiler warnings into errors
-      "-Ypartial-unification" // allow the compiler to unify type constructors of different arities
+      "-Xfatal-warnings" // turn compiler warnings into errors
     )
   )
 
 enablePlugins(JavaAppPackaging)
 //wartremoverErrors ++= Warts.unsafe
 wartremoverErrors in (Compile, compile) ++= Seq(
-  Wart.Any,
+//  Wart.Any,
   Wart.AnyVal,
   Wart.ArrayEquals,
   Wart.AsInstanceOf,
@@ -51,15 +51,15 @@ libraryDependencies ++= Seq(
   "com.github.scopt" %% "scopt" % "3.7.1",
   "ch.qos.logback" % "logback-classic" % "1.2.3",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
-  "org.typelevel" %% "cats-core" % "1.6.0",
-  "org.jline" % "jline" % "3.11.0",
-  "com.lihaoyi" %% "ujson" % "0.7.4",
+  "org.typelevel" %% "cats-core" % "2.0.0",
+  "org.jline" % "jline" % "3.12.1",
+  "com.lihaoyi" %% "ujson" % "0.7.5",
   "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.6",
-  "org.scalatest" %% "scalatest" % "3.0.5" % Test,
-  "com.github.tomakehurst" % "wiremock" % "2.23.2" % Test
+  "org.scalatest" %% "scalatest" % "3.1.0-SNAP13" % Test,
+  "com.github.tomakehurst" % "wiremock" % "2.24.1" % Test
 )
 libraryDependencies += "org.jsoup" % "jsoup" % "1.12.1"
-libraryDependencies += "org.typelevel" %% "cats-effect" % "1.3.0"
+libraryDependencies += "org.typelevel" %% "cats-effect" % "2.0.0"
 libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.8.0"
-libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.0-RC3-2"
+libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.0-RC3-4"
 libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.7.2"

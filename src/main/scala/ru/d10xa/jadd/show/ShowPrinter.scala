@@ -189,7 +189,7 @@ object MavenFormatShowPrinter extends ShowPrinter {
       val requiredGroupId = nl(groupIdTag(artifact.groupId))
       val requiredArtifactId = nl(artifactIdTag(artifact.artifactId))
       val optionalVersion: String =
-        artifact.maybeVersion.map(_.repr).fold("")(v => nl(versionTag(v.repr)))
+        artifact.maybeVersion.map(_.repr).fold("")(v => nl(versionTag(v)))
       val optionalScope: String = artifact.scope match {
         case Some(Test) => nl(scopeTag("test"))
         case None => ""
@@ -211,7 +211,7 @@ object SbtFormatShowPrinter extends ShowPrinter {
 
   def single(artifact: Artifact): String = {
     val groupId = artifact.groupId
-    val version =
+    val version: String =
       artifact.maybeVersion.map(v => s""""${v.repr}"""").getOrElse("???")
 
     val groupAndArtifact =
@@ -228,9 +228,9 @@ object SbtFormatShowPrinter extends ShowPrinter {
 
     artifact.scope match {
       case Some(Test) =>
-        s"""$prefix$groupAndArtifact % ${version.repr} % Test"""
+        s"""$prefix$groupAndArtifact % $version % Test"""
       case _ =>
-        s"""$prefix$groupAndArtifact % ${version.repr}"""
+        s"""$prefix$groupAndArtifact % $version"""
     }
   }
 }

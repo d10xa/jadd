@@ -20,9 +20,7 @@ class MavenMetadataVersionsRawReaderTest extends TestBase {
         .readFromXml(MavenMetadata(), elem)
         .versions
         .reverse
-        .toStream
         .head
-
     version shouldEqual "2.13.0-M3"
   }
 

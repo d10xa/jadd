@@ -2,7 +2,6 @@ package ru.d10xa.jadd.versions
 
 import cats.data.EitherNel
 import cats.data.IorNel
-import cats.data.NonEmptyList
 import cats.implicits._
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.troubles.ArtifactTrouble
@@ -21,13 +20,14 @@ object ArtifactVersionsDownloader {
 
   def loadArtifactVersionsForce(
     artifact: Artifact,
-    configRepositories: Seq[String],
+    configRepositories: Seq[String], // TODO ValueClass for repository representation
     versionTools: VersionTools): IorNel[ArtifactTrouble, Artifact] = {
-    val artifactWithRepoList: Stream[Artifact] =
-      if (artifact.repository.isDefined) Stream(artifact)
+    val artifactWithRepoList: LazyList[Artifact] =
+      if (artifact.repository.isDefined) LazyList(artifact)
       else
-        configRepositories.toStream.map(repo =>
-          artifact.copy(repository = Some(repo)))
+        LazyList
+          .from(configRepositories)
+          .map(repo => artifact.copy(repository = Some(repo)))
     val res: Seq[EitherNel[ArtifactTrouble, Artifact]] =
       artifactWithRepoList
         .map(versionTools.loadVersionAndInitLatest)
@@ -35,14 +35,12 @@ object ArtifactVersionsDownloader {
     val o: Option[EitherNel[ArtifactTrouble, Artifact]] = res
       .find(_.isRight)
 
-    // right.get is safe because of .find(_.isRight)
     o match {
       case Some(either) =>
-        either.right.get
-          .rightIor[NonEmptyList[ArtifactTrouble]]
+        either.toIor
       case None =>
         res
-          .collect { case e if e.isLeft => e.left.get }
+          .collect { case Left(e) => e }
           .flatMap(_.toList)
           .toList
           .toNel

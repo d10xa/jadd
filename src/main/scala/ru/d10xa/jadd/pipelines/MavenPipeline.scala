@@ -33,7 +33,7 @@ class MavenPipeline(
     artifacts.map(_.inlineScalaVersion)
 
   def buildFileToIndent(buildFileSource: String): Indent =
-    Indentation.predictIndentation(buildFileSource.split('\n'))
+    Indentation.predictIndentation(buildFileSource.split('\n').toIndexedSeq)
 
   def makeStringsForInsert(
     artifacts: List[Artifact],

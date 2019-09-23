@@ -7,6 +7,8 @@ import ru.d10xa.jadd.shortcuts.RepositoryShortcutsImpl
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts.ArtifactShortcutsClasspath
 import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.troubles.ArtifactNotFoundByAlias
+import ru.d10xa.jadd.troubles.ArtifactTrouble
+import cats.implicits._
 
 class ArtifactInfoFinderTest extends TestBase {
 
@@ -19,14 +21,12 @@ class ArtifactInfoFinderTest extends TestBase {
 
   test("with scope") {
     artifactFromString[IO]("junit")
-      .unsafeRunSync()
-      .right
-      .get shouldEqual Artifact(
+      .unsafeRunSync() shouldEqual Artifact(
       groupId = "junit",
       artifactId = "junit",
       shortcut = Some("junit"),
       scope = Some(Scope.Test)
-    )
+    ).asRight[ArtifactTrouble]
   }
 
   test("find existent artifact info") {
@@ -48,14 +48,12 @@ class ArtifactInfoFinderTest extends TestBase {
 
   test("find artifact with bintray repository") {
     artifactFromString[IO]("de.heikoseeberger:akka-http-circe%%")
-      .unsafeRunSync()
-      .right
-      .get shouldEqual Artifact(
+      .unsafeRunSync() shouldEqual Artifact(
       groupId = "de.heikoseeberger",
       artifactId = "akka-http-circe%%",
       scope = None,
       repository = Some("https://dl.bintray.com/hseeberger/maven")
-    )
+    ).asRight[ArtifactTrouble]
   }
 
   test("find non-existent artifact info") {
@@ -65,14 +63,13 @@ class ArtifactInfoFinderTest extends TestBase {
 
   test("unknown shortcut") {
     artifactFromString[IO]("safojasfoi")
-      .unsafeRunSync()
-      .left
-      .get shouldEqual ArtifactNotFoundByAlias("safojasfoi")
+      .unsafeRunSync() shouldEqual ArtifactNotFoundByAlias("safojasfoi")
+      .asLeft[Artifact]
   }
 
   test("aware scala version") {
     val a =
-      artifactFromString[IO]("a:b_2.12:1.1.0").unsafeRunSync().right.get
+      artifactFromString[IO]("a:b_2.12:1.1.0").unsafeRunSync().toOption.get
     a shouldEqual Artifact(
       groupId = "a",
       artifactId = "b%%",

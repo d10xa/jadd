@@ -1,12 +1,10 @@
 package ru.d10xa.jadd.it
 
-import org.scalatest.FunSuiteLike
-import org.scalatest.Matchers
 import ru.d10xa.jadd.Jadd
 import ru.d10xa.jadd.testkit.BuildFileTestBase
 import ru.d10xa.jadd.testkit.WireMockTestBase
 
-class MainMavenTest extends WireMockTestBase with BuildFileTestBase with FunSuiteLike with Matchers {
+class MainMavenTest extends WireMockTestBase with BuildFileTestBase {
 
   override def buildFileName: String = "pom.xml"
 
@@ -31,8 +29,13 @@ class MainMavenTest extends WireMockTestBase with BuildFileTestBase with FunSuit
 
     Jadd.main(
       Array(
-        "install", "-q", projectDirArg, "--repository", mockedRepositoryUrl,
-        "ch.qos.logback:logback-core", "org.testng:testng"
+        "install",
+        "-q",
+        projectDirArg,
+        "--repository",
+        mockedRepositoryUrl,
+        "ch.qos.logback:logback-core",
+        "org.testng:testng"
       )
     )
 
@@ -85,9 +88,15 @@ class MainMavenTest extends WireMockTestBase with BuildFileTestBase with FunSuit
 
     write(content)
 
-    Jadd.main(Array(
-      "install", "-q", projectDirArg, "--repository", "src/test/resources/m2/repository", "com.example:projectname"
-    ))
+    Jadd.main(
+      Array(
+        "install",
+        "-q",
+        projectDirArg,
+        "--repository",
+        "src/test/resources/m2/repository",
+        "com.example:projectname"
+      ))
 
     val expected =
       """

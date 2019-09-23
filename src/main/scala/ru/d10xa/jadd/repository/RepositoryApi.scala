@@ -77,7 +77,7 @@ trait MavenMetadataBase extends RepositoryApi with LazyLogging {
         }
       } else troubles.toNel.get.asLeft
 
-    result.right.foreach((meta: MavenMetadata) =>
+    result.foreach((meta: MavenMetadata) =>
       logger.debug(s"Metadata with max version: $meta"))
 
     result

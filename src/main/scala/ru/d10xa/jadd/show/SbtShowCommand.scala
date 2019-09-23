@@ -16,7 +16,7 @@ import ru.d10xa.jadd.pipelines.SbtPipeline
 import ru.d10xa.jadd.regex.SbtVerbalExpressions
 import ru.d10xa.jadd.versions.ScalaVersions
 
-import scala.collection.JavaConverters.asScalaBufferConverter
+import scala.jdk.CollectionConverters._
 
 class SbtShowCommand(
   buildFileSource: String,

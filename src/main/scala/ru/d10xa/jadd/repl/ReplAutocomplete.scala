@@ -6,7 +6,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import ru.d10xa.jadd.repository.RepositoryConstants
 
-import scala.collection.JavaConverters.asScalaBufferConverter
+import scala.jdk.CollectionConverters._
 
 class ReplAutocomplete(val cache: ArtifactAutocompleteCache) {
   import ReplAutocomplete._

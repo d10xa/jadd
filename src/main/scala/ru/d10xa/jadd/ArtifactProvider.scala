@@ -23,7 +23,7 @@ object ArtifactProvider {
 
       val t3 = stringWithGroupIdArtifactIdVersion()
         .groups3(d.buildFileSource)
-        .map { case (g, a, v) => s"$g:$a:${v.repr}" }
+        .map { case (g, a, v) => s"$g:$a:$v" }
       val t2 = stringWithGroupIdArtifactId()
         .groups2(d.buildFileSource)
         .map { case (g, a) => s"$g:$a" }
@@ -33,7 +33,7 @@ object ArtifactProvider {
       all
         .map(new GStr(_).resolve(interpolated))
         .map(Artifact.fromString)
-        .map(_.right.get) // TODO .get
+        .flatMap(_.toOption)
     }
 
   implicit class BuildDescriptionImplicits[T](val buildDescription: T)(

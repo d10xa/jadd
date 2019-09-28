@@ -1,16 +1,10 @@
 package ru.d10xa.jadd.it
 
-import org.scalatest.FunSuiteLike
-import org.scalatest.Matchers
 import ru.d10xa.jadd.Jadd
 import ru.d10xa.jadd.testkit.BuildFileTestBase
 import ru.d10xa.jadd.testkit.WireMockTestBase
 
-class MainGradleTest
-    extends WireMockTestBase
-    with BuildFileTestBase
-    with FunSuiteLike
-    with Matchers {
+class MainGradleTest extends WireMockTestBase with BuildFileTestBase {
 
   override def buildFileName: String = "build.gradle"
 

@@ -4,6 +4,7 @@ import coursier.core.Version
 import ru.d10xa.jadd.repository.MavenMetadata
 import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.troubles.WrongArtifactRaw
+import cats.implicits._
 
 class ArtifactTest extends TestBase {
 
@@ -47,11 +48,10 @@ class ArtifactTest extends TestBase {
 
   test("fromString wrong") {
     Artifact.fromString("a:b:1.0").isRight shouldEqual true
-    Artifact.fromString("a:b:c:d").left.get shouldEqual WrongArtifactRaw
+    Artifact.fromString("a:b:c:d") shouldEqual WrongArtifactRaw.asLeft[Artifact]
     Artifact
-      .fromString("only-groupid-or-shortcut")
-      .left
-      .get shouldEqual WrongArtifactRaw
+      .fromString("only-groupid-or-shortcut") shouldEqual WrongArtifactRaw
+      .asLeft[Artifact]
   }
 
   test("fromTuple") {
@@ -63,10 +63,10 @@ class ArtifactTest extends TestBase {
   }
 
   test("scalaVersionAsPlaceholders") {
-    val (artifactId, Some(scalaVersion)) =
+    val (artifactId, maybeScalaVersion) =
       Artifact.scalaVersionAsPlaceholders("b_2.12")
     artifactId shouldEqual "b%%"
-    scalaVersion shouldEqual "2.12"
+    maybeScalaVersion shouldEqual "2.12".some
   }
 
 }

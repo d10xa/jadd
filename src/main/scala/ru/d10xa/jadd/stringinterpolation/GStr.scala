@@ -2,8 +2,7 @@ package ru.d10xa.jadd.stringinterpolation
 
 import ru.d10xa.jadd.regex.GradleVerbalExpressions.validVariableNameRegex
 import ru.lanwen.verbalregex.VerbalExpression
-
-import scala.collection.JavaConverters.asScalaBufferConverter
+import scala.jdk.CollectionConverters._
 
 final class GStr(str: String) {
 
@@ -60,13 +59,13 @@ object GStr {
     def interpolateStep(m: Map[String, String]): Map[String, String] = {
       val t = m.partition(_._2.contains("$"))
       val (gstrs, strs) = t
-      val newMap = gstrs
+      val newMap = gstrs.view
         .mapValues(new GStr(_))
         .mapValues(_.resolve(strs))
       strs ++ newMap
     }
 
-    Stream
+    LazyList
       .iterate((Map.empty[String, String], m)) {
         case (_, cur) =>
           cur -> interpolateStep(cur)

@@ -4,14 +4,16 @@ import com.typesafe.scalalogging.LazyLogging
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.show.SbtFormatShowPrinter
 import ru.d10xa.jadd.view.ArtifactView
+import cats.implicits._
 
 class SbtFileInserts extends LazyLogging {
 
   import ArtifactView._
 
   def debugMatches(artifact: Artifact, matches: Seq[Match]): Unit = {
-    def matchesCount = s"matches count: ${matches.size}"
-    def matchesView = matches.map(m => s"${m.start} ${m.value}")
+    def matchesCount = s"matches count: ${matches.size.show}"
+    def matchesView =
+      matches.map(m => s"${m.start.show} ${m.value.show}")
     logger.debug(
       s"""${artifact.groupId}:${artifact.artifactId} $matchesCount ($matchesView)""")
   }

@@ -8,7 +8,7 @@ import org.scalatest.BeforeAndAfterAll
   * To record new mappings run wiremock proxy and uncomment mockedRepositoryUrl with port 9999
   * wiremock --port 9999 --record-mappings --proxy-all="http://jcenter.bintray.com" --root-dir=src/test/resources/wiremock/jcenter
   */
-trait WireMockTestBase extends TestBase with BeforeAndAfterAll {
+abstract class WireMockTestBase extends TestBase with BeforeAndAfterAll {
 
   val wireMockServer: WireMockServer = new WireMockServer(
     wireMockConfig()

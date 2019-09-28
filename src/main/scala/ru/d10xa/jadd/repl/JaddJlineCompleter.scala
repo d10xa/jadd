@@ -10,7 +10,7 @@ import org.jline.reader.ParsedLine
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
 import ru.d10xa.jadd.show.ShowPrinter
 
-import scala.collection.JavaConverters.asScalaBufferConverter
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.util.control.NonFatal
 
@@ -34,7 +34,7 @@ class JaddJlineCompleter extends org.jline.reader.Completer with StrictLogging {
     line: ParsedLine,
     candidates: util.List[Candidate]
   ): Unit = {
-    val words: Seq[String] = line.words().asScala
+    val words: Seq[String] = line.words().asScala.toList
     val autocompleteFormat =
       JaddJlineCompleter.matchFormatOutput(words)
     if (autocompleteFormat) {

@@ -1,6 +1,7 @@
 package ru.d10xa.jadd
 
 import cats.data.EitherNel
+import cats.implicits._
 
 object troubles {
 
@@ -39,8 +40,8 @@ object troubles {
         case ArtifactNotFoundByAlias(alias) =>
           s"artifact alias not found ($alias)"
         case WrongArtifactRaw => "artifact syntax invalid"
-        case MetadataLoadTrouble(url, cause) =>
-          s"failed to load metadata from $url ($cause)"
+        case MetadataLoadTrouble(artifact, cause) =>
+          s"failed to load metadata for ${artifact.show} ($cause)"
         case RepositoryUndefined(artifact) =>
           s"repository not defined for ${artifact.groupId}:${artifact.artifactId}"
       }

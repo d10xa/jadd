@@ -38,11 +38,11 @@ class MavenFileInsertsTest extends TestBase {
         |  <version>1.2.3</version>
         |</dependency>""".stripMargin
 
-    val lines = content.split('\n')
+    val lines = content.split('\n').toList
     val result = MavenFileInserts
       .append(
         content,
-        List(dependency.split('\n')),
+        List(dependency.split('\n').toList),
         Indentation.predictIndentation(lines)
       )
       .mkString("\n")
@@ -99,11 +99,11 @@ class MavenFileInsertsTest extends TestBase {
         |  <version>1.2.3</version>
         |</dependency>""".stripMargin
 
-    val lines = content.split('\n')
+    val lines = content.split('\n').toList
     val result = MavenFileInserts
       .append(
         content,
-        List(dependency.split('\n')),
+        List(dependency.split('\n').toList),
         Indentation.predictIndentation(lines)
       )
       .mkString("\n")
@@ -129,7 +129,7 @@ class MavenFileInsertsTest extends TestBase {
   }
 
   test("add dependency to pom.xml without dependencies tag with indent 1 tab") {
-    val content = StringContext.treatEscapes(
+    val content = StringContext.processEscapes(
       """<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         |\txsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
         |\t<modelVersion>4.0.0</modelVersion>
@@ -143,7 +143,7 @@ class MavenFileInsertsTest extends TestBase {
         |""".stripMargin
     )
 
-    def dependency = StringContext.treatEscapes(
+    def dependency = StringContext.processEscapes(
       """<dependency>
         |\t<groupId>ch.qos.logback</groupId>
         |\t<artifactId>logback-classic</artifactId>
@@ -151,16 +151,16 @@ class MavenFileInsertsTest extends TestBase {
         |</dependency>""".stripMargin
     )
 
-    val lines = content.split('\n')
+    val lines = content.split('\n').toList
     val result = MavenFileInserts
       .append(
         content,
-        List(dependency.split('\n')),
+        List(dependency.split('\n').toList),
         Indentation.predictIndentation(lines)
       )
       .mkString("\n")
 
-    result shouldEqual StringContext.treatEscapes(
+    result shouldEqual StringContext.processEscapes(
       """<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         |\txsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
         |\t<modelVersion>4.0.0</modelVersion>

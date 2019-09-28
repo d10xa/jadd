@@ -65,7 +65,7 @@ class PredictIndentationTest extends TestBase {
   }
 
   test("2 tabs") {
-    val content = StringContext.treatEscapes(
+    val content = StringContext.processEscapes(
       """<project>
         |\t\t<artifactId>a</artifactId>
         |\t\t<groupId>a</groupId>
@@ -90,7 +90,7 @@ class PredictIndentationTest extends TestBase {
   }
 
   test("no indents") {
-    val content = StringContext.treatEscapes(
+    val content = StringContext.processEscapes(
       """<project>
         |<artifactId>a</artifactId>
         |<groupId>a</groupId>

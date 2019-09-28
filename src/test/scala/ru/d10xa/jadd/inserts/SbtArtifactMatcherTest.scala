@@ -1,12 +1,11 @@
 package ru.d10xa.jadd.inserts
 
-import org.scalatest.FunSuiteLike
-import org.scalatest.Matchers
 import ru.d10xa.jadd.Artifact
+import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.view.ArtifactView
 import ru.d10xa.jadd.view.ArtifactView.MatchImpl
 
-class SbtArtifactMatcherTest extends FunSuiteLike with Matchers {
+class SbtArtifactMatcherTest extends TestBase {
 
   private val scalaLogging =
     Artifact("com.typesafe.scala-logging", "scala-logging%%")

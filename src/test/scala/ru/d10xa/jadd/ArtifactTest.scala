@@ -10,7 +10,7 @@ class ArtifactTest extends TestBase {
 
   test("apply single string without version") {
     val a = art("org.seleniumhq.selenium:selenium-api")
-    a.groupId shouldEqual "org.seleniumhq.selenium"
+    a.groupId shouldEqual GroupId("org.seleniumhq.selenium")
     a.artifactId shouldEqual "selenium-api"
     a.maybeVersion shouldEqual None
   }
@@ -18,7 +18,7 @@ class ArtifactTest extends TestBase {
   test("apply single string with version") {
     val a = art("org.seleniumhq.selenium:selenium-api:3.0.0")
 
-    a.groupId shouldEqual "org.seleniumhq.selenium"
+    a.groupId shouldEqual GroupId("org.seleniumhq.selenium")
     a.artifactId shouldEqual "selenium-api"
     a.maybeVersion.map(_.repr) shouldEqual Some("3.0.0")
   }
@@ -56,10 +56,13 @@ class ArtifactTest extends TestBase {
 
   test("fromTuple") {
     Artifact.fromTuple3(("a", "b", "1.0")) shouldEqual Artifact(
-      "a",
+      GroupId("a"),
       "b",
       Some(Version("1.0")))
-    Artifact.fromTuple2(("a", "b")) shouldEqual Artifact("a", "b", None)
+    Artifact.fromTuple2(("a", "b")) shouldEqual Artifact(
+      GroupId("a"),
+      "b",
+      None)
   }
 
   test("scalaVersionAsPlaceholders") {

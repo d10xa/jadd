@@ -22,7 +22,7 @@ class ArtifactInfoFinderTest extends TestBase {
   test("with scope") {
     artifactFromString[IO]("junit")
       .unsafeRunSync() shouldEqual Artifact(
-      groupId = "junit",
+      groupId = GroupId("junit"),
       artifactId = "junit",
       shortcut = Some("junit"),
       scope = Some(Scope.Test)
@@ -49,7 +49,7 @@ class ArtifactInfoFinderTest extends TestBase {
   test("find artifact with bintray repository") {
     artifactFromString[IO]("de.heikoseeberger:akka-http-circe%%")
       .unsafeRunSync() shouldEqual Artifact(
-      groupId = "de.heikoseeberger",
+      groupId = GroupId("de.heikoseeberger"),
       artifactId = "akka-http-circe%%",
       scope = None,
       repository = Some("https://dl.bintray.com/hseeberger/maven")
@@ -71,7 +71,7 @@ class ArtifactInfoFinderTest extends TestBase {
     val a =
       artifactFromString[IO]("a:b_2.12:1.1.0").unsafeRunSync().toOption.get
     a shouldEqual Artifact(
-      groupId = "a",
+      groupId = GroupId("a"),
       artifactId = "b%%",
       maybeScalaVersion = Some("2.12"),
       maybeVersion = Some(Version("1.1.0"))

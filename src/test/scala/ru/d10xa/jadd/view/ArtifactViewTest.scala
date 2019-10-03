@@ -1,6 +1,7 @@
 package ru.d10xa.jadd.view
 
 import ru.d10xa.jadd.Artifact
+import ru.d10xa.jadd.GroupId
 import ru.d10xa.jadd.inserts.SbtArtifactMatcher
 import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.view.ArtifactView.Match
@@ -26,7 +27,7 @@ class ArtifactViewTest extends TestBase {
 
   test("sbt find artifact") {
     val artifact = Artifact(
-      "com.typesafe.scala-logging",
+      GroupId("com.typesafe.scala-logging"),
       "scala-logging%%",
       maybeScalaVersion = Some("2.12"))
     find(artifact, sbtSource).head.value should be(

@@ -3,6 +3,7 @@ package ru.d10xa.jadd.versions
 import cats.implicits._
 import coursier.core.Version
 import ru.d10xa.jadd.Artifact
+import ru.d10xa.jadd.GroupId
 import ru.d10xa.jadd.testkit.TestBase
 
 class ArtifactVersionsDownloaderTest extends TestBase {
@@ -10,7 +11,7 @@ class ArtifactVersionsDownloaderTest extends TestBase {
   test("version received from repository initialized") {
     val a = ArtifactVersionsDownloader
       .loadArtifactVersions(
-        Artifact(groupId = "a", artifactId = "b"),
+        Artifact(groupId = GroupId("a"), artifactId = "b"),
         Seq("repo1"),
         (artifact: Artifact) =>
           artifact
@@ -29,7 +30,7 @@ class ArtifactVersionsDownloaderTest extends TestBase {
     val a = ArtifactVersionsDownloader
       .loadArtifactVersions(
         Artifact(
-          groupId = "a",
+          groupId = GroupId("a"),
           artifactId = "b",
           maybeVersion = Some(Version("1.0"))),
         Seq("repo1"),

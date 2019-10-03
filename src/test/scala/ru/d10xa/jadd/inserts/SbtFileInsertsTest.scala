@@ -2,6 +2,7 @@ package ru.d10xa.jadd.inserts
 
 import coursier.core.Version
 import ru.d10xa.jadd.Artifact
+import ru.d10xa.jadd.GroupId
 import ru.d10xa.jadd.testkit.TestBase
 
 class SbtFileInsertsTest extends TestBase {
@@ -18,7 +19,7 @@ class SbtFileInsertsTest extends TestBase {
     val result = add(
       content,
       Artifact(
-        groupId = "ch.qos.logback",
+        groupId = GroupId("ch.qos.logback"),
         artifactId = "logback-classic",
         maybeVersion = Some(Version("1.2.3")))
     )
@@ -38,7 +39,7 @@ class SbtFileInsertsTest extends TestBase {
     val result = add(
       content,
       Artifact(
-        groupId = "org.typelevel",
+        groupId = GroupId("org.typelevel"),
         artifactId = "cats-core%%",
         shortcut = Some("cats-core"),
         maybeVersion = Some(Version("1.1.0")),
@@ -64,7 +65,7 @@ class SbtFileInsertsTest extends TestBase {
     val result = add(
       content,
       Artifact(
-        groupId = "org.typelevel",
+        groupId = GroupId("org.typelevel"),
         artifactId = "cats-core%%",
         maybeVersion = Some(Version("1.1.0")),
         maybeScalaVersion = Some("2.12")
@@ -87,7 +88,7 @@ class SbtFileInsertsTest extends TestBase {
         |""".stripMargin
 
     val artifact = Artifact(
-      groupId = "org.typelevel",
+      groupId = GroupId("org.typelevel"),
       artifactId = "cats-core%%",
       maybeVersion = Some(Version("1.1.0")),
       maybeScalaVersion = Some("2.11")
@@ -111,7 +112,7 @@ class SbtFileInsertsTest extends TestBase {
         |""".stripMargin
 
     val artifact = Artifact(
-      groupId = "org.typelevel",
+      groupId = GroupId("org.typelevel"),
       artifactId = "cats-core%%",
       maybeVersion = Some(Version("1.1.0")),
       maybeScalaVersion = Some("2.11")
@@ -157,7 +158,7 @@ class SbtFileInsertsTest extends TestBase {
          |""".stripMargin
 
     val artifact = Artifact(
-      groupId = "com.typesafe.scala-logging",
+      groupId = GroupId("com.typesafe.scala-logging"),
       artifactId = "scala-logging%%",
       maybeVersion = Some(Version("3.9.0")),
       maybeScalaVersion = Some("2.12"),
@@ -189,14 +190,14 @@ class SbtFileInsertsTest extends TestBase {
            |""".stripMargin
 
     val a1 = Artifact(
-      groupId = "com.typesafe.scala-logging",
+      groupId = GroupId("com.typesafe.scala-logging"),
       artifactId = "scala-logging%%",
       maybeVersion = Some(Version("3.9.0")),
       maybeScalaVersion = Some("2.12")
     )
 
     val a2 = Artifact(
-      groupId = "ch.qos.logback",
+      groupId = GroupId("ch.qos.logback"),
       artifactId = "logback-classic",
       maybeVersion = Some(Version("1.2.3")),
       inSequence = true

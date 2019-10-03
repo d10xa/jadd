@@ -43,7 +43,7 @@ object troubles {
         case MetadataLoadTrouble(artifact, cause) =>
           s"failed to load metadata for ${artifact.show} ($cause)"
         case RepositoryUndefined(artifact) =>
-          s"repository not defined for ${artifact.groupId}:${artifact.artifactId}"
+          s"repository not defined for ${artifact.groupId.show}:${artifact.artifactId}"
       }
       .foreach(action)
 

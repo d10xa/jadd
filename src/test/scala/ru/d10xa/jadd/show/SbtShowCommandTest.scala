@@ -1,5 +1,6 @@
 package ru.d10xa.jadd.show
 
+import cats.implicits._
 import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.ProjectFileReaderMemory
 import ru.d10xa.jadd.Scope.Test
@@ -71,7 +72,7 @@ class SbtShowCommandTest extends TestBase {
       art("junit:junit:4.12")
         .copy(scope = Some(Test)),
       art("a:b:1")
-    ).sortBy(_.groupId)
+    ).sortBy(_.groupId.show)
     result shouldEqual expected
   }
 

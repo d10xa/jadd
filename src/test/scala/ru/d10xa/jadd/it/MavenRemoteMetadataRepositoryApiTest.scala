@@ -1,6 +1,7 @@
 package ru.d10xa.jadd.it
 
 import ru.d10xa.jadd.Artifact
+import ru.d10xa.jadd.GroupId
 import ru.d10xa.jadd.repository.MavenRemoteMetadataRepositoryApi
 import ru.d10xa.jadd.testkit.WireMockTestBase
 
@@ -35,7 +36,7 @@ class MavenRemoteMetadataRepositoryApiTest extends WireMockTestBase {
 
   test("artifact with specific version of scala if available 2.11 and 2.12") {
     val artifact = Artifact(
-      groupId = "io.circe",
+      groupId = GroupId("io.circe"),
       artifactId = "circe-generic%%",
       maybeScalaVersion = Some("2.11"))
     val meta = api.receiveRepositoryMetaWithMaxVersion(artifact).toOption.get

@@ -15,7 +15,7 @@ class SbtFileInserts extends LazyLogging {
     def matchesView =
       matches.map(m => s"${m.start.show} ${m.value.show}")
     logger.debug(
-      s"""${artifact.groupId}:${artifact.artifactId} $matchesCount ($matchesView)""")
+      s"""${artifact.groupId.show}:${artifact.artifactId} $matchesCount ($matchesView)""")
   }
 
   def appendAll(source: String, artifacts: Seq[Artifact]): String =

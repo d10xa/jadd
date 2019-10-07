@@ -1,5 +1,6 @@
 package ru.d10xa.jadd.show
 
+import cats.implicits._
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Indent
 import ru.d10xa.jadd.Scope.Test
@@ -63,8 +64,8 @@ final class JaddFormatShowPrinter private (withVersions: Boolean)
         case _ => a.artifactId
       }
     (a.maybeVersion, withVersions) match {
-      case (Some(v), true) => s"${a.groupId}:$artifactId:${v.repr}"
-      case _ => s"${a.groupId}:$artifactId"
+      case (Some(v), true) => s"${a.groupId.show}:$artifactId:${v.repr}"
+      case _ => s"${a.groupId.show}:$artifactId"
     }
   }
 }
@@ -86,8 +87,8 @@ object AmmoniteFormatShowPrinter extends ShowPrinter {
         case _ => a.artifactId
       }
     a.maybeVersion match {
-      case Some(v) => s"${a.groupId}:$artifactId:${v.repr}"
-      case None => s"${a.groupId}:$artifactId"
+      case Some(v) => s"${a.groupId.show}:$artifactId:${v.repr}"
+      case None => s"${a.groupId.show}:$artifactId"
     }
   }
 
@@ -115,7 +116,7 @@ object GroovyFormatShowPrinter extends ShowPrinter {
       case Some(version) => s", version = '${version.repr}'"
       case None => ""
     }
-    s"@Grab(group='${a.groupId}', module='$artifactId'$versionKeyValue)"
+    s"@Grab(group='${a.groupId.show}', module='$artifactId'$versionKeyValue)"
   }
 }
 
@@ -128,7 +129,7 @@ object LeiningenFormatShowPrinter extends ShowPrinter {
         case _ => a.artifactId
       }
     val version = a.maybeVersion.map(_.repr).getOrElse("LATEST")
-    val moduleId = (a.groupId, artifactId) match {
+    val moduleId = (a.groupId.show, artifactId) match {
       case (gId, aId) if gId == aId => aId
       case (gId, aId) => s"$gId/$aId"
     }
@@ -160,7 +161,7 @@ final class GradleFormatShowPrinter(lang: GradleLang) extends ShowPrinter {
           .getOrElse("implementation"))
 
     val moduleId =
-      (List(a.groupId) :: List(artifactId) :: a.maybeVersion
+      (List(a.groupId.show) :: List(artifactId) :: a.maybeVersion
         .map(_.repr)
         .toList :: Nil).flatten
         .mkString(":")
@@ -186,7 +187,7 @@ object MavenFormatShowPrinter extends ShowPrinter {
     def nl(str: String): String = s"\n$indentString$str"
 
     def artifactToString(artifact: Artifact): String = {
-      val requiredGroupId = nl(groupIdTag(artifact.groupId))
+      val requiredGroupId = nl(groupIdTag(artifact.groupId.show))
       val requiredArtifactId = nl(artifactIdTag(artifact.artifactId))
       val optionalVersion: String =
         artifact.maybeVersion.map(_.repr).fold("")(v => nl(versionTag(v)))
@@ -210,7 +211,7 @@ object MavenFormatShowPrinter extends ShowPrinter {
 object SbtFormatShowPrinter extends ShowPrinter {
 
   def single(artifact: Artifact): String = {
-    val groupId = artifact.groupId
+    val groupId = artifact.groupId.show
     val version: String =
       artifact.maybeVersion.map(v => s""""${v.repr}"""").getOrElse("???")
 

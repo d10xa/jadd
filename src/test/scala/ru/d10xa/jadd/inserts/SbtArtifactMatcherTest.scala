@@ -1,6 +1,7 @@
 package ru.d10xa.jadd.inserts
 
 import ru.d10xa.jadd.Artifact
+import ru.d10xa.jadd.GroupId
 import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.view.ArtifactView
 import ru.d10xa.jadd.view.ArtifactView.MatchImpl
@@ -8,8 +9,9 @@ import ru.d10xa.jadd.view.ArtifactView.MatchImpl
 class SbtArtifactMatcherTest extends TestBase {
 
   private val scalaLogging =
-    Artifact("com.typesafe.scala-logging", "scala-logging%%")
-  private val logbackClassic = Artifact("ch.qos.logback", "logback-classic")
+    Artifact(GroupId("com.typesafe.scala-logging"), "scala-logging%%")
+  private val logbackClassic =
+    Artifact(GroupId("ch.qos.logback"), "logback-classic")
 
   test("find in sequence and standalone in single source") {
     val source =

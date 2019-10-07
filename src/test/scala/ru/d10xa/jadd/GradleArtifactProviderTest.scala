@@ -29,12 +29,12 @@ class GradleArtifactProviderTest extends TestBase {
     val artifacts = ArtifactProvider.gradleArtifactProvider.provide(d)
 
     artifacts(0) shouldEqual Artifact(
-      groupId = "org.scala-lang",
+      groupId = GroupId("org.scala-lang"),
       artifactId = "scala-library",
       maybeVersion = Some(Version("2.12.6"))
     )
     artifacts(1) shouldEqual Artifact(
-      groupId = "org.scalatest",
+      groupId = GroupId("org.scalatest"),
       artifactId = "scalatest%%",
       maybeVersion = Some(Version("3.0.4")),
       maybeScalaVersion = Some("2.12")

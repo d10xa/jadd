@@ -3,6 +3,7 @@ package ru.d10xa.jadd.show
 import com.typesafe.scalalogging.StrictLogging
 import coursier.core.Version
 import ru.d10xa.jadd.Artifact
+import ru.d10xa.jadd.GroupId
 
 import scala.xml.Node
 import scala.xml.XML
@@ -15,7 +16,7 @@ class MavenShowCommand(buildFileSource: String) extends StrictLogging {
       val v =
         if (versionNode.nonEmpty) Some(Version(versionNode.text)) else None
       Artifact(
-        groupId = (n \ "groupId").text,
+        groupId = GroupId((n \ "groupId").text),
         artifactId = (n \ "artifactId").text,
         maybeVersion = v
       )

@@ -28,7 +28,7 @@ class UnknownProjectPipeline(
 
     implicit val artifactShow: Show[Artifact] =
       Show[Artifact] { a =>
-        s"""groupId: ${a.groupId}
+        s"""groupId: ${a.groupId.show}
                |artifactId: ${a.artifactId}
                |version: ${a.maybeVersion
              .map(_.repr)

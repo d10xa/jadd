@@ -3,6 +3,7 @@ package ru.d10xa.jadd.shortcuts
 import cats.effect.Sync
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.ArtifactInfo
+import ru.d10xa.jadd.GroupId
 import ru.d10xa.jadd.Scope
 import ru.d10xa.jadd.Utils
 import ru.d10xa.jadd.troubles
@@ -94,7 +95,10 @@ class ArtifactInfoFinder(
         .map(_.split(':'))
         .collect {
           case Array(a, b) =>
-            Artifact(groupId = a, artifactId = b, shortcut = Some(artifactRaw))
+            Artifact(
+              groupId = GroupId(a),
+              artifactId = b,
+              shortcut = Some(artifactRaw))
       }
 
   def full(str: String): Either[ArtifactTrouble, Artifact] =
@@ -108,7 +112,7 @@ class ArtifactInfoFinder(
     }
 
   def addInfoToArtifact[F[_]: Sync](a: Artifact): F[Artifact] = {
-    val artifactString = s"${a.groupId}:${a.artifactId}"
+    val artifactString = s"${a.groupId.show}:${a.artifactId}"
     val maybeInfoF: F[Option[ArtifactInfo]] = findArtifactInfo(artifactString)
 
     for {

@@ -1,6 +1,7 @@
 package ru.d10xa.jadd.inserts
 
 import cats.data.NonEmptyList
+import cats.implicits._
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.experimental.CodeBlock
 import ru.d10xa.jadd.regex.GradleVerbalExpressions
@@ -27,8 +28,8 @@ class GradleArtifactMatcher(source: String) {
     def makeRegexes(artifactIds: NonEmptyList[String]): NonEmptyList[Regex] =
       artifactIds.flatMap { artifactId =>
         NonEmptyList.of(
-          raw"""($configurations)\s+(['"])${artifact.groupId}:$artifactId:([\w\d\._-]+)['"]""".r,
-          raw"""($configurations)\s+group:\s+(['"])${artifact.groupId}['"],\s+name:\s+['"]$artifactId['"],\s+version:\s+['"]([\w\d\._-]+)['"]""".r
+          raw"""($configurations)\s+(['"])${artifact.groupId.show}:$artifactId:([\w\d\._-]+)['"]""".r,
+          raw"""($configurations)\s+group:\s+(['"])${artifact.groupId.show}['"],\s+name:\s+['"]$artifactId['"],\s+version:\s+['"]([\w\d\._-]+)['"]""".r
         )
       }
 

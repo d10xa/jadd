@@ -1,5 +1,6 @@
 package ru.d10xa.jadd.inserts
 
+import cats.implicits._
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.experimental.CodeBlock
 import ru.d10xa.jadd.view.ArtifactView.Match
@@ -29,13 +30,13 @@ class SbtArtifactMatcher(val source: String) extends AnyVal {
 
   def r0(artifact: Artifact): String = {
     val optionalScalaVersion = "(_2.11)?(_2.12)?"
-    raw"""["']${artifact.groupId}["']\s%\s["']${artifact.artifactIdWithoutScalaVersion}$optionalScalaVersion["']\s%\s["'].+["'](\s%\sTest)?"""
+    raw"""["']${artifact.groupId.show}["']\s%\s["']${artifact.artifactIdWithoutScalaVersion}$optionalScalaVersion["']\s%\s["'].+["'](\s%\sTest)?"""
   }
   def r1(artifact: Artifact): String =
-    raw"""["']${artifact.groupId}["']\s%%\s["']${artifact.artifactIdWithoutScalaVersion}["']\s%\s["'].+["'](\s%\sTest)?"""
+    raw"""["']${artifact.groupId.show}["']\s%%\s["']${artifact.artifactIdWithoutScalaVersion}["']\s%\s["'].+["'](\s%\sTest)?"""
   def r2(artifact: Artifact, scalaVersion: String): String = {
     val aId = artifact.artifactIdWithScalaVersion(scalaVersion)
-    raw"""["']${artifact.groupId}["']\s%\s["']$aId["']\s%\s["'].+["'](\s%\sTest)?"""
+    raw"""["']${artifact.groupId.show}["']\s%\s["']$aId["']\s%\s["'].+["'](\s%\sTest)?"""
   }
 
   def findInSequence(artifact: Artifact): Seq[Match] = {

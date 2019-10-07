@@ -12,7 +12,7 @@ import coursier.core.Version
 import ru.d10xa.jadd.show.JaddFormatShowPrinter
 
 final case class Artifact(
-  groupId: String,
+  groupId: GroupId,
   artifactId: String,
   maybeVersion: Option[Version] = None,
   shortcut: Option[String] = None,
@@ -27,18 +27,16 @@ final case class Artifact(
   inSequence: Boolean = false // required for ArtifactView
 ) extends StrictLogging {
 
-  def asPath: String = {
-    val groupIdPath = groupId.replace('.', '/')
+  def asPath: String =
     (needScalaVersionResolving, maybeScalaVersion) match {
       case (false, None) =>
-        s"$groupIdPath/$artifactId"
+        s"${groupId.path}/$artifactId"
       case (true, Some(scalaVersion)) =>
-        s"$groupIdPath/${artifactIdWithScalaVersion(scalaVersion)}"
+        s"${groupId.path}/${artifactIdWithScalaVersion(scalaVersion)}"
       case _ =>
         throw new IllegalStateException(
           s"artifact $artifactId cannot be represented as path")
     }
-  }
 
   // TODO think about merge needScalaVersionResolving and isScala methods
   def needScalaVersionResolving: Boolean = artifactId.contains("%%")
@@ -88,6 +86,14 @@ final case class Artifact(
 
 }
 
+final case class GroupId(value: String) {
+  val path: String = value.replace('.', '/')
+}
+
+object GroupId {
+  implicit val showGroupId: Show[GroupId] = Show[GroupId](_.value.toString)
+}
+
 object Artifact {
 
   implicit val showArtifact: Show[Artifact] = (t: Artifact) =>
@@ -96,7 +102,7 @@ object Artifact {
   def fromTuple3(t: (String, String, String)): Artifact = t match {
     case (groupId, artifactId, version) =>
       Artifact(
-        groupId = groupId,
+        groupId = GroupId(groupId),
         artifactId = artifactId,
         maybeVersion = Some(Version(version))
       )
@@ -105,7 +111,7 @@ object Artifact {
   def fromTuple2(t: (String, String)): Artifact = t match {
     case (groupId, artifactId) =>
       Artifact(
-        groupId = groupId,
+        groupId = GroupId(groupId),
         artifactId = artifactId
       )
   }
@@ -131,14 +137,14 @@ object Artifact {
       case Array(g, a) =>
         val (artifactId, maybeScalaVersion) = scalaVersionAsPlaceholders(a)
         Artifact(
-          groupId = g,
+          groupId = GroupId(g),
           artifactId = artifactId,
           maybeScalaVersion = maybeScalaVersion
         ).asRight[ArtifactTrouble]
       case Array(g, a, v) =>
         val (artifactId, maybeScalaVersion) = scalaVersionAsPlaceholders(a)
         Artifact(
-          groupId = g,
+          groupId = GroupId(g),
           artifactId = artifactId,
           maybeVersion = Some(Version(v)),
           maybeScalaVersion = maybeScalaVersion

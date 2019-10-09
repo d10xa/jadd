@@ -3,6 +3,7 @@ package ru.d10xa.jadd.repository
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+import ru.d10xa.jadd.ScalaVersion
 import ru.d10xa.jadd.xml.MavenMetadataVersionsRawReader
 
 import scala.util.Try
@@ -13,7 +14,7 @@ final case class MavenMetadata(
   repository: Option[String] = None,
   versions: Seq[String] = Seq.empty,
   lastUpdated: Option[String] = None,
-  maybeScalaVersion: Option[String] = None // Metadata from newer to older (scala 2.12, 2.11..)
+  maybeScalaVersion: Option[ScalaVersion] = None // Metadata from newer to older (scala 2.12, 2.11..)
 ) {
   lazy val lastUpdatedPretty: Option[String] =
     lastUpdated.map(MavenMetadata.lastUpdatedPretty)

@@ -1,5 +1,6 @@
 package ru.d10xa.jadd.pipelines
 
+import ru.d10xa.jadd.ScalaVersion
 import ru.d10xa.jadd.testkit.TestBase
 
 class SbtPipelineTest extends TestBase {
@@ -12,7 +13,7 @@ class SbtPipelineTest extends TestBase {
         |version in ThisBuild := "0.0.0"
         |
       """.stripMargin)
-    optionScalaVersion shouldEqual Some("2.12")
+    optionScalaVersion shouldEqual Some(ScalaVersion.fromString("2.12"))
   }
 
   test("testExtractScalaVersionFromBuildSbt scalaVersion") {
@@ -25,7 +26,7 @@ class SbtPipelineTest extends TestBase {
         |  crossScalaVersions := Seq("2.10.7", "2.11.12", "2.12.8", "2.13.0"),
         |}
       """.stripMargin)
-    optionScalaVersion shouldEqual Some("2.13")
+    optionScalaVersion shouldEqual Some(ScalaVersion.fromString("2.13"))
   }
 
   test("testExtractScalaVersionFromBuildSbt scalaVersion in comment") {
@@ -36,7 +37,7 @@ class SbtPipelineTest extends TestBase {
         |scalaVersion in ThisBuild := "2.12.8"
         |}
       """.stripMargin)
-    optionScalaVersion shouldEqual Some("2.11")
+    optionScalaVersion shouldEqual Some(ScalaVersion.fromString("2.11"))
   }
 
 }

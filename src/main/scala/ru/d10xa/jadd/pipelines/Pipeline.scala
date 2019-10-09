@@ -35,7 +35,7 @@ trait Pipeline extends StrictLogging {
     }
   }
 
-  def findScalaVersion[F[_]: Sync](): F[Option[String]]
+  def findScalaVersion[F[_]: Sync](): F[Option[ScalaVersion]]
 
   def handleInstall[F[_]: Sync](
     ior: IorNel[ArtifactTrouble, List[Artifact]]
@@ -47,7 +47,7 @@ trait Pipeline extends StrictLogging {
   ): F[Unit] =
     invokeCommand(ior, artifacts => Sync[F].delay(search(artifacts)))
 
-  def readScalaVersion[F[_]: Sync](): F[String] =
+  def readScalaVersion[F[_]: Sync](): F[ScalaVersion] =
     for {
       predefinedScalaVersion <- Sync[F].pure(ctx.config.scalaVersion)
       optScalaVersion <- findScalaVersion()

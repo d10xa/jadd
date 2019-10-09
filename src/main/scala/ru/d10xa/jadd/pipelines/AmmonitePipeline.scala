@@ -8,6 +8,7 @@ import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.ProjectFileReader
 import ru.d10xa.jadd.SafeFileWriter
+import ru.d10xa.jadd.ScalaVersion
 import ru.d10xa.jadd.show.AmmoniteFormatShowPrinter
 import ru.d10xa.jadd.versions.ScalaVersions
 
@@ -44,7 +45,7 @@ class AmmonitePipeline(
   override def show[F[_]: Sync](): F[Seq[Artifact]] =
     Sync[F].delay(???)
 
-  override def findScalaVersion[F[_]: Sync](): F[Option[String]] =
+  override def findScalaVersion[F[_]: Sync](): F[Option[ScalaVersion]] =
     Sync[F].pure(ScalaVersions.defaultScalaVersion.some)
 
 }

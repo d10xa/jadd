@@ -2,6 +2,7 @@ package ru.d10xa.jadd.view
 
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.GroupId
+import ru.d10xa.jadd.ScalaVersion
 import ru.d10xa.jadd.inserts.SbtArtifactMatcher
 import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.view.ArtifactView.Match
@@ -29,7 +30,7 @@ class ArtifactViewTest extends TestBase {
     val artifact = Artifact(
       GroupId("com.typesafe.scala-logging"),
       "scala-logging%%",
-      maybeScalaVersion = Some("2.12"))
+      maybeScalaVersion = Some(ScalaVersion.fromString("2.12")))
     find(artifact, sbtSource).head.value should be(
       """libraryDependencies += "com.typesafe.scala-logging" % "scala-logging_2.12" % "3.8.0""""
     )

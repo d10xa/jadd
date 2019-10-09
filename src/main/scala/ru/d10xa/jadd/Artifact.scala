@@ -19,7 +19,7 @@ final case class Artifact(
   scope: Option[Scope] = None,
   repository: Option[String] = None,
   mavenMetadata: Option[MavenMetadata] = None,
-  maybeScalaVersion: Option[String] = None,
+  maybeScalaVersion: Option[ScalaVersion] = None,
   availableVersions: Seq[Version] = Seq.empty[Version],
   explicitScalaVersion: Boolean = false,
   doubleQuotes: Boolean = true, // required for gradle update
@@ -48,11 +48,11 @@ final case class Artifact(
     if (isScala) artifactId.substring(0, artifactId.length - 2)
     else artifactId
 
-  def artifactIdWithScalaVersion(v: String): String = {
+  def artifactIdWithScalaVersion(v: ScalaVersion): String = {
     require(
       artifactId.endsWith("%%"),
       "scala version resolving require placeholder %%")
-    artifactId.replace("%%", s"_$v")
+    artifactId.replace("%%", s"_${v.show}")
   }
 
   def merge(mavenMetadata: MavenMetadata): Artifact = {
@@ -86,8 +86,16 @@ final case class Artifact(
 
 }
 
-final case class GroupId(value: String) {
-  val path: String = value.replace('.', '/')
+final case class GroupId(val value: String) extends AnyVal {
+  def path: String = value.replace('.', '/')
+}
+
+final case class ScalaVersion(val version: Version) extends AnyVal
+
+object ScalaVersion {
+  def fromString(str: String): ScalaVersion = ScalaVersion(Version(str))
+  implicit val showScalaVersion: Show[ScalaVersion] =
+    Show[ScalaVersion](_.version.repr)
 }
 
 object GroupId {
@@ -120,14 +128,15 @@ object Artifact {
     * Example: Split artifact id cats-core_2.12 to tuple (cats-core%%, Some(2.12))
     */
   def scalaVersionAsPlaceholders(
-    artifactId: String): (String, Option[String]) = {
+    artifactId: String): (String, Option[ScalaVersion]) = {
 
-    val foundScalaVersion: Option[String] =
+    val foundScalaVersion: Option[ScalaVersion] =
       ScalaVersions.supportedMinorVersions.find(v =>
-        artifactId.contains(s"_$v"))
+        artifactId.contains(s"_${v.show}"))
     foundScalaVersion match {
       case Some(v) =>
-        (artifactId.dropRight("_".length + v.length) + "%%", Some(v))
+        val s = artifactId.dropRight("_".length + v.show.length) + "%%"
+        (s, Some(v))
       case None => (artifactId, None)
     }
   }

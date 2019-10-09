@@ -73,7 +73,7 @@ class ArtifactInfoFinderTest extends TestBase {
     a shouldEqual Artifact(
       groupId = GroupId("a"),
       artifactId = "b%%",
-      maybeScalaVersion = Some("2.12"),
+      maybeScalaVersion = Some(ScalaVersion.fromString("2.12")),
       maybeVersion = Some(Version("1.1.0"))
     )
   }

@@ -3,6 +3,7 @@ package ru.d10xa.jadd.inserts
 import coursier.core.Version
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.GroupId
+import ru.d10xa.jadd.ScalaVersion
 import ru.d10xa.jadd.testkit.TestBase
 
 class SbtFileInsertsTest extends TestBase {
@@ -43,7 +44,7 @@ class SbtFileInsertsTest extends TestBase {
         artifactId = "cats-core%%",
         shortcut = Some("cats-core"),
         maybeVersion = Some(Version("1.1.0")),
-        maybeScalaVersion = Some("2.12")
+        maybeScalaVersion = Some(ScalaVersion.fromString("2.12"))
       )
     )
 
@@ -68,7 +69,7 @@ class SbtFileInsertsTest extends TestBase {
         groupId = GroupId("org.typelevel"),
         artifactId = "cats-core%%",
         maybeVersion = Some(Version("1.1.0")),
-        maybeScalaVersion = Some("2.12")
+        maybeScalaVersion = Some(ScalaVersion.fromString("2.12"))
       )
     )
 
@@ -91,7 +92,7 @@ class SbtFileInsertsTest extends TestBase {
       groupId = GroupId("org.typelevel"),
       artifactId = "cats-core%%",
       maybeVersion = Some(Version("1.1.0")),
-      maybeScalaVersion = Some("2.11")
+      maybeScalaVersion = Some(ScalaVersion.fromString("2.11"))
     )
 
     val result = add(content, artifact.copy(explicitScalaVersion = true))
@@ -115,7 +116,7 @@ class SbtFileInsertsTest extends TestBase {
       groupId = GroupId("org.typelevel"),
       artifactId = "cats-core%%",
       maybeVersion = Some(Version("1.1.0")),
-      maybeScalaVersion = Some("2.11")
+      maybeScalaVersion = Some(ScalaVersion.fromString("2.11"))
     )
 
     val result = add(content, artifact.copy(explicitScalaVersion = false))
@@ -161,7 +162,7 @@ class SbtFileInsertsTest extends TestBase {
       groupId = GroupId("com.typesafe.scala-logging"),
       artifactId = "scala-logging%%",
       maybeVersion = Some(Version("3.9.0")),
-      maybeScalaVersion = Some("2.12"),
+      maybeScalaVersion = Some(ScalaVersion.fromString("2.12")),
       inSequence = true
     )
 
@@ -193,7 +194,7 @@ class SbtFileInsertsTest extends TestBase {
       groupId = GroupId("com.typesafe.scala-logging"),
       artifactId = "scala-logging%%",
       maybeVersion = Some(Version("3.9.0")),
-      maybeScalaVersion = Some("2.12")
+      maybeScalaVersion = Some(ScalaVersion.fromString("2.12"))
     )
 
     val a2 = Artifact(

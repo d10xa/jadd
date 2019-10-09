@@ -1,5 +1,6 @@
 package ru.d10xa.jadd.cli
 
+import ru.d10xa.jadd.ScalaVersion
 import ru.d10xa.jadd.cli.Command.Repl
 import ru.d10xa.jadd.repository.RepositoryConstants
 import ru.d10xa.jadd.show.JaddFormatShowPrinter
@@ -20,7 +21,7 @@ final case class Config(
     s"${System.getProperty("user.home")}/.m2/repository"
   ),
   showPrinter: ShowPrinter = JaddFormatShowPrinter.withVersions,
-  scalaVersion: Option[String] = None,
+  scalaVersion: Option[ScalaVersion] = None,
   proxy: Option[String] = None,
   quiet: Boolean = false,
   debug: Boolean = false

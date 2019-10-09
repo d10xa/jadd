@@ -37,7 +37,7 @@ class GradleArtifactProviderTest extends TestBase {
       groupId = GroupId("org.scalatest"),
       artifactId = "scalatest%%",
       maybeVersion = Some(Version("3.0.4")),
-      maybeScalaVersion = Some("2.12")
+      maybeScalaVersion = Some(ScalaVersion.fromString("2.12"))
     )
   }
 }

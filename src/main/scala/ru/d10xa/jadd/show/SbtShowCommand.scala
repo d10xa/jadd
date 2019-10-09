@@ -7,6 +7,7 @@ import org.antlr.v4.runtime.CommonTokenStream
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.GroupId
 import ru.d10xa.jadd.ProjectFileReader
+import ru.d10xa.jadd.ScalaVersion
 import ru.d10xa.jadd.Scope
 import ru.d10xa.jadd.cli.Config
 import ru.d10xa.jadd.experimental.CodeBlock
@@ -25,7 +26,7 @@ class SbtShowCommand(
   config: Config) {
   import SbtShowCommand._
 
-  lazy val scalaVersionFromBuildSbt: Option[String] = SbtPipeline
+  lazy val scalaVersionFromBuildSbt: Option[ScalaVersion] = SbtPipeline
     .extractScalaVersionFromBuildSbt(buildFileSource)
 
   def show(): Seq[Artifact] = {
@@ -40,9 +41,10 @@ class SbtShowCommand(
     def parser(lexer: SbtDependenciesLexer): SbtDependenciesParser =
       new SbtDependenciesParser(new CommonTokenStream(lexer))
 
-    val scalaVersion = config.scalaVersion
-      .orElse(scalaVersionFromBuildSbt)
-      .getOrElse(ScalaVersions.defaultScalaVersion)
+    val scalaVersion =
+      config.scalaVersion
+        .orElse(scalaVersionFromBuildSbt)
+        .getOrElse(ScalaVersions.defaultScalaVersion)
 
     val multiple: Seq[Artifact] = blocks.map(_.innerContent).flatMap {
       innerContent =>
@@ -101,7 +103,7 @@ class SbtShowCommand(
 
 object SbtShowCommand {
 
-  class LibraryDependenciesVisitor(scalaVersion: String)
+  class LibraryDependenciesVisitor(scalaVersion: ScalaVersion)
       extends SbtDependenciesBaseVisitor[List[Artifact]] {
 
     override def visitMultipleDependencies(
@@ -116,7 +118,7 @@ object SbtShowCommand {
     }
   }
 
-  class SingleDependencyVisitor(scalaVersion: String)
+  class SingleDependencyVisitor(scalaVersion: ScalaVersion)
       extends SbtDependenciesBaseVisitor[Option[Artifact]] {
     override def visitSingleDependency(
       ctx: SbtDependenciesParser.SingleDependencyContext

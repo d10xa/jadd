@@ -8,6 +8,7 @@ import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.ProjectFileReader
 import ru.d10xa.jadd.SafeFileWriter
+import ru.d10xa.jadd.ScalaVersion
 import ru.d10xa.jadd.inserts.SbtFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.show.SbtShowCommand
@@ -50,7 +51,7 @@ class SbtPipeline(
         .show()
     } yield artifacts
 
-  override def findScalaVersion[F[_]: Sync](): F[Option[String]] =
+  override def findScalaVersion[F[_]: Sync](): F[Option[ScalaVersion]] =
     buildFile
       .map(_.contentAsString)
       .map(SbtPipeline.extractScalaVersionFromBuildSbt)
@@ -59,7 +60,7 @@ class SbtPipeline(
 object SbtPipeline {
   def extractScalaVersionFromBuildSbt(
     buildFileSource: String
-  ): Option[String] = {
+  ): Option[ScalaVersion] = {
     val r1 = "scalaVersion\\s+in\\s+ThisBuild\\s*:=\\s*\"(\\d.\\d{1,2})".r
     val r2 = "scalaVersion\\s*:=\\s*\"(\\d.\\d{1,2})".r
     def allMatches(r: Regex): Vector[Regex.Match] =
@@ -67,7 +68,12 @@ object SbtPipeline {
 
     Seq(r1, r2).map(allMatches).reduce(_ ++ _) match {
       case matches if matches.isEmpty => None
-      case matches => matches.minBy(_.start).group(1).some
+      case matches =>
+        matches
+          .minBy(_.start)
+          .group(1)
+          .some
+          .map(ScalaVersion.fromString)
     }
   }
 }

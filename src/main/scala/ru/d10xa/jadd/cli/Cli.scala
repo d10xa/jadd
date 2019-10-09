@@ -1,6 +1,7 @@
 package ru.d10xa.jadd.cli
 
 import ru.d10xa.jadd.Ctx
+import ru.d10xa.jadd.ScalaVersion
 import ru.d10xa.jadd.cli.Command.Help
 import ru.d10xa.jadd.cli.Command.Install
 import ru.d10xa.jadd.cli.Command.Search
@@ -48,7 +49,7 @@ object Cli extends Cli {
     opt[String]("scala-version")
       .optional()
       .text("Define scala version for %% resolution")
-      .action((x, c) => c.copy(scalaVersion = Some(x)))
+      .action((x, c) => c.copy(scalaVersion = Some(ScalaVersion.fromString(x))))
 
     opt[Seq[String]]("repository")
       .action((x, c) => c.copy(repositories = x))

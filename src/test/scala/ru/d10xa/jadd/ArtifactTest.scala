@@ -69,7 +69,7 @@ class ArtifactTest extends TestBase {
     val (artifactId, maybeScalaVersion) =
       Artifact.scalaVersionAsPlaceholders("b_2.12")
     artifactId shouldEqual "b%%"
-    maybeScalaVersion shouldEqual "2.12".some
+    maybeScalaVersion shouldEqual ScalaVersion.fromString("2.12").some
   }
 
 }

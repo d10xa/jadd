@@ -9,6 +9,7 @@ import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.Indent
 import ru.d10xa.jadd.Indentation
 import ru.d10xa.jadd.SafeFileWriter
+import ru.d10xa.jadd.ScalaVersion
 import ru.d10xa.jadd.inserts.MavenFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.show.MavenFormatShowPrinter
@@ -72,7 +73,7 @@ class MavenPipeline(
       x <- Sync[F].delay(new MavenShowCommand(source).show())
     } yield x
 
-  override def findScalaVersion[F[_]: Sync](): F[Option[String]] =
+  override def findScalaVersion[F[_]: Sync](): F[Option[ScalaVersion]] =
     Sync[F].pure(ScalaVersions.defaultScalaVersion.some)
 
 }

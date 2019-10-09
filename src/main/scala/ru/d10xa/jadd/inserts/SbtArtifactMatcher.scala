@@ -2,6 +2,7 @@ package ru.d10xa.jadd.inserts
 
 import cats.implicits._
 import ru.d10xa.jadd.Artifact
+import ru.d10xa.jadd.ScalaVersion
 import ru.d10xa.jadd.experimental.CodeBlock
 import ru.d10xa.jadd.view.ArtifactView.Match
 
@@ -34,7 +35,7 @@ class SbtArtifactMatcher(val source: String) extends AnyVal {
   }
   def r1(artifact: Artifact): String =
     raw"""["']${artifact.groupId.show}["']\s%%\s["']${artifact.artifactIdWithoutScalaVersion}["']\s%\s["'].+["'](\s%\sTest)?"""
-  def r2(artifact: Artifact, scalaVersion: String): String = {
+  def r2(artifact: Artifact, scalaVersion: ScalaVersion): String = {
     val aId = artifact.artifactIdWithScalaVersion(scalaVersion)
     raw"""["']${artifact.groupId.show}["']\s%\s["']$aId["']\s%\s["'].+["'](\s%\sTest)?"""
   }

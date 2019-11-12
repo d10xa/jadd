@@ -1,6 +1,6 @@
 language: scala
 scala:
-  - 2.12.6
+  - 2.13.1
 script: sbt clean test
 before_cache:
   - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete

@@ -55,7 +55,7 @@ libraryDependencies ++= Seq(
   "org.jline" % "jline" % "3.13.1",
   "com.lihaoyi" %% "ujson" % "0.8.0",
   "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.6",
-  "org.scalatest" %% "scalatest" % "3.1.0-SNAP13" % Test,
+  "org.scalatest" %% "scalatest" % "3.1.0" % Test,
   "com.github.tomakehurst" % "wiremock" % "2.25.1" % Test
 )
 libraryDependencies += "org.jsoup" % "jsoup" % "1.12.1"

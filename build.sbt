@@ -52,14 +52,14 @@ libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.2.3",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
   "org.typelevel" %% "cats-core" % "2.0.0",
-  "org.jline" % "jline" % "3.13.1",
+  "org.jline" % "jline" % "3.13.2",
   "com.lihaoyi" %% "ujson" % "0.8.0",
   "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.6",
-  "org.scalatest" %% "scalatest" % "3.1.0-SNAP13" % Test,
+  "org.scalatest" %% "scalatest" % "3.1.0" % Test,
   "com.github.tomakehurst" % "wiremock" % "2.25.1" % Test
 )
 libraryDependencies += "org.jsoup" % "jsoup" % "1.12.1"
 libraryDependencies += "org.typelevel" %% "cats-effect" % "2.0.0"
 libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.8.0"
-libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.0-RC5-1"
+libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.0-RC5-2"
 libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.7.2"

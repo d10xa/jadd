@@ -1,9 +1,9 @@
 package ru.d10xa.jadd.testkit
 
-import org.scalatest.Matchers
 import org.scalatest.funsuite.AnyFunSuiteLike
 import ru.d10xa.jadd.Artifact
 import ru.d10xa.jadd.ScalaVersion
+import org.scalatest.matchers.should.Matchers
 
 abstract class TestBase extends AnyFunSuiteLike with Matchers {
   implicit class ArtifactImplicits(private val artifact: Artifact) {

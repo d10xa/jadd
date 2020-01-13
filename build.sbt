@@ -52,8 +52,8 @@ libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.2.3",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
   "org.typelevel" %% "cats-core" % "2.1.0",
-  "org.jline" % "jline" % "3.13.2",
-  "com.lihaoyi" %% "ujson" % "0.9.7",
+  "org.jline" % "jline" % "3.13.3",
+  "com.lihaoyi" %% "ujson" % "0.9.6",
   "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.6",
   "org.scalatest" %% "scalatest" % "3.1.0" % Test,
   "com.github.tomakehurst" % "wiremock" % "2.25.1" % Test

@@ -1,12 +1,11 @@
 package ru.d10xa.jadd.pipelines
 
-import cats.Show
 import cats.effect.Sync
 import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
-import ru.d10xa.jadd.Artifact
-import ru.d10xa.jadd.Ctx
-import ru.d10xa.jadd.ScalaVersion
+import ru.d10xa.jadd.core.Artifact
+import ru.d10xa.jadd.core.Ctx
+import ru.d10xa.jadd.core.ScalaVersion
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.versions.ScalaVersions
 
@@ -26,15 +25,6 @@ class UnknownProjectPipeline(
     val logMsg = Sync[F].delay(
       logger.info(
         s"build tool not recognized in directory ${ctx.config.projectDir}"))
-
-    implicit val artifactShow: Show[Artifact] =
-      Show[Artifact] { a =>
-        s"""groupId: ${a.groupId.show}
-               |artifactId: ${a.artifactId}
-               |version: ${a.maybeVersion
-             .map(_.repr)
-             .getOrElse("???")}""".stripMargin
-      }
 
     def stringsToPrint: List[String] =
       artifacts

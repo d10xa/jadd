@@ -4,7 +4,7 @@ import com.typesafe.scalalogging.StrictLogging
 import org.jline.reader._
 import org.jline.terminal.Terminal
 import org.jline.terminal.TerminalBuilder
-import ru.d10xa.jadd.RunParams
+import ru.d10xa.jadd.run.RunParams
 
 import scala.util.Try
 

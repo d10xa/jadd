@@ -5,7 +5,7 @@ import ru.d10xa.jadd.shortcuts.ArtifactShortcuts.ArtifactShortcutsClasspath
 
 class ArtifactShortcutsTest extends TestBase {
 
-  import ru.d10xa.jadd.Utils._
+  import ru.d10xa.jadd.core.Utils._
 
   val artifactShortcuts = ArtifactShortcutsClasspath
   val unshort: String => Option[String] = artifactShortcuts.unshort

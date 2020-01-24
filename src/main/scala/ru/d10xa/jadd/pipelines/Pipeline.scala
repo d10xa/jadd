@@ -10,9 +10,15 @@ import ru.d10xa.jadd.cli.Command.Search
 import ru.d10xa.jadd.cli.Command.Show
 import ru.d10xa.jadd.cli.Config
 import ru.d10xa.jadd.show.JaddFormatShowPrinter
-import ru.d10xa.jadd._
-import ru.d10xa.jadd.troubles.ArtifactTrouble
-import ru.d10xa.jadd.troubles.handleTroubles
+import ru.d10xa.jadd.core.Artifact
+import ru.d10xa.jadd.core.Ctx
+import ru.d10xa.jadd.core.Loader
+import ru.d10xa.jadd.core.ProjectMeta
+import ru.d10xa.jadd.core.ScalaVersion
+import ru.d10xa.jadd.core.Utils
+import ru.d10xa.jadd.core.troubles
+import ru.d10xa.jadd.core.troubles.ArtifactTrouble
+import ru.d10xa.jadd.core.troubles.handleTroubles
 import ru.d10xa.jadd.versions.ScalaVersions
 
 trait Pipeline extends StrictLogging {

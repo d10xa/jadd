@@ -1,9 +1,9 @@
 package ru.d10xa.jadd.show
 
 import cats.implicits._
-import ru.d10xa.jadd.Artifact
-import ru.d10xa.jadd.Indent
-import ru.d10xa.jadd.Scope.Test
+import ru.d10xa.jadd.core.Scope.Test
+import ru.d10xa.jadd.code.Indent
+import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.show.GradleLang.Groovy
 import ru.d10xa.jadd.show.GradleLang.Kotlin
 

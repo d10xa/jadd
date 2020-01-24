@@ -3,7 +3,7 @@ package ru.d10xa.jadd.repository
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-import ru.d10xa.jadd.ScalaVersion
+import ru.d10xa.jadd.core.ScalaVersion
 import ru.d10xa.jadd.xml.MavenMetadataVersionsRawReader
 
 import scala.util.Try

@@ -3,8 +3,11 @@ package ru.d10xa.jadd
 import coursier.core.Version
 import ru.d10xa.jadd.repository.MavenMetadata
 import ru.d10xa.jadd.testkit.TestBase
-import ru.d10xa.jadd.troubles.WrongArtifactRaw
+import ru.d10xa.jadd.core.troubles.WrongArtifactRaw
 import cats.implicits._
+import ru.d10xa.jadd.core.Artifact
+import ru.d10xa.jadd.core.GroupId
+import ru.d10xa.jadd.core.ScalaVersion
 
 class ArtifactTest extends TestBase {
 

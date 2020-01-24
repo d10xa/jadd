@@ -2,9 +2,9 @@ package ru.d10xa.jadd.show
 
 import cats.implicits._
 import ru.d10xa.jadd.testkit.TestBase
-import ru.d10xa.jadd.ProjectFileReaderMemory
-import ru.d10xa.jadd.Scope.Test
+import ru.d10xa.jadd.core.Scope.Test
 import ru.d10xa.jadd.cli.Config
+import ru.d10xa.jadd.core.ProjectFileReaderMemory
 
 class SbtShowCommandTest extends TestBase {
 

@@ -3,8 +3,8 @@ package ru.d10xa.jadd.versions
 import cats.data.EitherNel
 import cats.data.IorNel
 import cats.implicits._
-import ru.d10xa.jadd.Artifact
-import ru.d10xa.jadd.troubles.ArtifactTrouble
+import ru.d10xa.jadd.core.Artifact
+import ru.d10xa.jadd.core.troubles.ArtifactTrouble
 
 object ArtifactVersionsDownloader {
 

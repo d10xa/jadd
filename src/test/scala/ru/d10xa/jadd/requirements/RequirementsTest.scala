@@ -2,8 +2,8 @@ package ru.d10xa.jadd.requirements
 
 import cats.effect.IO
 import ru.d10xa.jadd.testkit.TestBase
-import ru.d10xa.jadd.Ctx
 import ru.d10xa.jadd.cli.Config
+import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.pipelines.Pipeline
 
 class RequirementsTest extends TestBase {

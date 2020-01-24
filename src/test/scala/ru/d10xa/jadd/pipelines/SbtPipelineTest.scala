@@ -1,6 +1,6 @@
 package ru.d10xa.jadd.pipelines
 
-import ru.d10xa.jadd.ScalaVersion
+import ru.d10xa.jadd.core.ScalaVersion
 import ru.d10xa.jadd.testkit.TestBase
 
 class SbtPipelineTest extends TestBase {

@@ -1,7 +1,7 @@
 package ru.d10xa.jadd.cli
 
-import ru.d10xa.jadd.ScalaVersion
 import ru.d10xa.jadd.cli.Command.Repl
+import ru.d10xa.jadd.core.ScalaVersion
 import ru.d10xa.jadd.repository.RepositoryConstants
 import ru.d10xa.jadd.show.JaddFormatShowPrinter
 import ru.d10xa.jadd.show.ShowPrinter

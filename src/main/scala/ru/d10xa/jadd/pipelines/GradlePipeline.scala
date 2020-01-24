@@ -4,11 +4,11 @@ import better.files._
 import cats.effect.Sync
 import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
-import ru.d10xa.jadd.Artifact
-import ru.d10xa.jadd.Ctx
-import ru.d10xa.jadd.SafeFileWriter
-import ru.d10xa.jadd.ScalaVersion
-import ru.d10xa.jadd.inserts.GradleFileInserts
+import ru.d10xa.jadd.core.Artifact
+import ru.d10xa.jadd.core.Ctx
+import ru.d10xa.jadd.core.SafeFileWriter
+import ru.d10xa.jadd.core.ScalaVersion
+import ru.d10xa.jadd.code.inserts.GradleFileInserts
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.show.GradleShowCommand
 import ru.d10xa.jadd.versions.ScalaVersions

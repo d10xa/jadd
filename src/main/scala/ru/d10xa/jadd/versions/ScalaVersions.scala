@@ -1,7 +1,7 @@
 package ru.d10xa.jadd.versions
 
 import cats.data.NonEmptyList
-import ru.d10xa.jadd.ScalaVersion
+import ru.d10xa.jadd.core.ScalaVersion
 
 object ScalaVersions {
   val supportedMinorVersions: NonEmptyList[ScalaVersion] =

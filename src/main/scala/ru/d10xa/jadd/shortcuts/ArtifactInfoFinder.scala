@@ -1,13 +1,13 @@
 package ru.d10xa.jadd.shortcuts
 
 import cats.effect.Sync
-import ru.d10xa.jadd.Artifact
-import ru.d10xa.jadd.ArtifactInfo
-import ru.d10xa.jadd.GroupId
-import ru.d10xa.jadd.Scope
-import ru.d10xa.jadd.Utils
-import ru.d10xa.jadd.troubles
 import cats.implicits._
+import ru.d10xa.jadd.core.Artifact
+import ru.d10xa.jadd.core.ArtifactInfo
+import ru.d10xa.jadd.core.GroupId
+import ru.d10xa.jadd.core.Scope
+import ru.d10xa.jadd.core.Utils
+import ru.d10xa.jadd.core.troubles
 
 import scala.util.Try
 
@@ -18,7 +18,7 @@ class ArtifactInfoFinder(
     ArtifactInfoFinder.DEFAULT_ARTIFACT_INFO_BASE_PATH
 ) {
 
-  import ru.d10xa.jadd.troubles._
+  import troubles._
 
   def findArtifactInfo[F[_]: Sync](
     fullArtifact: String): F[Option[ArtifactInfo]] = {

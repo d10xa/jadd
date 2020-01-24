@@ -1,6 +1,6 @@
 package ru.d10xa.jadd.view
 
-import ru.d10xa.jadd.experimental.CodeBlock
+import ru.d10xa.jadd.core.CodeBlock
 
 import scala.util.matching.Regex
 

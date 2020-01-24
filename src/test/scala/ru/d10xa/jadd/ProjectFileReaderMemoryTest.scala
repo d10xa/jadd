@@ -2,6 +2,7 @@ package ru.d10xa.jadd
 
 import better.files.File
 import cats.effect.IO
+import ru.d10xa.jadd.core.ProjectFileReaderMemory
 import ru.d10xa.jadd.testkit.TestBase
 
 class ProjectFileReaderMemoryTest extends TestBase {

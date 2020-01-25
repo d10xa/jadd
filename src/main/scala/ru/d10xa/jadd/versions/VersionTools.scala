@@ -4,10 +4,10 @@ import cats.data.EitherNel
 import cats.data.NonEmptyList
 import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
-import ru.d10xa.jadd.Artifact
+import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.repository.RepositoryApi
-import ru.d10xa.jadd.troubles.ArtifactTrouble
-import ru.d10xa.jadd.troubles.RepositoryUndefined
+import ru.d10xa.jadd.core.troubles.ArtifactTrouble
+import ru.d10xa.jadd.core.troubles.RepositoryUndefined
 
 trait VersionTools {
 

@@ -1,8 +1,8 @@
 package ru.d10xa.jadd.repository
 
 import cats.data.EitherNel
+import ru.d10xa.jadd.core.troubles
 import ru.d10xa.jadd.testkit.TestBase
-import ru.d10xa.jadd.troubles
 
 class MavenLocalMetadataRepositoryTest extends TestBase {
 

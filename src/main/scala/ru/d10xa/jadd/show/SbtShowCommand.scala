@@ -4,18 +4,19 @@ import cats.effect.IO
 import coursier.core.Version
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
-import ru.d10xa.jadd.Artifact
-import ru.d10xa.jadd.GroupId
-import ru.d10xa.jadd.ProjectFileReader
-import ru.d10xa.jadd.ScalaVersion
-import ru.d10xa.jadd.Scope
+import ru.d10xa.jadd.core
 import ru.d10xa.jadd.cli.Config
-import ru.d10xa.jadd.experimental.CodeBlock
+import ru.d10xa.jadd.core.Artifact
+import ru.d10xa.jadd.core.CodeBlock
+import ru.d10xa.jadd.core.GroupId
+import ru.d10xa.jadd.core.ProjectFileReader
+import ru.d10xa.jadd.core.ScalaVersion
+import ru.d10xa.jadd.core.Scope
 import ru.d10xa.jadd.generated.antlr.SbtDependenciesBaseVisitor
 import ru.d10xa.jadd.generated.antlr.SbtDependenciesLexer
 import ru.d10xa.jadd.generated.antlr.SbtDependenciesParser
 import ru.d10xa.jadd.pipelines.SbtPipeline
-import ru.d10xa.jadd.regex.SbtVerbalExpressions
+import ru.d10xa.jadd.code.regex.SbtVerbalExpressions
 import ru.d10xa.jadd.versions.ScalaVersions
 
 import scala.jdk.CollectionConverters._
@@ -71,7 +72,7 @@ class SbtShowCommand(
       if (buildFileSource.contains("import Dependencies._")) {
         val tupleToArtifact: ((String, String, String, String)) => Artifact = {
           case (gId, "%%", aId, version) =>
-            Artifact(
+            core.Artifact(
               groupId = GroupId(gId),
               artifactId = s"$aId%%",
               maybeVersion = Some(Version(version)),
@@ -84,7 +85,7 @@ class SbtShowCommand(
               maybeScalaVersion = None
             )
         }
-        import ru.d10xa.jadd.regex.RegexImplicits._
+        import ru.d10xa.jadd.code.regex.RegexImplicits._
         projectFileReader
           .read[IO]("project/Dependencies.scala")
           .map { source =>

@@ -1,7 +1,11 @@
 package ru.d10xa.jadd
 
 import coursier.core.Version
-import ru.d10xa.jadd.ArtifactProvider.GradleBuildDescription
+import ru.d10xa.jadd.core.ArtifactProvider
+import ru.d10xa.jadd.core.ArtifactProvider.GradleBuildDescription
+import ru.d10xa.jadd.core.Artifact
+import ru.d10xa.jadd.core.GroupId
+import ru.d10xa.jadd.core.ScalaVersion
 import ru.d10xa.jadd.testkit.TestBase
 
 class GradleArtifactProviderTest extends TestBase {

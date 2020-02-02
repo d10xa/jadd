@@ -1,7 +1,7 @@
 package ru.d10xa.jadd.view
 
 import ru.d10xa.jadd.core.Artifact
-import ru.d10xa.jadd.core.GroupId
+import ru.d10xa.jadd.core.types.GroupId
 import ru.d10xa.jadd.core.ScalaVersion
 import ru.d10xa.jadd.code.inserts.SbtArtifactMatcher
 import ru.d10xa.jadd.testkit.TestBase

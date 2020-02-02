@@ -4,6 +4,7 @@ import cats.Show
 import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
 import coursier.core.Version
+import ru.d10xa.jadd.core.types.GroupId
 import ru.d10xa.jadd.repository.MavenMetadata
 import ru.d10xa.jadd.show.JaddFormatShowPrinter
 import troubles.ArtifactTrouble
@@ -86,20 +87,12 @@ final case class Artifact(
 
 }
 
-final case class GroupId(val value: String) extends AnyVal {
-  def path: String = value.replace('.', '/')
-}
-
 final case class ScalaVersion(val version: Version) extends AnyVal
 
 object ScalaVersion {
   def fromString(str: String): ScalaVersion = ScalaVersion(Version(str))
   implicit val showScalaVersion: Show[ScalaVersion] =
     Show[ScalaVersion](_.version.repr)
-}
-
-object GroupId {
-  implicit val showGroupId: Show[GroupId] = Show[GroupId](_.value.toString)
 }
 
 object Artifact {

@@ -2,7 +2,7 @@ name := "jadd"
 organization in ThisBuild := "ru.d10xa"
 
 scalaVersion in ThisBuild := "2.13.1"
-version in ThisBuild := IO.read(new File("VERSION")).trim
+version in ThisBuild := IO.read(file("VERSION")).trim
 mainClass in Compile := Some("ru.d10xa.jadd.Jadd")
 
 lazy val root = project
@@ -63,3 +63,5 @@ libraryDependencies += "org.typelevel" %% "cats-effect" % "2.0.0"
 libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.8.0"
 libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.0-RC5-6"
 libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.7.2"
+libraryDependencies += "io.estatico" %% "newtype" % "0.4.3"
+libraryDependencies += "eu.timepit" %% "refined" % "0.9.12"

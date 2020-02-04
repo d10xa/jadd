@@ -5,7 +5,7 @@ import ru.d10xa.jadd.cli.Command.Install
 import ru.d10xa.jadd.cli.Command.Search
 import ru.d10xa.jadd.cli.Command.Show
 import ru.d10xa.jadd.core.Ctx
-import ru.d10xa.jadd.core.ScalaVersion
+import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.show.JaddFormatShowPrinter
 import ru.d10xa.jadd.show.ShowPrinter
 import scopt.OptionDef

@@ -3,7 +3,7 @@ package ru.d10xa.jadd.code.inserts
 import coursier.core.Version
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.types.GroupId
-import ru.d10xa.jadd.core.ScalaVersion
+import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.testkit.TestBase
 
 class SbtFileInsertsTest extends TestBase {

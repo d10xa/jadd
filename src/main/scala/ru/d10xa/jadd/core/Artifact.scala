@@ -5,6 +5,7 @@ import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
 import coursier.core.Version
 import ru.d10xa.jadd.core.types.GroupId
+import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.repository.MavenMetadata
 import ru.d10xa.jadd.show.JaddFormatShowPrinter
 import troubles.ArtifactTrouble
@@ -85,14 +86,6 @@ final case class Artifact(
       maybeVersion =
         versionFilter.excludeNonRelease(availableVersions).headOption)
 
-}
-
-final case class ScalaVersion(val version: Version) extends AnyVal
-
-object ScalaVersion {
-  def fromString(str: String): ScalaVersion = ScalaVersion(Version(str))
-  implicit val showScalaVersion: Show[ScalaVersion] =
-    Show[ScalaVersion](_.version.repr)
 }
 
 object Artifact {

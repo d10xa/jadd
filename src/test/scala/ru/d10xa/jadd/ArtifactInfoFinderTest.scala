@@ -12,7 +12,7 @@ import cats.implicits._
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.ArtifactInfo
 import ru.d10xa.jadd.core.types.GroupId
-import ru.d10xa.jadd.core.ScalaVersion
+import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.core.Scope
 
 class ArtifactInfoFinderTest extends TestBase {

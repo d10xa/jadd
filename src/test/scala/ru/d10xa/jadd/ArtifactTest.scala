@@ -7,7 +7,7 @@ import ru.d10xa.jadd.core.troubles.WrongArtifactRaw
 import cats.implicits._
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.types.GroupId
-import ru.d10xa.jadd.core.ScalaVersion
+import ru.d10xa.jadd.core.types.ScalaVersion
 
 class ArtifactTest extends TestBase {
 

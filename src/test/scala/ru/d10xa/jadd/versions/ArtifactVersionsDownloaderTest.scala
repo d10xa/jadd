@@ -3,7 +3,7 @@ package ru.d10xa.jadd.versions
 import cats.implicits._
 import coursier.core.Version
 import ru.d10xa.jadd.core.Artifact
-import ru.d10xa.jadd.core.GroupId
+import ru.d10xa.jadd.core.types.GroupId
 import ru.d10xa.jadd.testkit.TestBase
 
 class ArtifactVersionsDownloaderTest extends TestBase {

@@ -3,7 +3,7 @@ package ru.d10xa.jadd.code.inserts
 import cats.implicits._
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.CodeBlock
-import ru.d10xa.jadd.core.ScalaVersion
+import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.view.ArtifactView.Match
 
 import scala.util.matching.Regex

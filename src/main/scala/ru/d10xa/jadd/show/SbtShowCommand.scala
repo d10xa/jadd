@@ -8,9 +8,9 @@ import ru.d10xa.jadd.core
 import ru.d10xa.jadd.cli.Config
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.CodeBlock
-import ru.d10xa.jadd.core.GroupId
+import ru.d10xa.jadd.core.types.GroupId
 import ru.d10xa.jadd.core.ProjectFileReader
-import ru.d10xa.jadd.core.ScalaVersion
+import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.core.Scope
 import ru.d10xa.jadd.generated.antlr.SbtDependenciesBaseVisitor
 import ru.d10xa.jadd.generated.antlr.SbtDependenciesLexer

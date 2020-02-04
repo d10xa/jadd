@@ -3,7 +3,7 @@ package ru.d10xa.jadd.show
 import com.typesafe.scalalogging.StrictLogging
 import coursier.core.Version
 import ru.d10xa.jadd.core.Artifact
-import ru.d10xa.jadd.core.GroupId
+import ru.d10xa.jadd.core.types.GroupId
 
 import scala.xml.Node
 import scala.xml.XML

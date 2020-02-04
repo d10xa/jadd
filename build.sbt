@@ -2,7 +2,7 @@ name := "jadd"
 organization in ThisBuild := "ru.d10xa"
 
 scalaVersion in ThisBuild := "2.13.1"
-version in ThisBuild := IO.read(new File("VERSION")).trim
+version in ThisBuild := IO.read(file("VERSION")).trim
 mainClass in Compile := Some("ru.d10xa.jadd.Jadd")
 
 lazy val root = project
@@ -16,11 +16,15 @@ lazy val root = project
       "-feature", // warn about misused language features
       "-language:higherKinds", // allow higher kinded types without `import scala.language.higherKinds`
       "-Xlint", // enable handy linter warnings
-      "-Xfatal-warnings" // turn compiler warnings into errors
+      "-Xfatal-warnings", // turn compiler warnings into errors,
+      "-Ymacro-annotations" // for @newtype
     )
   )
 
 enablePlugins(JavaAppPackaging)
+
+addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full)
+
 //wartremoverErrors ++= Warts.unsafe
 wartremoverErrors in (Compile, compile) ++= Seq(
 //  Wart.Any,
@@ -63,3 +67,5 @@ libraryDependencies += "org.typelevel" %% "cats-effect" % "2.1.0"
 libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.8.0"
 libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.0-RC6-1"
 libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.8"
+libraryDependencies += "io.estatico" %% "newtype" % "0.4.3"
+//libraryDependencies += "eu.timepit" %% "refined" % "0.9.12"

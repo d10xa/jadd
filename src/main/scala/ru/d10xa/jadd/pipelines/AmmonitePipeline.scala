@@ -8,7 +8,7 @@ import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.core.ProjectFileReader
 import ru.d10xa.jadd.core.SafeFileWriter
-import ru.d10xa.jadd.core.ScalaVersion
+import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.show.AmmoniteFormatShowPrinter
 import ru.d10xa.jadd.versions.ScalaVersions
 

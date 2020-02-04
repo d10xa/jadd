@@ -4,10 +4,10 @@ import cats.effect.Sync
 import cats.implicits._
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.ArtifactInfo
-import ru.d10xa.jadd.core.GroupId
 import ru.d10xa.jadd.core.Scope
 import ru.d10xa.jadd.core.Utils
 import ru.d10xa.jadd.core.troubles
+import ru.d10xa.jadd.core.types.GroupId
 
 import scala.util.Try
 

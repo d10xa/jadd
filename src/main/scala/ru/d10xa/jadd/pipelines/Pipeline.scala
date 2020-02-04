@@ -14,7 +14,7 @@ import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.core.Loader
 import ru.d10xa.jadd.core.ProjectMeta
-import ru.d10xa.jadd.core.ScalaVersion
+import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.core.Utils
 import ru.d10xa.jadd.core.troubles
 import ru.d10xa.jadd.core.troubles.ArtifactTrouble

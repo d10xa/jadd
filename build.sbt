@@ -22,6 +22,9 @@ lazy val root = project
   )
 
 enablePlugins(JavaAppPackaging)
+
+addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full)
+
 //wartremoverErrors ++= Warts.unsafe
 wartremoverErrors in (Compile, compile) ++= Seq(
 //  Wart.Any,

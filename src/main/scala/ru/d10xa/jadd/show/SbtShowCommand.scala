@@ -1,5 +1,6 @@
 package ru.d10xa.jadd.show
 
+import cats.data.Chain
 import cats.effect.IO
 import coursier.core.Version
 import org.antlr.v4.runtime.CharStreams
@@ -30,7 +31,7 @@ class SbtShowCommand(
   lazy val scalaVersionFromBuildSbt: Option[ScalaVersion] = SbtPipeline
     .extractScalaVersionFromBuildSbt(buildFileSource)
 
-  def show(): Seq[Artifact] = {
+  def show(): Chain[Artifact] = {
 
     val blocks: Seq[CodeBlock] = Seq("Seq", "List", "Vector")
       .map(s => s"libraryDependencies ++= $s(")
@@ -97,7 +98,7 @@ class SbtShowCommand(
         Seq.empty
       }
 
-    (multiple ++ single ++ fromDependenciesExternalFile).distinct
+    Chain.fromSeq((multiple ++ single ++ fromDependenciesExternalFile).distinct)
   }
 
 }

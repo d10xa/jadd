@@ -30,7 +30,7 @@ class GradleArtifactProviderTest extends TestBase {
         |}
       """.stripMargin
     )
-    val artifacts = ArtifactProvider.gradleArtifactProvider.provide(d)
+    val artifacts = ArtifactProvider.gradleArtifactProvider.provide(d).toList
 
     artifacts(0) shouldEqual Artifact(
       groupId = GroupId("org.scala-lang"),

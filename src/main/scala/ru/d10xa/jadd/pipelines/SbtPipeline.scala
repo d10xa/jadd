@@ -1,6 +1,7 @@
 package ru.d10xa.jadd.pipelines
 
 import better.files._
+import cats.data.Chain
 import cats.effect._
 import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
@@ -15,43 +16,43 @@ import ru.d10xa.jadd.show.SbtShowCommand
 
 import scala.util.matching.Regex
 
-class SbtPipeline(
+class SbtPipeline[F[_]: Sync](
   override val ctx: Ctx,
   artifactInfoFinder: ArtifactInfoFinder,
   projectFileReader: ProjectFileReader)
-    extends Pipeline
+    extends Pipeline[F]
     with StrictLogging {
 
   val buildFileName = "build.sbt"
 
-  def buildFile[F[_]: Sync]: F[File] =
+  def buildFile: F[File] =
     projectFileReader.file(buildFileName)
 
-  def buildFileSource[F[_]: Sync]: F[String] =
+  def buildFileSource: F[String] =
     buildFile.map(_.contentAsString)
 
-  override def applicable[F[_]: Sync](): F[Boolean] =
+  override def applicable(): F[Boolean] =
     projectFileReader.exists(buildFileName)
 
-  def install[F[_]: Sync](artifacts: List[Artifact]): F[Unit] =
+  def install(artifacts: List[Artifact]): F[Unit] =
     for {
       source <- buildFileSource
       newSource: String = new SbtFileInserts().appendAll(source, artifacts)
       _ <- fileUpdate(newSource)
     } yield ()
 
-  def fileUpdate[F[_]: Sync](str: String): F[Unit] = buildFile.map { f =>
+  def fileUpdate(str: String): F[Unit] = buildFile.map { f =>
     new SafeFileWriter().write(f, str)
   }
 
-  override def show[F[_]: Sync](): F[Seq[Artifact]] =
+  override def show(): F[Chain[Artifact]] =
     for {
       source <- buildFileSource
       artifacts = new SbtShowCommand(source, projectFileReader, ctx.config)
         .show()
     } yield artifacts
 
-  override def findScalaVersion[F[_]: Sync](): F[Option[ScalaVersion]] =
+  override def findScalaVersion(): F[Option[ScalaVersion]] =
     buildFile
       .map(_.contentAsString)
       .map(SbtPipeline.extractScalaVersionFromBuildSbt)

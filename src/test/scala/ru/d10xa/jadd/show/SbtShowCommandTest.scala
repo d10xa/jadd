@@ -23,7 +23,9 @@ class SbtShowCommandTest extends TestBase {
        """.stripMargin
 
     val result =
-      new SbtShowCommand(source, emptyProjectFileReader, Config.empty).show()
+      new SbtShowCommand(source, emptyProjectFileReader, Config.empty)
+        .show()
+        .toList
     val expected = Seq(
       art("ch.qos.logback:logback-classic:1.2.3"),
       art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_12,
@@ -32,7 +34,7 @@ class SbtShowCommandTest extends TestBase {
       art("org.jline:jline:3.7.1")
     )
 
-    result shouldEqual expected
+    (result should contain).theSameElementsAs(expected)
   }
 
   test("seq and single") {
@@ -45,12 +47,14 @@ class SbtShowCommandTest extends TestBase {
        """.stripMargin
 
     val result =
-      new SbtShowCommand(source, emptyProjectFileReader, Config.empty).show()
+      new SbtShowCommand(source, emptyProjectFileReader, Config.empty)
+        .show()
+        .toList
     val expected = Seq(
       art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_12,
       art("org.typelevel:cats-core%%:1.1.0").scala2_12
     )
-    result shouldEqual expected
+    (result should contain).theSameElementsAs(expected)
   }
 
   test("with scope test") {
@@ -64,6 +68,7 @@ class SbtShowCommandTest extends TestBase {
     val result =
       new SbtShowCommand(source, emptyProjectFileReader, Config.empty)
         .show()
+        .toList
         .sortBy(_.artifactId)
     val expected = Seq(
       art("org.scalatest:scalatest_2.12:3.0.5")
@@ -73,7 +78,7 @@ class SbtShowCommandTest extends TestBase {
         .copy(scope = Some(Test)),
       art("a:b:1")
     ).sortBy(_.groupId.show)
-    result shouldEqual expected
+    (result should contain).theSameElementsAs(expected)
   }
 
   test("Dependencies import") {
@@ -101,14 +106,14 @@ class SbtShowCommandTest extends TestBase {
       source,
       projectFileReader,
       Config.empty
-    ).show()
+    ).show().toList
 
     val expected = Seq(
       art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_12,
       art("junit:junit:4.12"),
       art("org.typelevel:cats-core%%:1.1.0").scala2_12
     )
-    result shouldEqual expected
+    (result should contain).theSameElementsAs(expected)
   }
 
   test("build.sbt has defined scala version 2.11") {
@@ -125,12 +130,12 @@ class SbtShowCommandTest extends TestBase {
         source,
         new ProjectFileReaderMemory(Map.empty),
         Config.empty
-      ).show()
+      ).show().toList
 
     val expected = Seq(
       art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_11,
     )
-    result shouldEqual expected
+    (result should contain).theSameElementsAs(expected)
   }
 
 }

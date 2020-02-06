@@ -1,8 +1,8 @@
 package ru.d10xa.jadd.run
 
 import better.files._
+import cats.Applicative
 import cats.data.NonEmptyList
-import cats.effect.IO
 import cats.effect.Sync
 import cats.implicits._
 import ru.d10xa.jadd.cli.Command.Help
@@ -17,21 +17,21 @@ import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
 import ru.d10xa.jadd.shortcuts.RepositoryShortcutsImpl
 
-trait CommandExecutor {
-  def execute(config: Config, loader: Loader, showUsage: () => Unit): Unit
+trait CommandExecutor[F[_]] {
+  def execute(config: Config, loader: Loader[F], showUsage: () => Unit): F[Unit]
 }
 
-class CommandExecutorImpl extends CommandExecutor {
+class LiveCommandExecutor[F[_]: Sync] extends CommandExecutor[F] {
 
   override def execute(
     config: Config,
-    loader: Loader,
-    showUsage: () => Unit): Unit =
+    loader: Loader[F],
+    showUsage: () => Unit): F[Unit] =
     config match {
       case c if c.command == Repl =>
-        () // already in repl
+        Applicative[F].unit // already in repl
       case c if c.command == Help =>
-        showUsage()
+        Sync[F].delay(showUsage())
       case c =>
         val repositoryShortcuts = RepositoryShortcutsImpl
         val artifactInfoFinder: ArtifactInfoFinder =
@@ -40,27 +40,12 @@ class CommandExecutorImpl extends CommandExecutor {
               Utils.sourceFromSpringUri(config.shortcutsUri)),
             repositoryShortcuts = repositoryShortcuts
           )
-        CommandExecutorImpl
-          .executePipelines[IO](c, loader, artifactInfoFinder)
-          .unsafeRunSync()
+        executePipelines(c, loader, artifactInfoFinder)
     }
 
-}
-
-object CommandExecutorImpl {
-
-  def filterPipelines[F[_]: Sync](
-    pipelines: List[Pipeline]
-  ): F[List[Pipeline]] =
-    pipelines
-    // TODO recover is not safe
-      .map(p => p.applicable().recover { case _ => false }.map(_ -> p))
-      .sequence
-      .map(_.collect { case (b, p) if b => p })
-
-  def executePipelines[F[_]: Sync](
+  private def executePipelines(
     config: Config,
-    loader: Loader,
+    loader: Loader[F],
     artifactInfoFinder: ArtifactInfoFinder
   ): F[Unit] = {
 
@@ -68,7 +53,7 @@ object CommandExecutorImpl {
 
     val projectFileReaderImpl = new ProjectFileReaderImpl(
       File(config.projectDir))
-    val pipelines: List[Pipeline] = List(
+    val pipelines: List[Pipeline[F]] = List(
       new GradlePipeline(ctx, artifactInfoFinder),
       new MavenPipeline(ctx, artifactInfoFinder),
       new SbtPipeline(
@@ -79,16 +64,17 @@ object CommandExecutorImpl {
       new AmmonitePipeline(ctx, projectFileReaderImpl)
     )
 
-    def orDefaultPipeline(pipelines: List[Pipeline]): NonEmptyList[Pipeline] =
+    def orDefaultPipeline(
+      pipelines: List[Pipeline[F]]): NonEmptyList[Pipeline[F]] =
       NonEmptyList
         .fromList(pipelines)
         .getOrElse(
           NonEmptyList.of(new UnknownProjectPipeline(ctx, artifactInfoFinder)))
 
-    def runPipelines(pipelines: NonEmptyList[Pipeline]): F[Unit] =
+    def runPipelines(pipelines: NonEmptyList[Pipeline[F]]): F[Unit] =
       pipelines.map(_.run(loader)).sequence_
 
-    def activePipelines(): F[NonEmptyList[Pipeline]] =
+    def activePipelines(): F[NonEmptyList[Pipeline[F]]] =
       filterPipelines(pipelines)
         .map(orDefaultPipeline)
 
@@ -99,4 +85,18 @@ object CommandExecutorImpl {
     runActivePipelines()
 
   }
+
+  def filterPipelines(
+    pipelines: List[Pipeline[F]]
+  ): F[List[Pipeline[F]]] =
+    pipelines
+    // TODO recover is not safe
+      .map(p => p.applicable().recover { case _ => false }.map(_ -> p))
+      .sequence
+      .map(_.collect { case (b, p) if b => p })
+
+}
+
+object LiveCommandExecutor {
+  def make[F[_]: Sync](): CommandExecutor[F] = new LiveCommandExecutor()
 }

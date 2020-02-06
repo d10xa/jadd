@@ -21,7 +21,7 @@ class GradleShowTest extends TestBase {
         |}
       """.stripMargin
 
-    val show = new GradleShowCommand(source).show()
+    val show = new GradleShowCommand(source).show().toList
 
     val expected = Seq(
       art("a:b:1.0"),
@@ -29,7 +29,7 @@ class GradleShowTest extends TestBase {
       art("e:h:9.9.9"),
       art("org.springframework.boot:spring-boot-starter-web")
     )
-    show shouldEqual expected
+    (show should contain).theSameElementsAs(expected)
   }
 
   test("string interpolation") {
@@ -52,14 +52,14 @@ class GradleShowTest extends TestBase {
         |}
       """.stripMargin
 
-    val show = new GradleShowCommand(source).show()
+    val show = new GradleShowCommand(source).show().toList
 
     val expected = Seq(
       art("org.scala-lang:scala-library:2.12.6"),
       art("org.scalatest:scalatest_2.12:3.0.4")
     )
 
-    show shouldEqual expected
+    (show should contain).theSameElementsAs(expected)
   }
 
 }

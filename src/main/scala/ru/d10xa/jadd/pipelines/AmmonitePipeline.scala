@@ -15,7 +15,7 @@ import ru.d10xa.jadd.versions.ScalaVersions
 
 class AmmonitePipeline[F[_]: Sync](
   override val ctx: Ctx,
-  projectFileReader: ProjectFileReader
+  projectFileReader: ProjectFileReader[F]
 ) extends Pipeline[F]
     with StrictLogging {
 

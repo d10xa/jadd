@@ -19,7 +19,7 @@ import scala.util.matching.Regex
 class SbtPipeline[F[_]: Sync](
   override val ctx: Ctx,
   artifactInfoFinder: ArtifactInfoFinder,
-  projectFileReader: ProjectFileReader)
+  projectFileReader: ProjectFileReader[F])
     extends Pipeline[F]
     with StrictLogging {
 
@@ -48,7 +48,7 @@ class SbtPipeline[F[_]: Sync](
   override def show(): F[Chain[Artifact]] =
     for {
       source <- buildFileSource
-      artifacts = new SbtShowCommand(source, projectFileReader, ctx.config)
+      artifacts <- new SbtShowCommand(source, projectFileReader, ctx.config)
         .show()
     } yield artifacts
 

@@ -1,37 +1,39 @@
 package ru.d10xa.jadd.show
 
+import cats.Applicative
 import cats.data.Chain
-import cats.effect.IO
+import cats.effect.Sync
+import cats.implicits._
 import coursier.core.Version
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
-import ru.d10xa.jadd.core
 import ru.d10xa.jadd.cli.Config
+import ru.d10xa.jadd.code.regex.SbtVerbalExpressions
+import ru.d10xa.jadd.core
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.CodeBlock
-import ru.d10xa.jadd.core.types.GroupId
 import ru.d10xa.jadd.core.ProjectFileReader
-import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.core.Scope
+import ru.d10xa.jadd.core.types.GroupId
+import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.generated.antlr.SbtDependenciesBaseVisitor
 import ru.d10xa.jadd.generated.antlr.SbtDependenciesLexer
 import ru.d10xa.jadd.generated.antlr.SbtDependenciesParser
 import ru.d10xa.jadd.pipelines.SbtPipeline
-import ru.d10xa.jadd.code.regex.SbtVerbalExpressions
 import ru.d10xa.jadd.versions.ScalaVersions
 
 import scala.jdk.CollectionConverters._
 
-class SbtShowCommand(
+class SbtShowCommand[F[_]: Sync](
   buildFileSource: String,
-  projectFileReader: ProjectFileReader,
+  projectFileReader: ProjectFileReader[F],
   config: Config) {
   import SbtShowCommand._
 
   lazy val scalaVersionFromBuildSbt: Option[ScalaVersion] = SbtPipeline
     .extractScalaVersionFromBuildSbt(buildFileSource)
 
-  def show(): Chain[Artifact] = {
+  def show(): F[Chain[Artifact]] = {
 
     val blocks: Seq[CodeBlock] = Seq("Seq", "List", "Vector")
       .map(s => s"libraryDependencies ++= $s(")
@@ -69,7 +71,7 @@ class SbtShowCommand(
       .map(_.singleDependency())
       .flatMap(visitor.visitSingleDependency(_).toList)
 
-    val fromDependenciesExternalFile: Seq[Artifact] =
+    val fromDependenciesExternalFile: F[Chain[Artifact]] =
       if (buildFileSource.contains("import Dependencies._")) {
         val tupleToArtifact: ((String, String, String, String)) => Artifact = {
           case (gId, "%%", aId, version) =>
@@ -87,18 +89,21 @@ class SbtShowCommand(
             )
         }
         import ru.d10xa.jadd.code.regex.RegexImplicits._
-        projectFileReader
-          .read[IO]("project/Dependencies.scala")
-          .map { source =>
+        val p: F[String] = projectFileReader
+          .read("project/Dependencies.scala")
+        p.map { source =>
             SbtVerbalExpressions.declaredDependency.groups4(source)
           }
           .map { _.map(tupleToArtifact) }
-          .unsafeRunSync()
+          .map(Chain.fromSeq)
       } else {
-        Seq.empty
+        Applicative[F].pure(Chain.empty[Artifact])
       }
 
-    Chain.fromSeq((multiple ++ single ++ fromDependenciesExternalFile).distinct)
+    fromDependenciesExternalFile.map { fromFile =>
+      Chain.fromSeq((multiple ++ single ++ fromFile.toList).distinct)
+    }
+
   }
 
 }

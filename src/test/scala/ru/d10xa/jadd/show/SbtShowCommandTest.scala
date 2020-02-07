@@ -1,14 +1,25 @@
 package ru.d10xa.jadd.show
 
-import cats.implicits._
+import cats.effect.SyncIO
 import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.core.Scope.Test
 import ru.d10xa.jadd.cli.Config
+import ru.d10xa.jadd.core.Artifact
+import ru.d10xa.jadd.core.ProjectFileReader
 import ru.d10xa.jadd.core.ProjectFileReaderMemory
 
 class SbtShowCommandTest extends TestBase {
 
-  val emptyProjectFileReader = new ProjectFileReaderMemory(Map.empty)
+  val emptyProjectFileReader = new ProjectFileReaderMemory[SyncIO](Map.empty)
+
+  def showArtifacts(
+    source: String,
+    projectFileReader: ProjectFileReader[SyncIO] = emptyProjectFileReader
+  ): List[Artifact] =
+    new SbtShowCommand[SyncIO](source, projectFileReader, Config.empty)
+      .show()
+      .unsafeRunSync()
+      .toList
 
   test("seq") {
     val source =
@@ -22,10 +33,8 @@ class SbtShowCommandTest extends TestBase {
          |)
        """.stripMargin
 
-    val result =
-      new SbtShowCommand(source, emptyProjectFileReader, Config.empty)
-        .show()
-        .toList
+    val result = showArtifacts(source)
+
     val expected = Seq(
       art("ch.qos.logback:logback-classic:1.2.3"),
       art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_12,
@@ -46,10 +55,8 @@ class SbtShowCommandTest extends TestBase {
          |libraryDependencies += "org.typelevel" %% "cats-core" % "1.1.0"
        """.stripMargin
 
-    val result =
-      new SbtShowCommand(source, emptyProjectFileReader, Config.empty)
-        .show()
-        .toList
+    val result = showArtifacts(source)
+
     val expected = Seq(
       art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_12,
       art("org.typelevel:cats-core%%:1.1.0").scala2_12
@@ -65,19 +72,16 @@ class SbtShowCommandTest extends TestBase {
          |libraryDependencies += "a" % "b" % "1" % UnknownScopeShouldBeIgnored
        """.stripMargin
 
-    val result =
-      new SbtShowCommand(source, emptyProjectFileReader, Config.empty)
-        .show()
-        .toList
-        .sortBy(_.artifactId)
-    val expected = Seq(
+    val result: List[Artifact] = showArtifacts(source)
+
+    val expected: List[Artifact] = List(
       art("org.scalatest:scalatest_2.12:3.0.5")
         .copy(scope = Some(Test))
         .scala2_12,
       art("junit:junit:4.12")
         .copy(scope = Some(Test)),
       art("a:b:1")
-    ).sortBy(_.groupId.show)
+    )
     (result should contain).theSameElementsAs(expected)
   }
 
@@ -97,16 +101,12 @@ class SbtShowCommandTest extends TestBase {
         |  lazy val junit = "junit" % "junit" % "4.12"
         |  lazy val catsCore = "org.typelevel" %% "cats-core" % "1.1.0"
         |}""".stripMargin
-    val projectFileReader = new ProjectFileReaderMemory(
+    val projectFileReader = new ProjectFileReaderMemory[SyncIO](
       Map(
         "project/Dependencies.scala" ->
           dependenciesFile)
     )
-    val result = new SbtShowCommand(
-      source,
-      projectFileReader,
-      Config.empty
-    ).show().toList
+    val result = showArtifacts(source, projectFileReader)
 
     val expected = Seq(
       art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_12,
@@ -125,12 +125,7 @@ class SbtShowCommandTest extends TestBase {
          |)
        """.stripMargin
 
-    val result =
-      new SbtShowCommand(
-        source,
-        new ProjectFileReaderMemory(Map.empty),
-        Config.empty
-      ).show().toList
+    val result = showArtifacts(source)
 
     val expected = Seq(
       art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_11,

@@ -12,3 +12,4 @@ zip/
 .antlr-tmp/
 .bloop
 .metals
+.java-version

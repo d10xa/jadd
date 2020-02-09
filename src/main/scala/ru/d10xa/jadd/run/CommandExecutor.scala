@@ -9,6 +9,7 @@ import ru.d10xa.jadd.cli.Command.Help
 import ru.d10xa.jadd.cli.Command.Repl
 import ru.d10xa.jadd.cli.Config
 import ru.d10xa.jadd.core.Ctx
+import ru.d10xa.jadd.core.LiveSbtScalaVersionFinder
 import ru.d10xa.jadd.core.Loader
 import ru.d10xa.jadd.core.ProjectFileReaderImpl
 import ru.d10xa.jadd.core.Utils
@@ -53,12 +54,16 @@ class LiveCommandExecutor[F[_]: Sync] extends CommandExecutor[F] {
 
     val projectFileReaderImpl = new ProjectFileReaderImpl(
       File(config.projectDir))
+    val scalaVersionFinder =
+      LiveSbtScalaVersionFinder.make(ctx, projectFileReaderImpl)
+
     val pipelines: List[Pipeline[F]] = List(
       new GradlePipeline(ctx, artifactInfoFinder),
       new MavenPipeline(ctx, artifactInfoFinder),
       new SbtPipeline(
         ctx,
         artifactInfoFinder,
+        scalaVersionFinder,
         projectFileReaderImpl
       ),
       new AmmonitePipeline(ctx, projectFileReaderImpl)

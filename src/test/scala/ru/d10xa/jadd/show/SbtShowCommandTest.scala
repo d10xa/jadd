@@ -5,21 +5,26 @@ import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.core.Scope.Test
 import ru.d10xa.jadd.cli.Config
 import ru.d10xa.jadd.core.Artifact
-import ru.d10xa.jadd.core.ProjectFileReader
+import ru.d10xa.jadd.core.Ctx
+import ru.d10xa.jadd.core.LiveSbtScalaVersionFinder
 import ru.d10xa.jadd.core.ProjectFileReaderMemory
 
 class SbtShowCommandTest extends TestBase {
 
-  val emptyProjectFileReader = new ProjectFileReaderMemory[SyncIO](Map.empty)
-
   def showArtifacts(
     source: String,
-    projectFileReader: ProjectFileReader[SyncIO] = emptyProjectFileReader
-  ): List[Artifact] =
-    new SbtShowCommand[SyncIO](source, projectFileReader, Config.empty)
+    otherFiles: (String, String)*
+  ): List[Artifact] = {
+    val m: Map[String, String] = Map("build.sbt" -> source) ++ otherFiles
+    val projectFiles = new ProjectFileReaderMemory[SyncIO](m)
+    val scalaVersions =
+      LiveSbtScalaVersionFinder
+        .make[SyncIO](Ctx(Config.empty), projectFiles)
+    new SbtShowCommand[SyncIO](projectFiles, scalaVersions)
       .show()
       .unsafeRunSync()
       .toList
+  }
 
   test("seq") {
     val source =
@@ -101,12 +106,11 @@ class SbtShowCommandTest extends TestBase {
         |  lazy val junit = "junit" % "junit" % "4.12"
         |  lazy val catsCore = "org.typelevel" %% "cats-core" % "1.1.0"
         |}""".stripMargin
-    val projectFileReader = new ProjectFileReaderMemory[SyncIO](
-      Map(
-        "project/Dependencies.scala" ->
-          dependenciesFile)
-    )
-    val result = showArtifacts(source, projectFileReader)
+    val result =
+      showArtifacts(
+        source,
+        "project/Dependencies.scala" -> dependenciesFile
+      )
 
     val expected = Seq(
       art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_12,

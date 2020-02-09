@@ -7,33 +7,31 @@ import cats.implicits._
 import coursier.core.Version
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
-import ru.d10xa.jadd.cli.Config
 import ru.d10xa.jadd.code.regex.SbtVerbalExpressions
 import ru.d10xa.jadd.core
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.CodeBlock
 import ru.d10xa.jadd.core.ProjectFileReader
+import ru.d10xa.jadd.core.ScalaVersionFinder
 import ru.d10xa.jadd.core.Scope
 import ru.d10xa.jadd.core.types.GroupId
 import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.generated.antlr.SbtDependenciesBaseVisitor
 import ru.d10xa.jadd.generated.antlr.SbtDependenciesLexer
 import ru.d10xa.jadd.generated.antlr.SbtDependenciesParser
-import ru.d10xa.jadd.pipelines.SbtPipeline
 import ru.d10xa.jadd.versions.ScalaVersions
 
 import scala.jdk.CollectionConverters._
 
 class SbtShowCommand[F[_]: Sync](
-  buildFileSource: String,
   projectFileReader: ProjectFileReader[F],
-  config: Config) {
+  scalaVersionFinder: ScalaVersionFinder[F]) {
   import SbtShowCommand._
 
-  lazy val scalaVersionFromBuildSbt: Option[ScalaVersion] = SbtPipeline
-    .extractScalaVersionFromBuildSbt(buildFileSource)
+  def show(): F[Chain[Artifact]] =
+    projectFileReader.read("build.sbt").flatMap(showFromSource)
 
-  def show(): F[Chain[Artifact]] = {
+  def showFromSource(buildFileSource: String): F[Chain[Artifact]] = {
 
     val blocks: Seq[CodeBlock] = Seq("Seq", "List", "Vector")
       .map(s => s"libraryDependencies ++= $s(")
@@ -45,13 +43,13 @@ class SbtShowCommand[F[_]: Sync](
     def parser(lexer: SbtDependenciesLexer): SbtDependenciesParser =
       new SbtDependenciesParser(new CommonTokenStream(lexer))
 
-    val scalaVersion =
-      config.scalaVersion
-        .orElse(scalaVersionFromBuildSbt)
-        .getOrElse(ScalaVersions.defaultScalaVersion)
+    val scalaVersionF: F[ScalaVersion] =
+      scalaVersionFinder
+        .findScalaVersion()
+        .map(_.getOrElse(ScalaVersions.defaultScalaVersion))
 
-    val multiple: Seq[Artifact] = blocks.map(_.innerContent).flatMap {
-      innerContent =>
+    val multiple: ScalaVersion => Seq[Artifact] = scalaVersion =>
+      blocks.map(_.innerContent).flatMap { innerContent =>
         val p = parser(lexer(innerContent))
         val v = new LibraryDependenciesVisitor(scalaVersion)
         v.visitMultipleDependencies(p.multipleDependencies())
@@ -63,49 +61,57 @@ class SbtShowCommand[F[_]: Sync](
         .asScala
         .toList
 
-    val visitor = new SingleDependencyVisitor(scalaVersion)
+    val visitor0: ScalaVersion => SingleDependencyVisitor = scalaVersion =>
+      new SingleDependencyVisitor(scalaVersion)
 
-    val single = list
-      .map(lexer)
-      .map(parser)
-      .map(_.singleDependency())
-      .flatMap(visitor.visitSingleDependency(_).toList)
+    val single0: SingleDependencyVisitor => List[Artifact] = visitor =>
+      list
+        .map(lexer)
+        .map(parser)
+        .map(_.singleDependency())
+        .flatMap(visitor.visitSingleDependency(_).toList)
 
-    val fromDependenciesExternalFile: F[Chain[Artifact]] =
-      if (buildFileSource.contains("import Dependencies._")) {
-        val tupleToArtifact: ((String, String, String, String)) => Artifact = {
-          case (gId, "%%", aId, version) =>
-            core.Artifact(
-              groupId = GroupId(gId),
-              artifactId = s"$aId%%",
-              maybeVersion = Some(Version(version)),
-              maybeScalaVersion = Some(scalaVersion))
-          case (gId, _, aId, version) =>
-            Artifact(
-              groupId = GroupId(gId),
-              artifactId = aId,
-              maybeVersion = Some(Version(version)),
-              maybeScalaVersion = None
-            )
-        }
-        import ru.d10xa.jadd.code.regex.RegexImplicits._
-        val p: F[String] = projectFileReader
-          .read("project/Dependencies.scala")
-        p.map { source =>
-            SbtVerbalExpressions.declaredDependency.groups4(source)
+    val fromDependenciesExternalFile: ScalaVersion => F[Chain[Artifact]] =
+      scalaVersion =>
+        if (buildFileSource.contains("import Dependencies._")) {
+          val tupleToArtifact
+            : ((String, String, String, String)) => Artifact = {
+            case (gId, "%%", aId, version) =>
+              core.Artifact(
+                groupId = GroupId(gId),
+                artifactId = s"$aId%%",
+                maybeVersion = Some(Version(version)),
+                maybeScalaVersion = Some(scalaVersion))
+            case (gId, _, aId, version) =>
+              Artifact(
+                groupId = GroupId(gId),
+                artifactId = aId,
+                maybeVersion = Some(Version(version)),
+                maybeScalaVersion = None
+              )
           }
-          .map { _.map(tupleToArtifact) }
-          .map(Chain.fromSeq)
-      } else {
-        Applicative[F].pure(Chain.empty[Artifact])
+          import ru.d10xa.jadd.code.regex.RegexImplicits._
+          val p: F[String] = projectFileReader
+            .read("project/Dependencies.scala")
+          p.map { source =>
+              SbtVerbalExpressions.declaredDependency.groups4(source)
+            }
+            .map {
+              _.map(tupleToArtifact)
+            }
+            .map(Chain.fromSeq)
+        } else {
+          Applicative[F].pure(Chain.empty[Artifact])
       }
 
-    fromDependenciesExternalFile.map { fromFile =>
-      Chain.fromSeq((multiple ++ single ++ fromFile.toList).distinct)
-    }
-
+    for {
+      scalaVersion <- scalaVersionF
+      visitor <- Sync[F].delay(visitor0(scalaVersion))
+      single <- Sync[F].delay(single0(visitor))
+      multiple <- Sync[F].delay(multiple(scalaVersion))
+      fromFile <- fromDependenciesExternalFile(scalaVersion)
+    } yield Chain.fromSeq((single ++ multiple ++ fromFile.toList).distinct)
   }
-
 }
 
 object SbtShowCommand {

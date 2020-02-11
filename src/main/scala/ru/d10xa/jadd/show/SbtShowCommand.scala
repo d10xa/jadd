@@ -28,6 +28,15 @@ class SbtShowCommand[F[_]: Sync](
   scalaVersionFinder: ScalaVersionFinder[F]) {
   import SbtShowCommand._
 
+  def lexer(blockInner: String): SbtDependenciesLexer =
+    new SbtDependenciesLexer(CharStreams.fromString(blockInner))
+
+  def parser(lexer: SbtDependenciesLexer): SbtDependenciesParser =
+    new SbtDependenciesParser(new CommonTokenStream(lexer))
+
+  val makeParser: String => SbtDependenciesParser =
+    (parser _).compose(lexer)
+
   def show(): F[Chain[Artifact]] =
     projectFileReader.read("build.sbt").flatMap(showFromSource)
 
@@ -37,12 +46,6 @@ class SbtShowCommand[F[_]: Sync](
       .map(s => s"libraryDependencies ++= $s(")
       .flatMap(CodeBlock.find(buildFileSource, _))
 
-    def lexer(blockInner: String): SbtDependenciesLexer =
-      new SbtDependenciesLexer(CharStreams.fromString(blockInner))
-
-    def parser(lexer: SbtDependenciesLexer): SbtDependenciesParser =
-      new SbtDependenciesParser(new CommonTokenStream(lexer))
-
     val scalaVersionF: F[ScalaVersion] =
       scalaVersionFinder
         .findScalaVersion()
@@ -50,7 +53,7 @@ class SbtShowCommand[F[_]: Sync](
 
     val multiple: ScalaVersion => Seq[Artifact] = scalaVersion =>
       blocks.map(_.innerContent).flatMap { innerContent =>
-        val p = parser(lexer(innerContent))
+        val p = makeParser(innerContent)
         val v = new LibraryDependenciesVisitor(scalaVersion)
         v.visitMultipleDependencies(p.multipleDependencies())
     }
@@ -66,8 +69,7 @@ class SbtShowCommand[F[_]: Sync](
 
     val single0: SingleDependencyVisitor => List[Artifact] = visitor =>
       list
-        .map(lexer)
-        .map(parser)
+        .map(makeParser)
         .map(_.singleDependency())
         .flatMap(visitor.visitSingleDependency(_).toList)
 

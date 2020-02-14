@@ -1,5 +1,6 @@
 package ru.d10xa.jadd.pipelines
 
+import cats.data.Chain
 import cats.data.Ior
 import cats.data.IorNel
 import cats.effect.Sync
@@ -21,10 +22,10 @@ import ru.d10xa.jadd.core.troubles.ArtifactTrouble
 import ru.d10xa.jadd.core.troubles.handleTroubles
 import ru.d10xa.jadd.versions.ScalaVersions
 
-trait Pipeline extends StrictLogging {
-  def applicable[F[_]: Sync](): F[Boolean]
+abstract class Pipeline[F[_]: Sync] extends StrictLogging {
+  def applicable(): F[Boolean]
 
-  def invokeCommand[F[_]: Sync](
+  def invokeCommand(
     ior: IorNel[ArtifactTrouble, List[Artifact]],
     action: List[Artifact] => F[Unit]
   ): F[Unit] = {
@@ -41,19 +42,19 @@ trait Pipeline extends StrictLogging {
     }
   }
 
-  def findScalaVersion[F[_]: Sync](): F[Option[ScalaVersion]]
+  def findScalaVersion(): F[Option[ScalaVersion]]
 
-  def handleInstall[F[_]: Sync](
+  def handleInstall(
     ior: IorNel[ArtifactTrouble, List[Artifact]]
   ): F[Unit] =
     invokeCommand(ior, artifacts => install(artifacts))
 
-  def handleSearch[F[_]: Sync](
+  def handleSearch(
     ior: IorNel[ArtifactTrouble, List[Artifact]]
   ): F[Unit] =
     invokeCommand(ior, artifacts => Sync[F].delay(search(artifacts)))
 
-  def readScalaVersion[F[_]: Sync](): F[ScalaVersion] =
+  def readScalaVersion(): F[ScalaVersion] =
     for {
       predefinedScalaVersion <- Sync[F].pure(ctx.config.scalaVersion)
       optScalaVersion <- findScalaVersion()
@@ -62,8 +63,8 @@ trait Pipeline extends StrictLogging {
         .orElse(optScalaVersion)
         .getOrElse(ScalaVersions.defaultScalaVersion)
 
-  def run[F[_]: Sync](
-    loader: Loader
+  def run(
+    loader: Loader[F]
   ): F[Unit] = {
     def loaded: F[IorNel[troubles.ArtifactTrouble, List[Artifact]]] =
       for {
@@ -78,9 +79,9 @@ trait Pipeline extends StrictLogging {
           .map(ctx.config.showPrinter.mkString(_))
           .map(s => logger.info(s))
       case Search =>
-        loaded.flatMap(handleSearch[F])
+        loaded.flatMap(handleSearch)
       case Install =>
-        loaded.flatMap(handleInstall[F])
+        loaded.flatMap(handleInstall)
       case command =>
         Sync[F].delay(logger.info(s"command $command not implemented"))
     }
@@ -97,8 +98,8 @@ trait Pipeline extends StrictLogging {
     logger.debug(stringsForPrint.mkString("\n"))
   }
 
-  def install[F[_]: Sync](artifacts: List[Artifact]): F[Unit]
-  def show[F[_]: Sync](): F[Seq[Artifact]]
+  def install(artifacts: List[Artifact]): F[Unit]
+  def show(): F[Chain[Artifact]]
   def ctx: Ctx
 
 }

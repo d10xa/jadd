@@ -1,14 +1,30 @@
 package ru.d10xa.jadd.show
 
-import cats.implicits._
+import cats.effect.SyncIO
 import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.core.Scope.Test
 import ru.d10xa.jadd.cli.Config
+import ru.d10xa.jadd.core.Artifact
+import ru.d10xa.jadd.core.Ctx
+import ru.d10xa.jadd.core.LiveSbtScalaVersionFinder
 import ru.d10xa.jadd.core.ProjectFileReaderMemory
 
 class SbtShowCommandTest extends TestBase {
 
-  val emptyProjectFileReader = new ProjectFileReaderMemory(Map.empty)
+  def showArtifacts(
+    source: String,
+    otherFiles: (String, String)*
+  ): List[Artifact] = {
+    val m: Map[String, String] = Map("build.sbt" -> source) ++ otherFiles
+    val projectFiles = new ProjectFileReaderMemory[SyncIO](m)
+    val scalaVersions =
+      LiveSbtScalaVersionFinder
+        .make[SyncIO](Ctx(Config.empty), projectFiles)
+    new SbtShowCommand[SyncIO](projectFiles, scalaVersions)
+      .show()
+      .unsafeRunSync()
+      .toList
+  }
 
   test("seq") {
     val source =
@@ -22,8 +38,8 @@ class SbtShowCommandTest extends TestBase {
          |)
        """.stripMargin
 
-    val result =
-      new SbtShowCommand(source, emptyProjectFileReader, Config.empty).show()
+    val result = showArtifacts(source)
+
     val expected = Seq(
       art("ch.qos.logback:logback-classic:1.2.3"),
       art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_12,
@@ -32,7 +48,7 @@ class SbtShowCommandTest extends TestBase {
       art("org.jline:jline:3.7.1")
     )
 
-    result shouldEqual expected
+    (result should contain).theSameElementsAs(expected)
   }
 
   test("seq and single") {
@@ -44,13 +60,13 @@ class SbtShowCommandTest extends TestBase {
          |libraryDependencies += "org.typelevel" %% "cats-core" % "1.1.0"
        """.stripMargin
 
-    val result =
-      new SbtShowCommand(source, emptyProjectFileReader, Config.empty).show()
+    val result = showArtifacts(source)
+
     val expected = Seq(
       art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_12,
       art("org.typelevel:cats-core%%:1.1.0").scala2_12
     )
-    result shouldEqual expected
+    (result should contain).theSameElementsAs(expected)
   }
 
   test("with scope test") {
@@ -61,19 +77,17 @@ class SbtShowCommandTest extends TestBase {
          |libraryDependencies += "a" % "b" % "1" % UnknownScopeShouldBeIgnored
        """.stripMargin
 
-    val result =
-      new SbtShowCommand(source, emptyProjectFileReader, Config.empty)
-        .show()
-        .sortBy(_.artifactId)
-    val expected = Seq(
+    val result: List[Artifact] = showArtifacts(source)
+
+    val expected: List[Artifact] = List(
       art("org.scalatest:scalatest_2.12:3.0.5")
         .copy(scope = Some(Test))
         .scala2_12,
       art("junit:junit:4.12")
         .copy(scope = Some(Test)),
       art("a:b:1")
-    ).sortBy(_.groupId.show)
-    result shouldEqual expected
+    )
+    (result should contain).theSameElementsAs(expected)
   }
 
   test("Dependencies import") {
@@ -92,23 +106,18 @@ class SbtShowCommandTest extends TestBase {
         |  lazy val junit = "junit" % "junit" % "4.12"
         |  lazy val catsCore = "org.typelevel" %% "cats-core" % "1.1.0"
         |}""".stripMargin
-    val projectFileReader = new ProjectFileReaderMemory(
-      Map(
-        "project/Dependencies.scala" ->
-          dependenciesFile)
-    )
-    val result = new SbtShowCommand(
-      source,
-      projectFileReader,
-      Config.empty
-    ).show()
+    val result =
+      showArtifacts(
+        source,
+        "project/Dependencies.scala" -> dependenciesFile
+      )
 
     val expected = Seq(
       art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_12,
       art("junit:junit:4.12"),
       art("org.typelevel:cats-core%%:1.1.0").scala2_12
     )
-    result shouldEqual expected
+    (result should contain).theSameElementsAs(expected)
   }
 
   test("build.sbt has defined scala version 2.11") {
@@ -120,17 +129,12 @@ class SbtShowCommandTest extends TestBase {
          |)
        """.stripMargin
 
-    val result =
-      new SbtShowCommand(
-        source,
-        new ProjectFileReaderMemory(Map.empty),
-        Config.empty
-      ).show()
+    val result = showArtifacts(source)
 
     val expected = Seq(
       art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_11,
     )
-    result shouldEqual expected
+    (result should contain).theSameElementsAs(expected)
   }
 
 }

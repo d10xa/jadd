@@ -1,5 +1,6 @@
 package ru.d10xa.jadd.pipelines
 
+import cats.data.Chain
 import cats.effect.Sync
 import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
@@ -9,19 +10,19 @@ import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.versions.ScalaVersions
 
-class UnknownProjectPipeline(
+class UnknownProjectPipeline[F[_]: Sync](
   override val ctx: Ctx,
   artifactInfoFinder: ArtifactInfoFinder
-) extends Pipeline
+) extends Pipeline[F]
     with StrictLogging {
 
   /**
     * used only if project directory is unrecognized
     */
-  override def applicable[F[_]: Sync](): F[Boolean] =
+  override def applicable(): F[Boolean] =
     Sync[F].pure(true)
 
-  def install[F[_]: Sync](artifacts: List[Artifact]): F[Unit] = {
+  def install(artifacts: List[Artifact]): F[Unit] = {
     val logMsg = Sync[F].delay(
       logger.info(
         s"build tool not recognized in directory ${ctx.config.projectDir}"))
@@ -38,14 +39,13 @@ class UnknownProjectPipeline(
 
   }
 
-  override def show[F[_]: Sync](): F[Seq[Artifact]] = {
+  override def show(): F[Chain[Artifact]] = {
     val log =
       Sync[F].delay(logger.info("Unknown project type. Nothing to show"))
-    val emptySeq: F[Seq[Artifact]] = Sync[F].pure(Seq.empty)
-    log *> emptySeq
+    log *> Sync[F].pure(Chain.empty)
   }
 
-  override def findScalaVersion[F[_]: Sync](): F[Option[ScalaVersion]] =
+  override def findScalaVersion(): F[Option[ScalaVersion]] =
     Sync[F].pure(ScalaVersions.defaultScalaVersion.some)
 
 }

@@ -1,13 +1,15 @@
 package ru.d10xa.jadd.pipelines
 
+import ru.d10xa.jadd.core.LiveSbtScalaVersionFinder
 import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.testkit.TestBase
 
 class SbtPipelineTest extends TestBase {
 
   test("testExtractScalaVersionFromBuildSbt scalaVersion in ThisBuild") {
-    val optionScalaVersion = SbtPipeline.extractScalaVersionFromBuildSbt(
-      """
+    val optionScalaVersion =
+      LiveSbtScalaVersionFinder.extractScalaVersionFromBuildSbt(
+        """
         |organization in ThisBuild := "com.example"
         |scalaVersion in ThisBuild := "2.12.8"
         |version in ThisBuild := "0.0.0"
@@ -17,8 +19,9 @@ class SbtPipelineTest extends TestBase {
   }
 
   test("testExtractScalaVersionFromBuildSbt scalaVersion") {
-    val optionScalaVersion = SbtPipeline.extractScalaVersionFromBuildSbt(
-      """
+    val optionScalaVersion =
+      LiveSbtScalaVersionFinder.extractScalaVersionFromBuildSbt(
+        """
         |lazy val commonSettings = Seq(
         |  organization := "com.example",
         |  name := "example-name",
@@ -31,7 +34,7 @@ class SbtPipelineTest extends TestBase {
 
   test("testExtractScalaVersionFromBuildSbt scalaVersion in comment") {
     val optionScalaVersion =
-      SbtPipeline.extractScalaVersionFromBuildSbt(
+      LiveSbtScalaVersionFinder.extractScalaVersionFromBuildSbt(
         """
         |//  scalaVersion := "2.11.12"
         |scalaVersion in ThisBuild := "2.12.8"

@@ -1,5 +1,6 @@
 package ru.d10xa.jadd.repl
 
+import cats.effect.Sync
 import com.typesafe.scalalogging.StrictLogging
 import org.jline.reader._
 import org.jline.terminal.Terminal
@@ -8,7 +9,7 @@ import ru.d10xa.jadd.run.RunParams
 
 import scala.util.Try
 
-object ReplCommand extends StrictLogging {
+class ReplCommand[F[_]: Sync] extends StrictLogging {
 
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
   val nullMaskingCallback: MaskingCallback = null
@@ -37,15 +38,21 @@ object ReplCommand extends StrictLogging {
       reader.readLine(prompt, nullRightPrompt, nullMaskingCallback, nullBuffer)
   }
 
-  def runRepl(runParams: RunParams, action: RunParams => Unit): Unit = {
+  def runRepl(
+    runParams: RunParams[F],
+    action: RunParams[F] => F[Unit]): F[Unit] = {
     logger.info("Welcome to jadd REPL!")
     val replContext = new ReplContext
-    var running = true
-    while (running) {
-      val line: String = readReplString(replContext)
-      running = needContinue(line)
-      if (running) {
-        action(runParams.copy(args = line.split(" ").toVector))
+
+    Sync[F].delay {
+      // TODO refactoring
+      var running = true
+      while (running) {
+        val line: String = readReplString(replContext)
+        running = needContinue(line)
+        if (running) {
+          action(runParams.copy(args = line.split(" ").toVector))
+        }
       }
     }
   }

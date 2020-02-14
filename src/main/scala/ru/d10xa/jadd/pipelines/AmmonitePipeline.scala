@@ -1,6 +1,7 @@
 package ru.d10xa.jadd.pipelines
 
 import better.files._
+import cats.data.Chain
 import cats.effect._
 import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
@@ -12,26 +13,26 @@ import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.show.AmmoniteFormatShowPrinter
 import ru.d10xa.jadd.versions.ScalaVersions
 
-class AmmonitePipeline(
+class AmmonitePipeline[F[_]: Sync](
   override val ctx: Ctx,
-  projectFileReader: ProjectFileReader
-) extends Pipeline
+  projectFileReader: ProjectFileReader[F]
+) extends Pipeline[F]
     with StrictLogging {
 
-  def buildFile[F[_]: Sync]: F[File] =
+  def buildFile: F[File] =
     projectFileReader.file(ctx.config.projectDir)
 
-  def buildFileSource[F[_]: Sync]: F[String] =
+  def buildFileSource: F[String] =
     buildFile.map(_.contentAsString)
 
-  override def applicable[F[_]: Sync](): F[Boolean] =
+  override def applicable(): F[Boolean] =
     for {
       file <- projectFileReader.file(ctx.config.projectDir)
       exists = file.exists
       isScalaScript = file.name.endsWith(".sc")
     } yield exists && isScalaScript
 
-  def install[F[_]: Sync](artifacts: List[Artifact]): F[Unit] =
+  def install(artifacts: List[Artifact]): F[Unit] =
     for {
       newDependencies <- Sync[F].delay(
         AmmoniteFormatShowPrinter.mkString(artifacts))
@@ -42,10 +43,10 @@ class AmmonitePipeline(
     } yield ()
 
   // TODO implement
-  override def show[F[_]: Sync](): F[Seq[Artifact]] =
+  override def show(): F[Chain[Artifact]] =
     Sync[F].delay(???)
 
-  override def findScalaVersion[F[_]: Sync](): F[Option[ScalaVersion]] =
+  override def findScalaVersion(): F[Option[ScalaVersion]] =
     Sync[F].pure(ScalaVersions.defaultScalaVersion.some)
 
 }

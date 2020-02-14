@@ -1,12 +1,13 @@
 package ru.d10xa.jadd.core
 
+import cats.data.Chain
 import ru.d10xa.jadd.code.regex.GradleVerbalExpressions.stringWithGroupIdArtifactId
 import ru.d10xa.jadd.code.regex.GradleVerbalExpressions.stringWithGroupIdArtifactIdVersion
 import ru.d10xa.jadd.code.regex.GradleVerbalExpressions.variableAssignment
 import ru.d10xa.jadd.code.stringinterpolation.GStr
 
 trait ArtifactProvider[T] {
-  def provide(t: T): Seq[Artifact]
+  def provide(t: T): Chain[Artifact]
 }
 
 object ArtifactProvider {
@@ -19,26 +20,28 @@ object ArtifactProvider {
       import ru.d10xa.jadd.code.regex.RegexImplicits._
       val map: Map[String, String] =
         variableAssignment.build().groups2(d.buildFileSource).toMap
-      val interpolated = GStr.interpolate(map)
+      val interpolated: Map[String, String] = GStr.interpolate(map)
 
-      val t3 = stringWithGroupIdArtifactIdVersion()
-        .groups3(d.buildFileSource)
-        .map { case (g, a, v) => s"$g:$a:$v" }
-      val t2 = stringWithGroupIdArtifactId()
-        .groups2(d.buildFileSource)
-        .map { case (g, a) => s"$g:$a" }
+      val t3 = Chain.fromSeq(
+        stringWithGroupIdArtifactIdVersion()
+          .groups3(d.buildFileSource)
+          .map { case (g, a, v) => s"$g:$a:$v" })
+      val t2 = Chain.fromSeq(
+        stringWithGroupIdArtifactId()
+          .groups2(d.buildFileSource)
+          .map { case (g, a) => s"$g:$a" })
 
-      val all = t3 ++ t2
+      val all: Chain[String] = t3 ++ t2
 
       all
         .map(new GStr(_).resolve(interpolated))
         .map(Artifact.fromString)
-        .flatMap(_.toOption)
+        .flatMap(e => Chain.fromSeq(e.toSeq))
     }
 
   implicit class BuildDescriptionImplicits[T](val buildDescription: T)(
     implicit artifactProvider: ArtifactProvider[T]) {
-    def artifacts: Seq[Artifact] = artifactProvider.provide(buildDescription)
+    def artifacts: Chain[Artifact] = artifactProvider.provide(buildDescription)
   }
 
 }

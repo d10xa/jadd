@@ -1,6 +1,7 @@
 package ru.d10xa.jadd.pipelines
 
 import better.files._
+import cats.data.Chain
 import cats.effect._
 import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
@@ -16,18 +17,18 @@ import ru.d10xa.jadd.show.MavenFormatShowPrinter
 import ru.d10xa.jadd.show.MavenShowCommand
 import ru.d10xa.jadd.versions.ScalaVersions
 
-class MavenPipeline(
+class MavenPipeline[F[_]: Sync](
   override val ctx: Ctx,
   artifactInfoFinder: ArtifactInfoFinder
-) extends Pipeline
+) extends Pipeline[F]
     with StrictLogging {
 
   lazy val buildFile = File(ctx.config.projectDir, "pom.xml")
 
-  def buildFileSource[F[_]: Sync]: F[String] =
+  def buildFileSource: F[String] =
     Sync[F].delay(buildFile.contentAsString)
 
-  override def applicable[F[_]: Sync](): F[Boolean] =
+  override def applicable(): F[Boolean] =
     Sync[F].delay(buildFile.exists())
 
   def fix(artifacts: List[Artifact]): List[Artifact] =
@@ -60,20 +61,20 @@ class MavenPipeline(
     newContent(source, stringsForInsert, indent)
   }
 
-  def install[F[_]: Sync](artifacts: List[Artifact]): F[Unit] =
+  def install(artifacts: List[Artifact]): F[Unit] =
     for {
       source <- buildFileSource
       newSource = sourceToNewSource(source, artifacts)
       _ <- Sync[F].delay(new SafeFileWriter().write(buildFile, newSource))
     } yield ()
 
-  override def show[F[_]: Sync](): F[Seq[Artifact]] =
+  override def show(): F[Chain[Artifact]] =
     for {
       source <- buildFileSource
       x <- Sync[F].delay(new MavenShowCommand(source).show())
     } yield x
 
-  override def findScalaVersion[F[_]: Sync](): F[Option[ScalaVersion]] =
+  override def findScalaVersion(): F[Option[ScalaVersion]] =
     Sync[F].pure(ScalaVersions.defaultScalaVersion.some)
 
 }

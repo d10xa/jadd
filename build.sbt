@@ -7,7 +7,9 @@ mainClass in Compile := Some("ru.d10xa.jadd.Jadd")
 
 lazy val root = project
   .in(file("."))
+  .configs(IntegrationTest)
   .settings(
+    Defaults.itSettings,
     scalacOptions := Seq(
       "-encoding",
       "UTF-8", // source files are in UTF-8
@@ -59,8 +61,8 @@ libraryDependencies ++= Seq(
   "org.jline" % "jline" % "3.14.0",
   "com.lihaoyi" %% "ujson" % "1.0.0",
   "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.6",
-  "org.scalatest" %% "scalatest" % "3.1.1" % Test,
-  "com.github.tomakehurst" % "wiremock" % "2.26.3" % Test
+  "org.scalatest" %% "scalatest" % "3.1.1" % "it,test",
+  "com.github.tomakehurst" % "wiremock" % "2.26.3" % "it,test"
 )
 libraryDependencies += "org.jsoup" % "jsoup" % "1.13.1"
 libraryDependencies += "org.typelevel" %% "cats-effect" % "2.1.2"
@@ -71,3 +73,5 @@ libraryDependencies += "io.estatico" %% "newtype" % "0.4.3"
 libraryDependencies += "eu.timepit" %% "refined" % "0.9.13"
 libraryDependencies += "com.github.julien-truffaut" %% "monocle-core" % "2.0.1"
 libraryDependencies += "com.github.julien-truffaut" %% "monocle-macro" % "2.0.1"
+libraryDependencies += "com.47deg" %% "github4s" % "0.22.0"
+libraryDependencies += "io.lemonlabs" %% "scala-uri" % "2.1.0"

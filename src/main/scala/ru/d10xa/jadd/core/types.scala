@@ -32,4 +32,12 @@ object types {
     implicit val showScalaVersion: Show[ScalaVersion] =
       Show[ScalaVersion](_.version.repr)
   }
+
+  @newtype case class FileName(value: String)
+  @newtype case class FileCache(value: Map[FileName, String])
+
+  object FileCache {
+    val empty: FileCache = FileCache(Map.empty[FileName, String])
+  }
+
 }

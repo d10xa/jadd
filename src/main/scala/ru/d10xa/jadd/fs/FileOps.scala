@@ -7,38 +7,67 @@ import java.nio.file.Path
 import cats.data._
 import cats.effect.Sync
 import cats.implicits._
-import ru.d10xa.jadd.core.types.FileName
+import eu.timepit.refined.collection._
+import eu.timepit.refined._
+import eu.timepit.refined.types.string.NonEmptyString
 import ru.d10xa.jadd.core.types.FileCache
+import ru.d10xa.jadd.core.types.FileContent
+import ru.d10xa.jadd.core.types.FileName
+import ru.d10xa.jadd.core.types.FsItem
+import ru.d10xa.jadd.core.types.FsItem.TextFile
 
 trait FileOps[F[_]] {
-  def read(fileName: FileName): StateT[F, FileCache, Option[String]]
+  def read(fileName: FileName): StateT[F, FileCache, FsItem]
   def write(fileName: FileName, value: String): StateT[F, FileCache, Unit]
 }
 
 class LiveFileOps[F[_]: Sync] private (path: Path) extends FileOps[F] {
-  override def read(fileName: FileName): StateT[F, FileCache, Option[String]] =
+  override def read(fileName: FileName): StateT[F, FileCache, FsItem] =
     StateT { cache =>
       cache.value.get(fileName) match {
-        case Some(content) =>
-          Sync[F].pure((cache, content.some))
+        case Some(item) =>
+          Sync[F].pure((cache, item))
         case None =>
           for {
-            file <- Sync[F].delay(better.files.File(path, fileName.value))
+            file <- Sync[F].delay(better.files.File(path, fileName.value.value))
             isFile <- Sync[F].delay(file.isRegularFile)
-            contentOpt <- if (isFile) {
-              Sync[F].delay(file.contentAsString.some)
-            } else { Sync[F].pure(none[String]) }
-            newCache = contentOpt.fold(cache)(content =>
-              FileCache(cache.value + (fileName -> content)))
-          } yield newCache -> contentOpt
+            isDirectory <- Sync[F].delay(file.isDirectory)
+            fsItem <- if (isFile) {
+              Sync[F]
+                .delay(
+                  FsItem
+                    .TextFile(FileContent(file.contentAsString))
+                )
+                .widen[FsItem]
+            } else if (isDirectory) {
+              Sync[F]
+                .fromEither {
+                  val e: Either[Throwable, List[NonEmptyString]] =
+                    file.list
+                      .map(_.name)
+                      .toList
+                      .traverse(refineV[NonEmpty](_).leftMap(
+                        new IllegalArgumentException(_)))
+                  e
+                }
+                .map(list => FsItem.Dir(list.map(s => FileName(s))))
+                .widen[FsItem]
+            } else { Sync[F].pure(FsItem.FileNotFound).widen[FsItem] }
+            newCache = FileCache(cache.value + (fileName -> fsItem))
+          } yield newCache -> fsItem
       }
     }
 
   override def write(
     fileName: FileName,
     value: String): StateT[F, FileCache, Unit] = StateT { cache =>
-    Sync[F].delay(better.files.File(path, fileName.value).write(value)) *>
-      Sync[F].pure(FileCache(cache.value + (fileName -> value)) -> ())
+    Sync[F].delay(
+      better.files
+        .File(path, fileName.value.value)
+        .createFileIfNotExists(createParents = true)
+        .write(value)) *>
+      Sync[F].pure(FileCache(
+        cache.value + (fileName -> TextFile(FileContent(value)))) -> ())
   }
 }
 
@@ -49,7 +78,7 @@ object LiveFileOps {
         Files.exists(path, LinkOption.NOFOLLOW_LINKS)
       }
       .ensure(new IllegalArgumentException(
-        f"file/directory does not exist [${path.toAbsolutePath.toString}]"))(
+        s"file/directory does not exist [${path.toFile.getAbsolutePath}]"))(
         exists => exists) *>
       Sync[F].delay(new LiveFileOps[F](path))
 }

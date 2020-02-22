@@ -3,10 +3,13 @@ package ru.d10xa.jadd.buildtools
 import cats.effect.Sync
 import ru.d10xa.jadd.core.Ctx
 import cats.implicits._
-import better.files._
-import cats.Applicative
+import eu.timepit.refined.types.string.NonEmptyString
 import ru.d10xa.jadd.buildtools.BuildToolLayout._
-import ru.d10xa.jadd.core.ProjectFileReader
+import ru.d10xa.jadd.core.types.FileCache
+import ru.d10xa.jadd.core.types.FileName
+import ru.d10xa.jadd.core.types.FsItem
+import ru.d10xa.jadd.fs.FileOps
+import ru.d10xa.jadd.core.types.refineF
 
 trait BuildToolLayoutSelector[F[_]] {
   def select(): F[BuildToolLayout]
@@ -15,41 +18,48 @@ trait BuildToolLayoutSelector[F[_]] {
 object BuildToolLayoutSelector {
   def make[F[_]: Sync](
     ctx: Ctx,
-    projectFileReader: ProjectFileReader[F]): BuildToolLayoutSelector[F] =
+    fileOps: FileOps[F]
+  ): BuildToolLayoutSelector[F] =
     new BuildToolLayoutSelector[F] {
-      private def fromExistentFile(f: File): F[Option[BuildToolLayout]] =
-        Sync[F]
-          .delay(f)
-          .map(file =>
-            if (file.name.endsWith(".sc")) {
-              Ammonite.some
-            } else {
-              none[BuildToolLayout]
-          })
 
-      private def fromExistentDirectory(f: File): F[Option[BuildToolLayout]] =
-        Sync[F]
-          .delay(f)
-          .map(dir =>
-            if (File(dir, "pom.xml").isRegularFile) {
-              Maven.some
-            } else if (File(dir, "build.sbt").isRegularFile) {
-              Sbt.some
-            } else if (File(dir, "build.gradle").isRegularFile) {
-              Gradle.some
-            } else {
-              none[BuildToolLayout]
-          })
+      private def fromFileName(n: FileName): Option[BuildToolLayout] =
+        if (n.value.value.endsWith(".sc")) {
+          Ammonite.some
+        } else {
+          none[BuildToolLayout]
+        }
+      private def fromDir(names: Set[FileName]): Option[BuildToolLayout] = {
+        import eu.timepit.refined.auto._
+        def sbt = names.contains(FileName("build.sbt": NonEmptyString))
+        def maven = names.contains(FileName("pom.xml": NonEmptyString))
+        def gradle = names.contains(FileName("build.gradle": NonEmptyString))
+        if (maven) {
+          Maven.some
+        } else if (sbt) {
+          Sbt.some
+        } else if (gradle) {
+          Gradle.some
+        } else {
+          none[BuildToolLayout]
+        }
+      }
 
-      override def select(): F[BuildToolLayout] =
+      override def select(): F[BuildToolLayout] = {
+        import eu.timepit.refined.collection._
         for {
-          file <- projectFileReader.file(ctx.config.projectDir)
-          isFile = file.isRegularFile
-          isDirectory = file.isDirectory
-          optionResult <- if (isFile) fromExistentFile(file)
-          else if (isDirectory) fromExistentDirectory(file)
-          else Applicative[F].pure(none[BuildToolLayout])
-        } yield optionResult.getOrElse(Unknown)
+          name <- refineF[F, NonEmpty, String](ctx.config.projectDir)
+          fileName = FileName(name)
+          fsItem <- fileOps.read(FileName(name)).runA(FileCache.empty)
+          layout = fsItem match {
+            case FsItem.TextFile(_) =>
+              fromFileName(fileName)
+            case FsItem.Dir(fileNames) =>
+              fromDir(fileNames.toSet)
+            case _ =>
+              none[BuildToolLayout]
+          }
+        } yield layout.getOrElse(Unknown)
+      }
     }
 
 }

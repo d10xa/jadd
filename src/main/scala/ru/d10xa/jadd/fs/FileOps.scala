@@ -63,7 +63,7 @@ class LiveFileOps[F[_]: Sync] private (path: Path) extends FileOps[F] {
     value: String): StateT[F, FileCache, Unit] = StateT { cache =>
     Sync[F].delay(
       better.files
-        .File(path, fileName.value.value)
+        .File(path.resolve(fileName.value.value))
         .createFileIfNotExists(createParents = true)
         .write(value)) *>
       Sync[F].pure(FileCache(

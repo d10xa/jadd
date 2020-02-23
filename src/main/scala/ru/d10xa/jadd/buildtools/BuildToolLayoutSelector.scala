@@ -9,7 +9,6 @@ import ru.d10xa.jadd.core.types.FileCache
 import ru.d10xa.jadd.core.types.FileName
 import ru.d10xa.jadd.core.types.FsItem
 import ru.d10xa.jadd.fs.FileOps
-import ru.d10xa.jadd.core.types.refineF
 
 trait BuildToolLayoutSelector[F[_]] {
   def select(): F[BuildToolLayout]
@@ -44,12 +43,10 @@ object BuildToolLayoutSelector {
         }
       }
 
-      override def select(): F[BuildToolLayout] = {
-        import eu.timepit.refined.collection._
+      override def select(): F[BuildToolLayout] =
         for {
-          name <- refineF[F, NonEmpty, String](ctx.config.projectDir)
-          fileName = FileName(name)
-          fsItem <- fileOps.read(FileName(name)).runA(FileCache.empty)
+          fileName <- FileName.make[F](ctx.config.projectDir)
+          fsItem <- fileOps.read(fileName).runA(FileCache.empty)
           layout = fsItem match {
             case FsItem.TextFile(_) =>
               fromFileName(fileName)
@@ -59,7 +56,6 @@ object BuildToolLayoutSelector {
               none[BuildToolLayout]
           }
         } yield layout.getOrElse(Unknown)
-      }
     }
 
 }

@@ -51,6 +51,14 @@ object types {
   }
 
   @newtype case class FileName(value: NonEmptyString)
+
+  object FileName {
+    import eu.timepit.refined.collection._
+    def make[F[_]: ApplicativeThrowable](name: String): F[FileName] =
+      refineF[F, NonEmpty, String](name)
+        .map(FileName(_))
+  }
+
   @newtype case class FileCache(value: Map[FileName, FsItem])
 
   object FileCache {

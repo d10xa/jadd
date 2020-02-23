@@ -1,29 +1,31 @@
 package ru.d10xa.jadd.show
 
 import cats.effect.SyncIO
-import ru.d10xa.jadd.testkit.TestBase
-import ru.d10xa.jadd.core.Scope.Test
 import ru.d10xa.jadd.cli.Config
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.core.LiveSbtScalaVersionFinder
 import ru.d10xa.jadd.core.ProjectFileReaderMemory
+import ru.d10xa.jadd.core.Scope.Test
+import ru.d10xa.jadd.testkit.TestBase
 
 class SbtShowCommandTest extends TestBase {
 
-  def showArtifacts(
-    source: String,
-    otherFiles: (String, String)*
-  ): List[Artifact] = {
-    val m: Map[String, String] = Map("build.sbt" -> source) ++ otherFiles
-    val projectFiles = new ProjectFileReaderMemory[SyncIO](m)
-    val scalaVersions =
-      LiveSbtScalaVersionFinder
-        .make[SyncIO](Ctx(Config.empty), projectFiles)
-    new SbtShowCommand[SyncIO](projectFiles, scalaVersions)
-      .show()
+  def showArtifacts(files: (String, String)*): List[Artifact] = {
+    val projectFiles = new ProjectFileReaderMemory[SyncIO](files.toMap)
+
+    createFileOpsWithFilesF[SyncIO](files.toList)
+      .use {
+        case (_, fileOps) =>
+          val scalaVersions =
+            LiveSbtScalaVersionFinder
+              .make[SyncIO](Ctx(Config.empty), fileOps)
+          new SbtShowCommand[SyncIO](projectFiles, scalaVersions)
+            .show()
+            .map(_.toList)
+      }
       .unsafeRunSync()
-      .toList
+
   }
 
   test("seq") {
@@ -38,7 +40,7 @@ class SbtShowCommandTest extends TestBase {
          |)
        """.stripMargin
 
-    val result = showArtifacts(source)
+    val result = showArtifacts("build.sbt" -> source)
 
     val expected = Seq(
       art("ch.qos.logback:logback-classic:1.2.3"),
@@ -60,7 +62,7 @@ class SbtShowCommandTest extends TestBase {
          |libraryDependencies += "org.typelevel" %% "cats-core" % "1.1.0"
        """.stripMargin
 
-    val result = showArtifacts(source)
+    val result = showArtifacts("build.sbt" -> source)
 
     val expected = Seq(
       art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_12,
@@ -77,7 +79,7 @@ class SbtShowCommandTest extends TestBase {
          |libraryDependencies += "a" % "b" % "1" % UnknownScopeShouldBeIgnored
        """.stripMargin
 
-    val result: List[Artifact] = showArtifacts(source)
+    val result: List[Artifact] = showArtifacts("build.sbt" -> source)
 
     val expected: List[Artifact] = List(
       art("org.scalatest:scalatest_2.12:3.0.5")
@@ -108,7 +110,7 @@ class SbtShowCommandTest extends TestBase {
         |}""".stripMargin
     val result =
       showArtifacts(
-        source,
+        "build.sbt" -> source,
         "project/Dependencies.scala" -> dependenciesFile
       )
 
@@ -129,7 +131,7 @@ class SbtShowCommandTest extends TestBase {
          |)
        """.stripMargin
 
-    val result = showArtifacts(source)
+    val result = showArtifacts("build.sbt" -> source)
 
     val expected = Seq(
       art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_11,

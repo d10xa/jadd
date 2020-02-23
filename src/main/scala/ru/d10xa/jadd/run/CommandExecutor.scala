@@ -1,5 +1,7 @@
 package ru.d10xa.jadd.run
 
+import java.nio.file.Paths
+
 import better.files._
 import cats.Applicative
 import cats.data.NonEmptyList
@@ -13,6 +15,7 @@ import ru.d10xa.jadd.core.LiveSbtScalaVersionFinder
 import ru.d10xa.jadd.core.Loader
 import ru.d10xa.jadd.core.ProjectFileReaderImpl
 import ru.d10xa.jadd.core.Utils
+import ru.d10xa.jadd.fs.LiveFileOps
 import ru.d10xa.jadd.pipelines._
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
@@ -54,20 +57,24 @@ class LiveCommandExecutor[F[_]: Sync] extends CommandExecutor[F] {
 
     val projectFileReaderImpl = new ProjectFileReaderImpl(
       File(config.projectDir))
-    val scalaVersionFinder =
-      LiveSbtScalaVersionFinder.make(ctx, projectFileReaderImpl)
+    val fileOpsF = LiveFileOps.make(Paths.get(config.projectDir))
 
-    val pipelines: List[Pipeline[F]] = List(
-      new GradlePipeline(ctx, artifactInfoFinder),
-      new MavenPipeline(ctx, artifactInfoFinder),
-      new SbtPipeline(
-        ctx,
-        artifactInfoFinder,
-        scalaVersionFinder,
-        projectFileReaderImpl
-      ),
-      new AmmonitePipeline(ctx, projectFileReaderImpl)
-    )
+    val pipelines: F[List[Pipeline[F]]] = for {
+      fileOps <- fileOpsF
+      scalaVersionFinder = LiveSbtScalaVersionFinder.make(ctx, fileOps)
+    } yield {
+      List(
+        new GradlePipeline(ctx, artifactInfoFinder),
+        new MavenPipeline(ctx, artifactInfoFinder),
+        new SbtPipeline(
+          ctx,
+          artifactInfoFinder,
+          scalaVersionFinder,
+          projectFileReaderImpl
+        ),
+        new AmmonitePipeline(ctx, projectFileReaderImpl)
+      )
+    }
 
     def orDefaultPipeline(
       pipelines: List[Pipeline[F]]): NonEmptyList[Pipeline[F]] =
@@ -80,7 +87,8 @@ class LiveCommandExecutor[F[_]: Sync] extends CommandExecutor[F] {
       pipelines.map(_.run(loader)).sequence_
 
     def activePipelines(): F[NonEmptyList[Pipeline[F]]] =
-      filterPipelines(pipelines)
+      pipelines
+        .flatMap(filterPipelines)
         .map(orDefaultPipeline)
 
     def runActivePipelines(): F[Unit] =

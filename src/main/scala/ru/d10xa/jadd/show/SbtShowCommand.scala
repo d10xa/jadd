@@ -11,11 +11,15 @@ import ru.d10xa.jadd.code.regex.SbtVerbalExpressions
 import ru.d10xa.jadd.core
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.CodeBlock
-import ru.d10xa.jadd.core.ProjectFileReader
 import ru.d10xa.jadd.core.ScalaVersionFinder
 import ru.d10xa.jadd.core.Scope
+import ru.d10xa.jadd.core.types.FileCache
+import ru.d10xa.jadd.core.types.FileContent
+import ru.d10xa.jadd.core.types.FileName
 import ru.d10xa.jadd.core.types.GroupId
 import ru.d10xa.jadd.core.types.ScalaVersion
+import ru.d10xa.jadd.core.types.FsItem.TextFile
+import ru.d10xa.jadd.fs.FileOps
 import ru.d10xa.jadd.generated.antlr.SbtDependenciesBaseVisitor
 import ru.d10xa.jadd.generated.antlr.SbtDependenciesLexer
 import ru.d10xa.jadd.generated.antlr.SbtDependenciesParser
@@ -24,7 +28,7 @@ import ru.d10xa.jadd.versions.ScalaVersions
 import scala.jdk.CollectionConverters._
 
 class SbtShowCommand[F[_]: Sync](
-  projectFileReader: ProjectFileReader[F],
+  fileOps: FileOps[F],
   scalaVersionFinder: ScalaVersionFinder[F]) {
   import SbtShowCommand._
 
@@ -38,9 +42,15 @@ class SbtShowCommand[F[_]: Sync](
     (parser _).compose(lexer)
 
   def show(): F[Chain[Artifact]] =
-    projectFileReader.read("build.sbt").flatMap(showFromSource)
+    FileName
+      .make[F]("build.sbt")
+      .flatMap(fileOps.read(_).runA(FileCache.empty))
+      .flatMap(TextFile.make[F])
+      .map(_.content)
+      .flatMap(showFromSource)
 
-  def showFromSource(buildFileSource: String): F[Chain[Artifact]] = {
+  def showFromSource(fileContent: FileContent): F[Chain[Artifact]] = {
+    val buildFileSource = fileContent.value
 
     val blocks: Seq[CodeBlock] = Seq("Seq", "List", "Vector")
       .map(s => s"libraryDependencies ++= $s(")
@@ -93,10 +103,17 @@ class SbtShowCommand[F[_]: Sync](
               )
           }
           import ru.d10xa.jadd.code.regex.RegexImplicits._
-          val p: F[String] = projectFileReader
-            .read("project/Dependencies.scala")
+          val p: F[FileContent] = FileName
+            .make[F]("project/Dependencies.scala")
+            .flatMap(
+              n =>
+                fileOps
+                  .read(n)
+                  .runA(FileCache.empty)
+                  .flatMap(TextFile.make[F](_))
+                  .map(_.content))
           p.map { source =>
-              SbtVerbalExpressions.declaredDependency.groups4(source)
+              SbtVerbalExpressions.declaredDependency.groups4(source.value)
             }
             .map {
               _.map(tupleToArtifact)

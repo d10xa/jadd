@@ -5,28 +5,23 @@ import ru.d10xa.jadd.cli.Config
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.core.LiveSbtScalaVersionFinder
-import ru.d10xa.jadd.core.ProjectFileReaderMemory
 import ru.d10xa.jadd.core.Scope.Test
 import ru.d10xa.jadd.testkit.TestBase
 
 class SbtShowCommandTest extends TestBase {
 
-  def showArtifacts(files: (String, String)*): List[Artifact] = {
-    val projectFiles = new ProjectFileReaderMemory[SyncIO](files.toMap)
-
+  def showArtifacts(files: (String, String)*): List[Artifact] =
     createFileOpsWithFilesF[SyncIO](files.toList)
       .use {
         case (_, fileOps) =>
           val scalaVersions =
             LiveSbtScalaVersionFinder
               .make[SyncIO](Ctx(Config.empty), fileOps)
-          new SbtShowCommand[SyncIO](projectFiles, scalaVersions)
+          new SbtShowCommand[SyncIO](fileOps, scalaVersions)
             .show()
             .map(_.toList)
       }
       .unsafeRunSync()
-
-  }
 
   test("seq") {
     val source =

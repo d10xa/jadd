@@ -46,6 +46,23 @@ object types {
 
   object FsItem {
     final case class TextFile(content: FileContent) extends FsItem
+
+    object TextFile {
+      def make[F[_]](fsItem: FsItem)(
+        implicit a: ApplicativeThrowable[F]): F[TextFile] =
+        fsItem match {
+          case t: TextFile => a.pure(t)
+          case _: Dir =>
+            a.raiseError[TextFile](
+              new IllegalArgumentException(s"Is not a file")
+            )
+          case FileNotFound =>
+            a.raiseError[TextFile](
+              new IllegalArgumentException("File not found")
+            )
+        }
+    }
+
     final case class Dir(names: List[FileName]) extends FsItem
     final case object FileNotFound extends FsItem
   }

@@ -70,7 +70,7 @@ class LiveCommandExecutor[F[_]: Sync] extends CommandExecutor[F] {
           ctx,
           artifactInfoFinder,
           scalaVersionFinder,
-          projectFileReaderImpl
+          fileOps
         ),
         new AmmonitePipeline(ctx, projectFileReaderImpl)
       )

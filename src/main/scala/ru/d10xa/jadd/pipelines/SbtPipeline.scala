@@ -7,15 +7,14 @@ import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
 import monocle.Prism
 import monocle.macros.GenPrism
+import ru.d10xa.jadd.code.inserts.SbtFileInserts
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.core.ScalaVersionFinder
-import ru.d10xa.jadd.core.types.FileCache
+import ru.d10xa.jadd.core.types.FsItem.TextFile
 import ru.d10xa.jadd.core.types.FileName
 import ru.d10xa.jadd.core.types.FsItem
 import ru.d10xa.jadd.core.types.ScalaVersion
-import ru.d10xa.jadd.code.inserts.SbtFileInserts
-import ru.d10xa.jadd.core.types.FsItem.TextFile
 import ru.d10xa.jadd.fs.FileOps
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.show.SbtShowCommand
@@ -36,8 +35,8 @@ class SbtPipeline[F[_]: Sync](
   val fileNameF: F[FileName] = FileName.make[F](buildFileName)
 
   val buildFileF: F[TextFile] = for {
-    fileName <- fileNameF
-    fsItem <- fileOps.read(fileName).runA(FileCache.empty)
+    fsItem <- FsItem
+      .fromFileNameString(buildFileName, fileOps)
     textFile <- MonadError[F, Throwable].fromOption(
       textFilePrism.getOption(fsItem),
       new IllegalStateException(s"File $buildFileName does not exist"))
@@ -65,7 +64,7 @@ class SbtPipeline[F[_]: Sync](
   def fileUpdate(str: String): F[Unit] =
     for {
       file <- fileNameF
-      _ <- fileOps.write(file, str).runA(FileCache.empty)
+      _ <- fileOps.write(file, str)
     } yield ()
 
   override def show(): F[Chain[Artifact]] =

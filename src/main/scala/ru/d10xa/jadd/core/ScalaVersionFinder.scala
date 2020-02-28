@@ -5,7 +5,6 @@ import cats.ApplicativeError
 import cats.effect.Sync
 import cats.implicits._
 import ru.d10xa.jadd.core.types.FsItem.TextFile
-import ru.d10xa.jadd.core.types.FileCache
 import ru.d10xa.jadd.core.types.FileContent
 import ru.d10xa.jadd.core.types.FileName
 import ru.d10xa.jadd.core.types.ScalaVersion
@@ -27,8 +26,8 @@ class LiveSbtScalaVersionFinder[F[_]: Sync] private (
   override def findScalaVersion(): F[Option[ScalaVersion]] =
     for {
       name <- FileName.make[F](buildFileName)
-      fsItem <- fileOps.read(name).runA(FileCache.empty)
-      x <- fsItem match {
+      fsItem <- fileOps.read(name)
+      optScalaVersion <- fsItem match {
         case TextFile(content) =>
           Applicative[F]
             .pure(
@@ -39,7 +38,7 @@ class LiveSbtScalaVersionFinder[F[_]: Sync] private (
             .raiseError[Option[ScalaVersion]](
               new IllegalStateException("can not read build.sbt"))
       }
-    } yield x
+    } yield optScalaVersion
 
 }
 

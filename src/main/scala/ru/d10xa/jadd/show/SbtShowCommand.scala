@@ -13,12 +13,8 @@ import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.CodeBlock
 import ru.d10xa.jadd.core.ScalaVersionFinder
 import ru.d10xa.jadd.core.Scope
-import ru.d10xa.jadd.core.types.FileCache
-import ru.d10xa.jadd.core.types.FileContent
-import ru.d10xa.jadd.core.types.FileName
-import ru.d10xa.jadd.core.types.GroupId
-import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.core.types.FsItem.TextFile
+import ru.d10xa.jadd.core.types._
 import ru.d10xa.jadd.fs.FileOps
 import ru.d10xa.jadd.generated.antlr.SbtDependenciesBaseVisitor
 import ru.d10xa.jadd.generated.antlr.SbtDependenciesLexer
@@ -44,7 +40,7 @@ class SbtShowCommand[F[_]: Sync](
   def show(): F[Chain[Artifact]] =
     FileName
       .make[F]("build.sbt")
-      .flatMap(fileOps.read(_).runA(FileCache.empty))
+      .flatMap(fileOps.read)
       .flatMap(TextFile.make[F])
       .map(_.content)
       .flatMap(showFromSource)
@@ -109,7 +105,6 @@ class SbtShowCommand[F[_]: Sync](
               n =>
                 fileOps
                   .read(n)
-                  .runA(FileCache.empty)
                   .flatMap(TextFile.make[F](_))
                   .map(_.content))
           p.map { source =>

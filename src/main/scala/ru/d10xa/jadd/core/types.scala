@@ -1,6 +1,7 @@
 package ru.d10xa.jadd.core
 
 import cats.ApplicativeError
+import cats.FlatMap
 import cats.Show
 import coursier.core.Version
 import eu.timepit.refined.api.RefType
@@ -9,6 +10,8 @@ import eu.timepit.refined.api.Validate
 import io.estatico.newtype.macros.newtype
 import eu.timepit.refined.types.string.NonEmptyString
 import cats.implicits._
+import ru.d10xa.jadd.fs.FileOps
+
 import scala.language.implicitConversions
 
 /**
@@ -65,6 +68,13 @@ object types {
 
     final case class Dir(names: List[FileName]) extends FsItem
     final case object FileNotFound extends FsItem
+
+    def fromFileNameString[F[_]: ApplicativeThrowable: FlatMap](
+      fileName: String,
+      fileOps: FileOps[F]): F[FsItem] =
+      FileName
+        .make[F](fileName)
+        .flatMap(fileName => fileOps.read(fileName))
   }
 
   @newtype case class FileName(value: NonEmptyString)

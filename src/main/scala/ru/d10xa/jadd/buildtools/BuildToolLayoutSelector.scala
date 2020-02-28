@@ -5,7 +5,6 @@ import ru.d10xa.jadd.core.Ctx
 import cats.implicits._
 import eu.timepit.refined.types.string.NonEmptyString
 import ru.d10xa.jadd.buildtools.BuildToolLayout._
-import ru.d10xa.jadd.core.types.FileCache
 import ru.d10xa.jadd.core.types.FileName
 import ru.d10xa.jadd.core.types.FsItem
 import ru.d10xa.jadd.fs.FileOps
@@ -46,7 +45,7 @@ object BuildToolLayoutSelector {
       override def select(): F[BuildToolLayout] =
         for {
           fileName <- FileName.make[F](ctx.config.projectDir)
-          fsItem <- fileOps.read(fileName).runA(FileCache.empty)
+          fsItem <- fileOps.read(fileName)
           layout = fsItem match {
             case FsItem.TextFile(_) =>
               fromFileName(fileName)

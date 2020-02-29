@@ -57,7 +57,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
   "org.typelevel" %% "cats-core" % "2.1.1",
   "org.jline" % "jline" % "3.14.0",
-  "com.lihaoyi" %% "ujson" % "0.9.9",
+  "com.lihaoyi" %% "ujson" % "1.0.0",
   "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.6",
   "org.scalatest" %% "scalatest" % "3.1.1" % Test,
   "com.github.tomakehurst" % "wiremock" % "2.26.1" % Test

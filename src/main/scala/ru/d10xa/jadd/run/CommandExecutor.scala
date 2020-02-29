@@ -2,7 +2,6 @@ package ru.d10xa.jadd.run
 
 import java.nio.file.Paths
 
-import better.files._
 import cats.Applicative
 import cats.data.NonEmptyList
 import cats.effect.Sync
@@ -14,7 +13,6 @@ import ru.d10xa.jadd.cli.Config
 import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.core.LiveSbtScalaVersionFinder
 import ru.d10xa.jadd.core.Loader
-import ru.d10xa.jadd.core.ProjectFileReaderImpl
 import ru.d10xa.jadd.core.Utils
 import ru.d10xa.jadd.core.types.FileCache
 import ru.d10xa.jadd.fs.LiveCachedFileOps
@@ -58,26 +56,26 @@ class LiveCommandExecutor[F[_]: Sync] extends CommandExecutor[F] {
 
     val ctx = Ctx(config)
 
-    val projectFileReaderImpl = new ProjectFileReaderImpl(
-      File(config.projectDir))
-    val fileOpsF = LiveFileOps.make(Paths.get(config.projectDir))
+    val fileOpsF = for {
+      cacheRef <- Ref.of[F, FileCache](FileCache.empty)
+      ops <- LiveFileOps.make(Paths.get(config.projectDir))
+      cachedOps <- LiveCachedFileOps.make(ops, cacheRef)
+    } yield cachedOps
 
     val pipelines: F[List[Pipeline[F]]] = for {
-      cacheRef <- Ref.of[F, FileCache](FileCache.empty)
       fileOps <- fileOpsF
-      fileOpsCached <- LiveCachedFileOps.make(fileOps, cacheRef)
-      scalaVersionFinder = LiveSbtScalaVersionFinder.make(ctx, fileOpsCached)
+      scalaVersionFinder = LiveSbtScalaVersionFinder.make(ctx, fileOps)
     } yield {
       List(
-        new GradlePipeline(ctx, artifactInfoFinder),
-        new MavenPipeline(ctx, artifactInfoFinder),
+        new GradlePipeline(ctx, artifactInfoFinder, fileOps),
+        new MavenPipeline(ctx, artifactInfoFinder, fileOps),
         new SbtPipeline(
           ctx,
           artifactInfoFinder,
           scalaVersionFinder,
           fileOps
         ),
-        new AmmonitePipeline(ctx, projectFileReaderImpl)
+        new AmmonitePipeline(ctx, fileOps)
       )
     }
 

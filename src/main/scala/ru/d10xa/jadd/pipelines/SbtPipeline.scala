@@ -1,19 +1,16 @@
 package ru.d10xa.jadd.pipelines
 
-import cats.MonadError
 import cats.data.Chain
 import cats.effect._
 import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
-import monocle.Prism
-import monocle.macros.GenPrism
 import ru.d10xa.jadd.code.inserts.SbtFileInserts
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.core.ScalaVersionFinder
+import ru.d10xa.jadd.core.Utils
 import ru.d10xa.jadd.core.types.FsItem.TextFile
 import ru.d10xa.jadd.core.types.FileName
-import ru.d10xa.jadd.core.types.FsItem
 import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.fs.FileOps
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
@@ -29,18 +26,10 @@ class SbtPipeline[F[_]: Sync](
 
   val buildFileName = "build.sbt"
 
-  val textFilePrism: Prism[FsItem, TextFile] =
-    GenPrism[FsItem, TextFile]
-
   val fileNameF: F[FileName] = FileName.make[F](buildFileName)
 
-  val buildFileF: F[TextFile] = for {
-    fsItem <- FsItem
-      .fromFileNameString(buildFileName, fileOps)
-    textFile <- MonadError[F, Throwable].fromOption(
-      textFilePrism.getOption(fsItem),
-      new IllegalStateException(s"File $buildFileName does not exist"))
-  } yield textFile
+  val buildFileF: F[TextFile] =
+    Utils.textFileFromString(fileOps, buildFileName)
 
   def buildFileSource: F[TextFile] =
     for {

@@ -1,45 +1,59 @@
 package ru.d10xa.jadd.pipelines
 
-import better.files._
 import cats.data.Chain
 import cats.effect.Sync
 import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
+import eu.timepit.refined
+import eu.timepit.refined.collection.NonEmpty
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.Ctx
-import ru.d10xa.jadd.core.SafeFileWriter
+import ru.d10xa.jadd.core.Utils
+import ru.d10xa.jadd.core.types.FileName
 import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.code.inserts.GradleFileInserts
+import ru.d10xa.jadd.core.types.FsItem.TextFile
+import ru.d10xa.jadd.fs.FileOps
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.show.GradleShowCommand
 import ru.d10xa.jadd.versions.ScalaVersions
 
 class GradlePipeline[F[_]: Sync](
   override val ctx: Ctx,
-  artifactInfoFinder: ArtifactInfoFinder
+  artifactInfoFinder: ArtifactInfoFinder,
+  fileOps: FileOps[F]
 ) extends Pipeline[F]
     with StrictLogging {
 
-  lazy val buildFile: File = File(ctx.config.projectDir, "build.gradle")
+  val buildFileName = "build.gradle"
 
-  def buildFileSource: F[String] =
-    Sync[F].delay(buildFile.contentAsString)
+  val fileNameF: F[FileName] = FileName.make[F](buildFileName)
+
+  def buildFileSource: F[TextFile] =
+    for {
+      textFile <- Utils.textFileFromString(fileOps, buildFileName)
+      source = textFile
+    } yield source
 
   override def applicable(): F[Boolean] =
-    Sync[F].delay(buildFile.exists())
+    buildFileSource
+      .map(_ => true)
+      .recover { case _ => false }
 
   def install(artifacts: List[Artifact]): F[Unit] =
     for {
       source <- buildFileSource
       newSource = new GradleFileInserts()
-        .appendAll(source, artifacts)
-      _ <- Sync[F].delay(new SafeFileWriter().write(buildFile, newSource))
+        .appendAll(source.content.value, artifacts)
+      _ <- fileOps.write(
+        FileName(refined.refineMV[NonEmpty]("build.gradle")),
+        newSource)
     } yield ()
 
   override def show(): F[Chain[Artifact]] =
     for {
       source <- buildFileSource
-      artifacts = new GradleShowCommand(source).show()
+      artifacts = new GradleShowCommand(source.content.value).show()
     } yield artifacts
 
   override def findScalaVersion(): F[Option[ScalaVersion]] =

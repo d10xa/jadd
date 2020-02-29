@@ -2,6 +2,7 @@ package ru.d10xa.jadd.core
 
 import cats.ApplicativeError
 import cats.FlatMap
+import cats.MonadError
 import cats.Show
 import coursier.core.Version
 import eu.timepit.refined.api.RefType
@@ -10,6 +11,8 @@ import eu.timepit.refined.api.Validate
 import io.estatico.newtype.macros.newtype
 import eu.timepit.refined.types.string.NonEmptyString
 import cats.implicits._
+import monocle.Prism
+import monocle.macros.GenPrism
 import ru.d10xa.jadd.fs.FileOps
 
 import scala.language.implicitConversions
@@ -27,6 +30,7 @@ import scala.language.implicitConversions
 object types {
 
   type ApplicativeThrowable[F[_]] = ApplicativeError[F, Throwable]
+  type MonadThrowable[F[_]] = MonadError[F, Throwable]
 
   @newtype case class GroupId(value: String) {
     def path: String =
@@ -68,6 +72,9 @@ object types {
 
     final case class Dir(names: List[FileName]) extends FsItem
     final case object FileNotFound extends FsItem
+
+    val textFilePrism: Prism[FsItem, TextFile] =
+      GenPrism[FsItem, TextFile]
 
     def fromFileNameString[F[_]: ApplicativeThrowable: FlatMap](
       fileName: String,

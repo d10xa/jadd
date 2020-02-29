@@ -1,4 +1,4 @@
-// Generated from SbtDependencies.g4 by ANTLR 4.7.2
+// Generated from SbtDependencies.g4 by ANTLR 4.8
 package ru.d10xa.jadd.generated.antlr;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 

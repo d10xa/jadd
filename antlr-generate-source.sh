@@ -2,7 +2,7 @@
 
 PROJECT_DIR="$(pwd)"
 WORKDIR="${PROJECT_DIR}/.antlr-tmp"
-ANTLR_JAR="antlr-4.7.2-complete.jar"
+ANTLR_JAR="antlr-4.8-complete.jar"
 ANTLR_JAR_PATH="${WORKDIR}/jar/${ANTLR_JAR}"
 ANTLR_OUTPUT="${PROJECT_DIR}/src/main/scala/ru/d10xa/jadd/generated/antlr"
 

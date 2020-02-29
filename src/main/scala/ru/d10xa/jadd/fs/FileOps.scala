@@ -58,7 +58,7 @@ class LiveFileOps[F[_]: Sync] private (path: Path) extends FileOps[F] {
         .write(value))
 }
 
-class LiveCachedFileOps[F[_]: Sync](
+class LiveCachedFileOps[F[_]: Sync] private (
   fileOps: FileOps[F],
   cacheRef: Ref[F, FileCache])
     extends FileOps[F] {
@@ -82,6 +82,14 @@ class LiveCachedFileOps[F[_]: Sync](
       FileCache(cache.value + (fileName -> TextFile(FileContent(value)))))
     write *> updateCache
   }
+}
+
+object LiveCachedFileOps {
+  def make[F[_]: Sync](
+    fileOps: FileOps[F],
+    cacheRef: Ref[F, FileCache]
+  ): F[FileOps[F]] =
+    Sync[F].delay(new LiveCachedFileOps[F](fileOps, cacheRef))
 }
 
 object LiveFileOps {

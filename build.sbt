@@ -56,11 +56,11 @@ libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.2.3",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
   "org.typelevel" %% "cats-core" % "2.1.1",
-  "org.jline" % "jline" % "3.13.3",
+  "org.jline" % "jline" % "3.14.0",
   "com.lihaoyi" %% "ujson" % "0.9.9",
   "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.6",
-  "org.scalatest" %% "scalatest" % "3.1.0" % Test,
-  "com.github.tomakehurst" % "wiremock" % "2.26.1" % Test
+  "org.scalatest" %% "scalatest" % "3.1.1" % Test,
+  "com.github.tomakehurst" % "wiremock" % "2.26.0" % Test
 )
 libraryDependencies += "org.jsoup" % "jsoup" % "1.12.2"
 libraryDependencies += "org.typelevel" %% "cats-effect" % "2.1.1"

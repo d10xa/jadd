@@ -6,6 +6,7 @@ import better.files._
 import cats.Applicative
 import cats.data.NonEmptyList
 import cats.effect.Sync
+import cats.effect.concurrent.Ref
 import cats.implicits._
 import ru.d10xa.jadd.cli.Command.Help
 import ru.d10xa.jadd.cli.Command.Repl
@@ -15,6 +16,8 @@ import ru.d10xa.jadd.core.LiveSbtScalaVersionFinder
 import ru.d10xa.jadd.core.Loader
 import ru.d10xa.jadd.core.ProjectFileReaderImpl
 import ru.d10xa.jadd.core.Utils
+import ru.d10xa.jadd.core.types.FileCache
+import ru.d10xa.jadd.fs.LiveCachedFileOps
 import ru.d10xa.jadd.fs.LiveFileOps
 import ru.d10xa.jadd.pipelines._
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
@@ -60,8 +63,10 @@ class LiveCommandExecutor[F[_]: Sync] extends CommandExecutor[F] {
     val fileOpsF = LiveFileOps.make(Paths.get(config.projectDir))
 
     val pipelines: F[List[Pipeline[F]]] = for {
+      cacheRef <- Ref.of[F, FileCache](FileCache.empty)
       fileOps <- fileOpsF
-      scalaVersionFinder = LiveSbtScalaVersionFinder.make(ctx, fileOps)
+      fileOpsCached <- LiveCachedFileOps.make(fileOps, cacheRef)
+      scalaVersionFinder = LiveSbtScalaVersionFinder.make(ctx, fileOpsCached)
     } yield {
       List(
         new GradlePipeline(ctx, artifactInfoFinder),

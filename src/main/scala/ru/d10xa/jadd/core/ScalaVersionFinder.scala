@@ -21,7 +21,7 @@ class LiveSbtScalaVersionFinder[F[_]: Sync] private (
   fileOps: FileOps[F])
     extends ScalaVersionFinder[F] {
 
-  val buildFileName = "build.sbt"
+  val buildFileName: String = "build.sbt"
 
   override def findScalaVersion(): F[Option[ScalaVersion]] =
     for {

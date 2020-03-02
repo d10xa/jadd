@@ -24,7 +24,7 @@ class SbtPipeline[F[_]: Sync](
     extends Pipeline[F]
     with StrictLogging {
 
-  val buildFileName = "build.sbt"
+  val buildFileName: String = "build.sbt"
 
   def buildFileSource: F[TextFile] =
     for {

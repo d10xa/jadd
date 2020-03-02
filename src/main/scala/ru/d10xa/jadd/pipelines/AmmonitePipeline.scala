@@ -4,11 +4,9 @@ import cats.data.Chain
 import cats.effect._
 import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
-import eu.timepit.refined.collection.NonEmpty
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.core.Utils
-import ru.d10xa.jadd.core.types
 import ru.d10xa.jadd.core.types.FsItem.TextFile
 import ru.d10xa.jadd.core.types.FileName
 import ru.d10xa.jadd.core.types.ScalaVersion
@@ -33,19 +31,14 @@ class AmmonitePipeline[F[_]: Sync](
       source = textFile
     } yield source
 
-  override def applicable(): F[Boolean] =
-    buildFileSource
-      .map(_ => true)
-      .recover { case _ => false }
-
   def install(artifacts: List[Artifact]): F[Unit] =
     for {
       newDependencies <- Sync[F].delay(
         AmmoniteFormatShowPrinter.mkString(artifacts))
       source <- buildFileSource
       newSource = List(newDependencies, source.content.value).mkString("\n")
-      fileName <- types.refineF[F, NonEmpty, String](buildFileName)
-      _ <- fileOps.write(FileName(fileName), newSource)
+      fileName <- FileName.make[F](buildFileName)
+      _ <- fileOps.write(fileName, newSource)
     } yield ()
 
   // TODO implement

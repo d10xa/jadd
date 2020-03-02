@@ -4,8 +4,6 @@ import cats.data.Chain
 import cats.effect.Sync
 import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
-import eu.timepit.refined
-import eu.timepit.refined.collection.NonEmpty
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.core.Utils
@@ -27,27 +25,19 @@ class GradlePipeline[F[_]: Sync](
 
   val buildFileName = "build.gradle"
 
-  val fileNameF: F[FileName] = FileName.make[F](buildFileName)
-
   def buildFileSource: F[TextFile] =
     for {
       textFile <- Utils.textFileFromString(fileOps, buildFileName)
       source = textFile
     } yield source
 
-  override def applicable(): F[Boolean] =
-    buildFileSource
-      .map(_ => true)
-      .recover { case _ => false }
-
   def install(artifacts: List[Artifact]): F[Unit] =
     for {
       source <- buildFileSource
+      fileName <- FileName.make[F](buildFileName)
       newSource = new GradleFileInserts()
         .appendAll(source.content.value, artifacts)
-      _ <- fileOps.write(
-        FileName(refined.refineMV[NonEmpty]("build.gradle")),
-        newSource)
+      _ <- fileOps.write(fileName, newSource)
     } yield ()
 
   override def show(): F[Chain[Artifact]] =

@@ -26,21 +26,11 @@ class SbtPipeline[F[_]: Sync](
 
   val buildFileName = "build.sbt"
 
-  val fileNameF: F[FileName] = FileName.make[F](buildFileName)
-
-  val buildFileF: F[TextFile] =
-    Utils.textFileFromString(fileOps, buildFileName)
-
   def buildFileSource: F[TextFile] =
     for {
-      textFile <- buildFileF
+      textFile <- Utils.textFileFromString(fileOps, buildFileName)
       source = textFile
     } yield source
-
-  override def applicable(): F[Boolean] =
-    buildFileSource
-      .map(_ => true)
-      .recover { case _ => false }
 
   def install(artifacts: List[Artifact]): F[Unit] =
     for {
@@ -52,8 +42,8 @@ class SbtPipeline[F[_]: Sync](
 
   def fileUpdate(str: String): F[Unit] =
     for {
-      file <- fileNameF
-      _ <- fileOps.write(file, str)
+      fileName <- FileName.make[F](buildFileName)
+      _ <- fileOps.write(fileName, str)
     } yield ()
 
   override def show(): F[Chain[Artifact]] =
@@ -66,4 +56,5 @@ class SbtPipeline[F[_]: Sync](
 
   override def findScalaVersion(): F[Option[ScalaVersion]] =
     scalaVersionFinder.findScalaVersion()
+
 }

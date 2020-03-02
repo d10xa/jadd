@@ -10,12 +10,11 @@ import ru.d10xa.jadd.core.types.FsItem
 import ru.d10xa.jadd.fs.FileOps
 
 trait BuildToolLayoutSelector[F[_]] {
-  def select(): F[BuildToolLayout]
+  def select(ctx: Ctx): F[BuildToolLayout]
 }
 
 object BuildToolLayoutSelector {
   def make[F[_]: Sync](
-    ctx: Ctx,
     fileOps: FileOps[F]
   ): BuildToolLayoutSelector[F] =
     new BuildToolLayoutSelector[F] {
@@ -42,7 +41,7 @@ object BuildToolLayoutSelector {
         }
       }
 
-      override def select(): F[BuildToolLayout] =
+      override def select(ctx: Ctx): F[BuildToolLayout] =
         for {
           fileName <- FileName.make[F](ctx.config.projectDir)
           fsItem <- fileOps.read(fileName)

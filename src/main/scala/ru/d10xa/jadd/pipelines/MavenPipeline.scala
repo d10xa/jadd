@@ -4,8 +4,6 @@ import cats.data.Chain
 import cats.effect._
 import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
-import eu.timepit.refined
-import eu.timepit.refined.collection.NonEmpty
 import ru.d10xa.jadd.code.Indent
 import ru.d10xa.jadd.code.Indentation
 import ru.d10xa.jadd.core.Artifact
@@ -35,11 +33,6 @@ class MavenPipeline[F[_]: Sync](
       textFile <- Utils.textFileFromString(fileOps, buildFileName)
       source = textFile
     } yield source
-
-  override def applicable(): F[Boolean] =
-    buildFileSource
-      .map(_ => true)
-      .recover { case _ => false }
 
   def fix(artifacts: List[Artifact]): List[Artifact] =
     artifacts.map(_.inlineScalaVersion)
@@ -74,10 +67,9 @@ class MavenPipeline[F[_]: Sync](
   def install(artifacts: List[Artifact]): F[Unit] =
     for {
       source <- buildFileSource
+      fileName <- FileName.make[F](buildFileName)
       newSource = sourceToNewSource(source.content.value, artifacts)
-      _ <- fileOps.write(
-        FileName(refined.refineMV[NonEmpty]("pom.xml")),
-        newSource)
+      _ <- fileOps.write(fileName, newSource)
     } yield ()
 
   override def show(): F[Chain[Artifact]] =

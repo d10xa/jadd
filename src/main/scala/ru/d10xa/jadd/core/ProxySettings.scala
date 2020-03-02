@@ -19,16 +19,17 @@ final case class ProxySettings(
 
 object ProxySettings {
 
-  val httpProxyHost = "http.proxyHost"
-  val httpsProxyHost = "https.proxyHost"
-  val httpProxyPort = "http.proxyPort"
-  val httpsProxyPort = "https.proxyPort"
-  val httpProxyUser = "http.proxyUser"
-  val httpsProxyUser = "https.proxyUser"
-  val httpProxyPassword = "http.proxyPassword"
-  val httpsProxyPassword = "https.proxyPassword"
-  val tunnelingDisabledSchemes = "jdk.http.auth.tunneling.disabledSchemes"
-  val proxyingDisabledSchemes = "jdk.http.auth.proxying.disabledSchemes"
+  val httpProxyHost: String = "http.proxyHost"
+  val httpsProxyHost: String = "https.proxyHost"
+  val httpProxyPort: String = "http.proxyPort"
+  val httpsProxyPort: String = "https.proxyPort"
+  val httpProxyUser: String = "http.proxyUser"
+  val httpsProxyUser: String = "https.proxyUser"
+  val httpProxyPassword: String = "http.proxyPassword"
+  val httpsProxyPassword: String = "https.proxyPassword"
+  val tunnelingDisabledSchemes: String =
+    "jdk.http.auth.tunneling.disabledSchemes"
+  val proxyingDisabledSchemes: String = "jdk.http.auth.proxying.disabledSchemes"
 
   def fromURI(proxy: URI): ProxySettings = {
 

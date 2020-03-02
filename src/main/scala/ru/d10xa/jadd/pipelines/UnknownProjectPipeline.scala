@@ -16,12 +16,6 @@ class UnknownProjectPipeline[F[_]: Sync](
 ) extends Pipeline[F]
     with StrictLogging {
 
-  /**
-    * used only if project directory is unrecognized
-    */
-  override def applicable(): F[Boolean] =
-    Sync[F].pure(true)
-
   def install(artifacts: List[Artifact]): F[Unit] = {
     val logMsg = Sync[F].delay(
       logger.info(

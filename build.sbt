@@ -62,10 +62,12 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.1.1" % Test,
   "com.github.tomakehurst" % "wiremock" % "2.26.1" % Test
 )
-libraryDependencies += "org.jsoup" % "jsoup" % "1.12.2"
+libraryDependencies += "org.jsoup" % "jsoup" % "1.13.1"
 libraryDependencies += "org.typelevel" %% "cats-effect" % "2.1.2"
 libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.8.0"
 libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.0-RC6-10"
 libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.8"
 libraryDependencies += "io.estatico" %% "newtype" % "0.4.3"
-//libraryDependencies += "eu.timepit" %% "refined" % "0.9.12"
+libraryDependencies += "eu.timepit" %% "refined" % "0.9.12"
+libraryDependencies += "com.github.julien-truffaut" %% "monocle-core" % "2.0.1"
+libraryDependencies += "com.github.julien-truffaut" %% "monocle-macro" % "2.0.1"

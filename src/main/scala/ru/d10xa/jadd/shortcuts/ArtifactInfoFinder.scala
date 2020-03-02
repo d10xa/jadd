@@ -126,5 +126,5 @@ class ArtifactInfoFinder(
 }
 
 object ArtifactInfoFinder {
-  val DEFAULT_ARTIFACT_INFO_BASE_PATH = "classpath:artifacts/"
+  val DEFAULT_ARTIFACT_INFO_BASE_PATH: String = "classpath:artifacts/"
 }

@@ -1,5 +1,6 @@
 package ru.d10xa.jadd.core
 
+import cats.ApplicativeError
 import cats.effect.IO
 import cats.effect.Resource
 import cats.effect.Sync
@@ -7,6 +8,10 @@ import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.core.troubles.ArtifactNotFoundByAlias
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import cats.implicits._
+import ru.d10xa.jadd.core.types.FsItem
+import ru.d10xa.jadd.core.types.MonadThrowable
+import ru.d10xa.jadd.core.types.FsItem.TextFile
+import ru.d10xa.jadd.fs.FileOps
 
 import scala.io.BufferedSource
 import scala.io.Source
@@ -55,4 +60,14 @@ object Utils extends StrictLogging {
           r.mkString
       })
 
+  def textFileFromString[F[_]: MonadThrowable](
+    fileOps: FileOps[F],
+    fileName: String): F[TextFile] =
+    for {
+      fsItem <- FsItem
+        .fromFileNameString(fileName, fileOps)
+      textFile <- ApplicativeError[F, Throwable].fromOption(
+        FsItem.textFilePrism.getOption(fsItem),
+        new IllegalStateException(s"File $fileName does not exist"))
+    } yield textFile
 }

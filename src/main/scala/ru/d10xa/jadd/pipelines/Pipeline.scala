@@ -23,7 +23,6 @@ import ru.d10xa.jadd.core.troubles.handleTroubles
 import ru.d10xa.jadd.versions.ScalaVersions
 
 abstract class Pipeline[F[_]: Sync] extends StrictLogging {
-  def applicable(): F[Boolean]
 
   def invokeCommand(
     ior: IorNel[ArtifactTrouble, List[Artifact]],

@@ -26,7 +26,7 @@ class MavenPipeline[F[_]: Sync](
 ) extends Pipeline[F]
     with StrictLogging {
 
-  val buildFileName = "pom.xml"
+  val buildFileName: String = "pom.xml"
 
   def buildFileSource: F[TextFile] =
     for {

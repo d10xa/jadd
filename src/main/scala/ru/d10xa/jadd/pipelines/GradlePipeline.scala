@@ -23,7 +23,7 @@ class GradlePipeline[F[_]: Sync](
 ) extends Pipeline[F]
     with StrictLogging {
 
-  val buildFileName = "build.gradle"
+  val buildFileName: String = "build.gradle"
 
   def buildFileSource: F[TextFile] =
     for {

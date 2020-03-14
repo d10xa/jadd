@@ -30,7 +30,19 @@ import scala.language.implicitConversions
 object types {
 
   type ApplicativeThrowable[F[_]] = ApplicativeError[F, Throwable]
+  object ApplicativeThrowable {
+    def apply[F[_]](implicit applicativeError: ApplicativeError[F, Throwable])
+      : ApplicativeThrowable[F] =
+      applicativeError
+  }
+
   type MonadThrowable[F[_]] = MonadError[F, Throwable]
+
+  object MonadThrowable {
+    def apply[F[_]](
+      implicit monadThrowable: MonadError[F, Throwable]): MonadThrowable[F] =
+      monadThrowable
+  }
 
   @newtype case class GroupId(value: String) {
     def path: String =

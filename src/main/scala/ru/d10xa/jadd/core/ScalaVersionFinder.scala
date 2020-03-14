@@ -1,10 +1,10 @@
 package ru.d10xa.jadd.core
 
 import cats.Applicative
-import cats.ApplicativeError
 import cats.effect.Sync
 import cats.implicits._
 import ru.d10xa.jadd.core.types.FsItem.TextFile
+import ru.d10xa.jadd.core.types.ApplicativeThrowable
 import ru.d10xa.jadd.core.types.FileContent
 import ru.d10xa.jadd.core.types.FileName
 import ru.d10xa.jadd.core.types.ScalaVersion
@@ -34,7 +34,7 @@ class LiveSbtScalaVersionFinder[F[_]: Sync] private (
               LiveSbtScalaVersionFinder.extractScalaVersionFromBuildSbt(
                 content))
         case _ =>
-          ApplicativeError[F, Throwable]
+          ApplicativeThrowable[F]
             .raiseError[Option[ScalaVersion]](
               new IllegalStateException("can not read build.sbt"))
       }

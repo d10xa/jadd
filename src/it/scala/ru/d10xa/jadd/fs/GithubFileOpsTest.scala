@@ -9,6 +9,7 @@ import ru.d10xa.jadd.core.types.FsItem
 import ru.d10xa.jadd.core.types.FsItem.Dir
 import ru.d10xa.jadd.core.types.FsItem.TextFile
 import ru.d10xa.jadd.fs.testkit.ItTestBase
+import ru.d10xa.jadd.github.GithubFileOps
 
 class GithubFileOpsTest extends ItTestBase {
   import github4s.Github
@@ -17,7 +18,7 @@ class GithubFileOpsTest extends ItTestBase {
   implicit val cs = IO.contextShift(global)
   val github = Github[IO]()
   val ops =
-    new GithubFileOps[IO](github, "d10xa", "jadd")
+    new GithubFileOps[IO](github, "d10xa", "jadd", None)
 
   test("file") {
     val gitignore =

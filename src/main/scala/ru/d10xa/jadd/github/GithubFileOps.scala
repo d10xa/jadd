@@ -1,4 +1,4 @@
-package ru.d10xa.jadd.fs
+package ru.d10xa.jadd.github
 
 import cats.ApplicativeError
 import cats.data.NonEmptyList
@@ -11,16 +11,18 @@ import github4s.GithubResponses.GHResult
 import github4s.GithubResponses.JsonParsingException
 import github4s.domain.Content
 import ru.d10xa.jadd.core.types
-import ru.d10xa.jadd.core.types.FileName
-import ru.d10xa.jadd.core.types.FsItem
 import ru.d10xa.jadd.core.types.FsItem.TextFile
 import ru.d10xa.jadd.core.types.FileContent
+import ru.d10xa.jadd.core.types.FileName
+import ru.d10xa.jadd.core.types.FsItem
 import ru.d10xa.jadd.core.types.MonadThrowable
+import ru.d10xa.jadd.fs.FileOps
 
 class GithubFileOps[F[_]: MonadThrowable](
   github: Github[F],
   owner: String,
-  repo: String)
+  repo: String,
+  ref: Option[String])
     extends FileOps[F] {
 
   def responseToFsItem(r: GHResponse[NonEmptyList[Content]]): F[FsItem] =
@@ -53,7 +55,7 @@ class GithubFileOps[F[_]: MonadThrowable](
 
   override def read(fileName: types.FileName): F[types.FsItem] =
     github.repos
-      .getContents(owner, repo, fileName.value.value)
+      .getContents(owner, repo, fileName.value.value, ref)
       .flatMap(responseToFsItem)
 
   override def write(fileName: types.FileName, value: String): F[Unit] = ???

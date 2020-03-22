@@ -1,8 +1,6 @@
 package ru.d10xa.jadd.fs
 
 import cats.effect.IO
-import eu.timepit.refined
-import eu.timepit.refined.collection.NonEmpty
 import ru.d10xa.jadd.core.types
 import ru.d10xa.jadd.core.types.FileName
 import ru.d10xa.jadd.core.types.FsItem
@@ -23,7 +21,7 @@ class GithubFileOpsTest extends ItTestBase {
   test("file") {
     val gitignore =
       ops
-        .read(FileName(refined.refineMV[NonEmpty](".gitignore")))
+        .read(FileName(".gitignore"))
         .unsafeRunSync()
     gitignore match {
       case TextFile(content) =>
@@ -34,17 +32,17 @@ class GithubFileOpsTest extends ItTestBase {
 
   test("dir") {
     val dir =
-      ops.read(FileName(refined.refineMV[NonEmpty]("src"))).unsafeRunSync()
+      ops.read(FileName("src")).unsafeRunSync()
     dir match {
       case Dir(files) =>
-        (files.map(_.value.value) should contain).allOf("main", "test")
+        (files.map(_.value) should contain).allOf("main", "test")
       case _ => assert(false)
     }
   }
 
   test("empty") {
     val notFound: types.FsItem =
-      ops.read(FileName(refined.refineMV[NonEmpty]("404"))).unsafeRunSync()
+      ops.read(FileName("404")).unsafeRunSync()
     notFound shouldBe FsItem.FileNotFound
   }
 

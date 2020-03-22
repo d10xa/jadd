@@ -21,12 +21,11 @@ class LiveSbtScalaVersionFinder[F[_]: Sync] private (
   fileOps: FileOps[F])
     extends ScalaVersionFinder[F] {
 
-  val buildFileName: String = "build.sbt"
+  val buildFileName: FileName = FileName("build.sbt")
 
   override def findScalaVersion(): F[Option[ScalaVersion]] =
     for {
-      name <- FileName.make[F](buildFileName)
-      fsItem <- fileOps.read(name)
+      fsItem <- fileOps.read(buildFileName)
       optScalaVersion <- fsItem match {
         case TextFile(content) =>
           Applicative[F]

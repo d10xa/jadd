@@ -2,9 +2,8 @@ package ru.d10xa.jadd.github
 
 import cats.ApplicativeError
 import cats.data.NonEmptyList
+import cats.effect.Sync
 import cats.implicits._
-import eu.timepit.refined
-import eu.timepit.refined.collection.NonEmpty
 import github4s.Github
 import github4s.GithubResponses.GHResponse
 import github4s.GithubResponses.GHResult
@@ -17,6 +16,7 @@ import ru.d10xa.jadd.core.types.FileName
 import ru.d10xa.jadd.core.types.FsItem
 import ru.d10xa.jadd.core.types.MonadThrowable
 import ru.d10xa.jadd.fs.FileOps
+import ru.d10xa.jadd.github.GithubUrlParser.GithubUrlParts
 
 class GithubFileOps[F[_]: MonadThrowable](
   github: Github[F],
@@ -48,15 +48,20 @@ class GithubFileOps[F[_]: MonadThrowable](
         val files = nel
           .map(_.name)
           .toList
-          .flatMap(refined.refineV[NonEmpty](_).toOption.toList)
           .map(FileName.apply)
         FsItem.Dir(files)
     }
 
   override def read(fileName: types.FileName): F[types.FsItem] =
     github.repos
-      .getContents(owner, repo, fileName.value.value, ref)
+      .getContents(owner, repo, fileName.value, ref)
       .flatMap(responseToFsItem)
 
   override def write(fileName: types.FileName, value: String): F[Unit] = ???
+}
+
+object GithubFileOps {
+  def make[F[_]: Sync](gh: Github[F], p: GithubUrlParts): F[FileOps[F]] =
+    Sync[F].delay(
+      new GithubFileOps[F](gh, owner = p.owner, repo = p.repo, ref = p.ref))
 }

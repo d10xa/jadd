@@ -8,6 +8,7 @@ import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.core.troubles.ArtifactNotFoundByAlias
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import cats.implicits._
+import ru.d10xa.jadd.core.types.FileName
 import ru.d10xa.jadd.core.types.FsItem
 import ru.d10xa.jadd.core.types.MonadThrowable
 import ru.d10xa.jadd.core.types.FsItem.TextFile
@@ -62,12 +63,11 @@ object Utils extends StrictLogging {
 
   def textFileFromString[F[_]: MonadThrowable](
     fileOps: FileOps[F],
-    fileName: String): F[TextFile] =
+    fileName: FileName): F[TextFile] =
     for {
-      fsItem <- FsItem
-        .fromFileNameString(fileName, fileOps)
+      fsItem <- fileOps.read(fileName)
       textFile <- ApplicativeError[F, Throwable].fromOption(
         FsItem.textFilePrism.getOption(fsItem),
-        new IllegalStateException(s"File $fileName does not exist"))
+        new IllegalStateException(s"File ${fileName.value} does not exist"))
     } yield textFile
 }

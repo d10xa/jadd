@@ -23,7 +23,7 @@ class GradlePipeline[F[_]: Sync](
 ) extends Pipeline[F]
     with StrictLogging {
 
-  val buildFileName: String = "build.gradle"
+  val buildFileName: FileName = FileName("build.gradle")
 
   def buildFileSource: F[TextFile] =
     for {
@@ -34,10 +34,9 @@ class GradlePipeline[F[_]: Sync](
   def install(artifacts: List[Artifact]): F[Unit] =
     for {
       source <- buildFileSource
-      fileName <- FileName.make[F](buildFileName)
       newSource = new GradleFileInserts()
         .appendAll(source.content.value, artifacts)
-      _ <- fileOps.write(fileName, newSource)
+      _ <- fileOps.write(buildFileName, newSource)
     } yield ()
 
   override def show(): F[Chain[Artifact]] =

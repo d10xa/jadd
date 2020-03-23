@@ -38,8 +38,8 @@ class SbtShowCommand[F[_]: Sync](
     (parser _).compose(lexer)
 
   def show(): F[Chain[Artifact]] =
-    FileName
-      .make[F]("build.sbt")
+    FileName("build.sbt")
+      .pure[F]
       .flatMap(fileOps.read)
       .flatMap(TextFile.make[F])
       .map(_.content)
@@ -99,8 +99,8 @@ class SbtShowCommand[F[_]: Sync](
               )
           }
           import ru.d10xa.jadd.code.regex.RegexImplicits._
-          val p: F[FileContent] = FileName
-            .make[F]("project/Dependencies.scala")
+          val p: F[FileContent] = FileName("project/Dependencies.scala")
+            .pure[F]
             .flatMap(
               n =>
                 fileOps

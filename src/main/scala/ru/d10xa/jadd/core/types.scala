@@ -1,7 +1,6 @@
 package ru.d10xa.jadd.core
 
 import cats.ApplicativeError
-import cats.FlatMap
 import cats.MonadError
 import cats.Show
 import coursier.core.Version
@@ -9,11 +8,9 @@ import eu.timepit.refined.api.RefType
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.api.Validate
 import io.estatico.newtype.macros.newtype
-import eu.timepit.refined.types.string.NonEmptyString
 import cats.implicits._
 import monocle.Prism
 import monocle.macros.GenPrism
-import ru.d10xa.jadd.fs.FileOps
 
 import scala.language.implicitConversions
 
@@ -30,7 +27,19 @@ import scala.language.implicitConversions
 object types {
 
   type ApplicativeThrowable[F[_]] = ApplicativeError[F, Throwable]
+  object ApplicativeThrowable {
+    def apply[F[_]](implicit applicativeError: ApplicativeError[F, Throwable])
+      : ApplicativeThrowable[F] =
+      applicativeError
+  }
+
   type MonadThrowable[F[_]] = MonadError[F, Throwable]
+
+  object MonadThrowable {
+    def apply[F[_]](
+      implicit monadThrowable: MonadError[F, Throwable]): MonadThrowable[F] =
+      monadThrowable
+  }
 
   @newtype case class GroupId(value: String) {
     def path: String =
@@ -76,22 +85,9 @@ object types {
     val textFilePrism: Prism[FsItem, TextFile] =
       GenPrism[FsItem, TextFile]
 
-    def fromFileNameString[F[_]: ApplicativeThrowable: FlatMap](
-      fileName: String,
-      fileOps: FileOps[F]): F[FsItem] =
-      FileName
-        .make[F](fileName)
-        .flatMap(fileName => fileOps.read(fileName))
   }
 
-  @newtype case class FileName(value: NonEmptyString)
-
-  object FileName {
-    import eu.timepit.refined.collection._
-    def make[F[_]: ApplicativeThrowable](name: String): F[FileName] =
-      refineF[F, NonEmpty, String](name)
-        .map(FileName(_))
-  }
+  @newtype case class FileName(value: String)
 
   @newtype case class FileCache(value: Map[FileName, FsItem])
 

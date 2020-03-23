@@ -20,7 +20,7 @@ object BuildToolLayoutSelector {
     new BuildToolLayoutSelector[F] {
 
       private def fromFileName(n: FileName): Option[BuildToolLayout] =
-        if (n.value.value.endsWith(".sc")) {
+        if (n.value.endsWith(".sc")) {
           Ammonite.some
         } else {
           none[BuildToolLayout]
@@ -43,7 +43,7 @@ object BuildToolLayoutSelector {
 
       override def select(ctx: Ctx): F[BuildToolLayout] =
         for {
-          fileName <- FileName.make[F](ctx.config.projectDir)
+          fileName <- FileName(ctx.projectPath).pure[F]
           fsItem <- fileOps.read(fileName)
           layout = fsItem match {
             case FsItem.TextFile(_) =>

@@ -24,7 +24,7 @@ class SbtPipeline[F[_]: Sync](
     extends Pipeline[F]
     with StrictLogging {
 
-  val buildFileName: String = "build.sbt"
+  val buildFileName: FileName = FileName("build.sbt")
 
   def buildFileSource: F[TextFile] =
     for {
@@ -41,10 +41,7 @@ class SbtPipeline[F[_]: Sync](
     } yield ()
 
   def fileUpdate(str: String): F[Unit] =
-    for {
-      fileName <- FileName.make[F](buildFileName)
-      _ <- fileOps.write(fileName, str)
-    } yield ()
+    fileOps.write(buildFileName, str)
 
   override def show(): F[Chain[Artifact]] =
     for {

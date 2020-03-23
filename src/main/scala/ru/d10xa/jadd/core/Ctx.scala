@@ -5,8 +5,10 @@ import ru.d10xa.jadd.cli.Config
 
 final case class Ctx(
   config: Config,
-  meta: ProjectMeta = ProjectMeta(scalaVersion = None)
-)
+  meta: ProjectMeta = ProjectMeta()
+) {
+  def projectPath: String = meta.path.getOrElse(config.projectDir)
+}
 
 object Ctx {
   lazy val version: String =

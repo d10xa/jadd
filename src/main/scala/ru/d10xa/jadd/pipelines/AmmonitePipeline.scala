@@ -20,7 +20,7 @@ class AmmonitePipeline[F[_]: Sync](
 ) extends Pipeline[F]
     with StrictLogging {
 
-  val buildFileName: String = ctx.config.projectDir
+  val buildFileName: FileName = FileName(ctx.projectPath)
 
   val buildFileF: F[TextFile] =
     Utils.textFileFromString(fileOps, buildFileName)
@@ -37,8 +37,7 @@ class AmmonitePipeline[F[_]: Sync](
         AmmoniteFormatShowPrinter.mkString(artifacts))
       source <- buildFileSource
       newSource = List(newDependencies, source.content.value).mkString("\n")
-      fileName <- FileName.make[F](buildFileName)
-      _ <- fileOps.write(fileName, newSource)
+      _ <- fileOps.write(buildFileName, newSource)
     } yield ()
 
   // TODO implement

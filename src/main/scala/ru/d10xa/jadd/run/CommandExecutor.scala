@@ -7,7 +7,6 @@ import ru.d10xa.jadd.buildtools.BuildToolLayout
 import ru.d10xa.jadd.buildtools.BuildToolLayoutSelector
 import ru.d10xa.jadd.cli.Command.Help
 import ru.d10xa.jadd.cli.Command.Repl
-import ru.d10xa.jadd.cli.Config
 import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.core.LiveSbtScalaVersionFinder
 import ru.d10xa.jadd.core.Loader
@@ -20,7 +19,7 @@ import ru.d10xa.jadd.shortcuts.RepositoryShortcutsImpl
 
 trait CommandExecutor[F[_]] {
   def execute(
-    config: Config,
+    ctx: Ctx,
     loader: Loader[F],
     fileOps: FileOps[F],
     showUsage: () => Unit): F[Unit]
@@ -31,24 +30,24 @@ class LiveCommandExecutor[F[_]: Sync] private (
     extends CommandExecutor[F] {
 
   override def execute(
-    config: Config,
+    ctx: Ctx,
     loader: Loader[F],
     fileOps: FileOps[F],
     showUsage: () => Unit): F[Unit] =
-    config match {
+    ctx.config match {
       case c if c.command == Repl =>
         Applicative[F].unit // already in repl
       case c if c.command == Help =>
         Sync[F].delay(showUsage())
-      case c =>
+      case _ =>
         val repositoryShortcuts = RepositoryShortcutsImpl
         val artifactInfoFinder: ArtifactInfoFinder =
           new ArtifactInfoFinder(
             artifactShortcuts = new ArtifactShortcuts(
-              Utils.sourceFromSpringUri(config.shortcutsUri)),
+              Utils.sourceFromSpringUri(ctx.config.shortcutsUri)),
             repositoryShortcuts = repositoryShortcuts
           )
-        executePipelines(Ctx(c), loader, fileOps, artifactInfoFinder)
+        executePipelines(ctx, loader, fileOps, artifactInfoFinder)
     }
 
   private def executePipelines(

@@ -18,8 +18,7 @@ class UnknownProjectPipeline[F[_]: Sync](
 
   def install(artifacts: List[Artifact]): F[Unit] = {
     val logMsg = Sync[F].delay(
-      logger.info(
-        s"build tool not recognized in directory ${ctx.config.projectDir}"))
+      logger.info(s"build tool not recognized in directory ${ctx.projectPath}"))
 
     def stringsToPrint: List[String] =
       artifacts

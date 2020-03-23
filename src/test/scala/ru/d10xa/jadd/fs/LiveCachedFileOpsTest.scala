@@ -2,8 +2,6 @@ package ru.d10xa.jadd.fs
 
 import cats.effect.SyncIO
 import cats.effect.concurrent.Ref
-import eu.timepit.refined.collection.NonEmpty
-import eu.timepit.refined.refineMV
 import ru.d10xa.jadd.core.types
 import ru.d10xa.jadd.core.types.FileCache
 import ru.d10xa.jadd.core.types.FileContent
@@ -28,9 +26,9 @@ class LiveCachedFileOpsTest extends TestBase {
         },
         cache
       )
-      fn1 = FileName(refineMV[NonEmpty]("a"))
-      fn2 = FileName(refineMV[NonEmpty]("b"))
-      fn3 = FileName(refineMV[NonEmpty]("c"))
+      fn1 = FileName("a")
+      fn2 = FileName("b")
+      fn3 = FileName("c")
       _ <- fileOpsMock.read(fn1)
       _ <- readCounter.get.map((c: Int) => assert(c == 1))
       _ <- fileOpsMock.read(fn1)

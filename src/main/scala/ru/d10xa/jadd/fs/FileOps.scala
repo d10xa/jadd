@@ -7,9 +7,6 @@ import java.nio.file.Path
 import cats.effect.Sync
 import cats.effect.concurrent.Ref
 import cats.implicits._
-import eu.timepit.refined.collection._
-import eu.timepit.refined._
-import eu.timepit.refined.types.string.NonEmptyString
 import ru.d10xa.jadd.core.types.FileCache
 import ru.d10xa.jadd.core.types.FileContent
 import ru.d10xa.jadd.core.types.FileName
@@ -24,7 +21,7 @@ trait FileOps[F[_]] {
 class LiveFileOps[F[_]: Sync] private (path: Path) extends FileOps[F] {
   override def read(fileName: FileName): F[FsItem] =
     for {
-      file <- Sync[F].delay(better.files.File(path, fileName.value.value))
+      file <- Sync[F].delay(better.files.File(path.resolve(fileName.value)))
       isFile <- Sync[F].delay(file.isRegularFile)
       isDirectory <- Sync[F].delay(file.isDirectory)
       fsItem <- if (isFile) {
@@ -36,14 +33,10 @@ class LiveFileOps[F[_]: Sync] private (path: Path) extends FileOps[F] {
           .widen[FsItem]
       } else if (isDirectory) {
         Sync[F]
-          .fromEither {
-            val e: Either[Throwable, List[NonEmptyString]] =
-              file.list
-                .map(_.name)
-                .toList
-                .traverse(
-                  refineV[NonEmpty](_).leftMap(new IllegalArgumentException(_)))
-            e
+          .delay {
+            file.list
+              .map(_.name)
+              .toList
           }
           .map(list => FsItem.Dir(list.map(s => FileName(s))))
           .widen[FsItem]
@@ -53,7 +46,7 @@ class LiveFileOps[F[_]: Sync] private (path: Path) extends FileOps[F] {
   override def write(fileName: FileName, value: String): F[Unit] =
     Sync[F].delay(
       better.files
-        .File(path.resolve(fileName.value.value))
+        .File(path.resolve(fileName.value))
         .createFileIfNotExists(createParents = true)
         .write(value))
 }

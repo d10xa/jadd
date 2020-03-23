@@ -7,6 +7,7 @@ import cats.effect.Sync
 import cats.effect.concurrent.Ref
 import com.typesafe.scalalogging.StrictLogging
 import cats.implicits._
+import github4s.Github
 import ru.d10xa.jadd.buildtools.BuildToolLayoutSelector
 import ru.d10xa.jadd.cli.Command.Repl
 import ru.d10xa.jadd.cli.Cli
@@ -14,11 +15,14 @@ import ru.d10xa.jadd.cli.Config
 import ru.d10xa.jadd.core.types.FileCache
 import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.core.LiveLoader
+import ru.d10xa.jadd.core.ProjectMeta
 import ru.d10xa.jadd.core.ProxySettings
 import ru.d10xa.jadd.core.Utils
 import ru.d10xa.jadd.fs.FileOps
 import ru.d10xa.jadd.fs.LiveCachedFileOps
 import ru.d10xa.jadd.fs.LiveFileOps
+import ru.d10xa.jadd.github.GithubFileOps
+import ru.d10xa.jadd.github.GithubUrlParser
 import ru.d10xa.jadd.repl.ReplCommand
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
@@ -27,7 +31,9 @@ import ru.d10xa.jadd.log.LoggingUtil
 
 class JaddRunner[F[_]: Sync](
   cli: Cli,
-  loggingUtil: LoggingUtil
+  loggingUtil: LoggingUtil,
+  github: Github[F],
+  githubUrlParser: GithubUrlParser[F]
 ) {
 
   private def readAndEvalConfig(args: Vector[String]): Config = {
@@ -48,41 +54,56 @@ class JaddRunner[F[_]: Sync](
     }
   }
 
-  private def runOnceForRepl(runParams: RunParams[F]): F[Unit] = {
-    val config: Config = readAndEvalConfig(runParams.args)
-    val ctx = Ctx(config)
+  private def runParamsToCtx(runParams: RunParams[F]): F[Ctx] = {
+    val eval: F[Config] =
+      Sync[F]
+        .delay(readAndEvalConfig(runParams.args))
+    eval.flatMap { config =>
+      if (config.projectDir.startsWith("https://github.com")) {
+        githubUrlParser.parse(config.projectDir).map { urlParts =>
+          Ctx(
+            config,
+            ProjectMeta(
+              path = urlParts.file.orElse("".some),
+              githubUrlParts = urlParts.some))
+        }
+      } else {
+        Ctx(
+          config,
+          ProjectMeta(path = config.projectDir.some)
+        ).pure[F]
+      }
+    }
+  }
+
+  private def runOnce(runParams: RunParams[F]): F[Unit] =
     for {
-      fileOps <- paramsToFileOps(runParams)
-      layoutSelector = BuildToolLayoutSelector.make[F](fileOps)
-      commandExecutor = LiveCommandExecutor.make[F](layoutSelector)
+      ctx <- runParamsToCtx(runParams)
+      fileOps <- ctxToFileOps(ctx)
+      layoutSelector <- BuildToolLayoutSelector.make[F](fileOps).pure[F]
+      commandExecutor <- LiveCommandExecutor.make[F](layoutSelector).pure[F]
       _ <- JaddRunner.runOnce[F](ctx, fileOps, commandExecutor)
     } yield ()
-  }
 
-  def paramsToFileOps(runParams: RunParams[F]): F[FileOps[F]] = {
-    val config: Config = readAndEvalConfig(runParams.args)
-    val ctx = Ctx(config)
+  def ctxToFileOps(ctx: Ctx): F[FileOps[F]] =
     for {
       cacheRef <- Ref.of[F, FileCache](FileCache.empty)
-      ops <- LiveFileOps.make(Paths.get(ctx.config.projectDir))
+      ops <- ctx.meta.githubUrlParts match {
+        case Some(parts) => GithubFileOps.make[F](github, parts)
+        case None => LiveFileOps.make(Paths.get(ctx.projectPath))
+      }
       cachedOps <- LiveCachedFileOps.make(ops, cacheRef)
     } yield cachedOps
-  }
 
-  def run(runParams: RunParams[F]): F[Unit] = {
-    val config: Config = readAndEvalConfig(runParams.args)
-    val ctx = Ctx(config)
+  def run(runParams: RunParams[F]): F[Unit] =
     for {
-      fileOps <- paramsToFileOps(runParams)
-      layoutSelector = BuildToolLayoutSelector.make[F](fileOps)
-      commandExecutor = LiveCommandExecutor.make[F](layoutSelector)
-      _ <- if (config.command == Repl) {
-        new ReplCommand[F]().runRepl(runParams, runOnceForRepl)
+      ctx <- runParamsToCtx(runParams)
+      _ <- if (ctx.config.command == Repl) {
+        new ReplCommand[F]().runRepl(runParams, runOnce)
       } else {
-        JaddRunner.runOnce[F](ctx, fileOps, commandExecutor)
+        runOnce(runParams)
       }
     } yield ()
-  }
 
 }
 
@@ -100,7 +121,7 @@ object JaddRunner extends StrictLogging {
       )
     val loader = LiveLoader.make(artifactInfoFinder, repositoryShortcuts)
     commandExecutor.execute(
-      ctx.config,
+      ctx,
       loader,
       fileOps,
       () => logger.info(ctx.config.usage))

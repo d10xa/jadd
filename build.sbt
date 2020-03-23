@@ -7,7 +7,9 @@ mainClass in Compile := Some("ru.d10xa.jadd.Jadd")
 
 lazy val root = project
   .in(file("."))
+  .configs(IntegrationTest)
   .settings(
+    Defaults.itSettings,
     scalacOptions := Seq(
       "-encoding",
       "UTF-8", // source files are in UTF-8
@@ -51,7 +53,7 @@ wartremoverErrors in (Compile, compile) ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "org.scala-lang.modules" %% "scala-xml" % "1.2.0",
+  "org.scala-lang.modules" %% "scala-xml" % "1.3.0",
   "com.github.scopt" %% "scopt" % "3.7.1",
   "ch.qos.logback" % "logback-classic" % "1.2.3",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
@@ -59,15 +61,17 @@ libraryDependencies ++= Seq(
   "org.jline" % "jline" % "3.14.0",
   "com.lihaoyi" %% "ujson" % "1.0.0",
   "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.6",
-  "org.scalatest" %% "scalatest" % "3.1.1" % Test,
-  "com.github.tomakehurst" % "wiremock" % "2.26.2" % Test
+  "org.scalatest" %% "scalatest" % "3.1.1" % "it,test",
+  "com.github.tomakehurst" % "wiremock" % "2.26.3" % "it,test"
 )
 libraryDependencies += "org.jsoup" % "jsoup" % "1.13.1"
 libraryDependencies += "org.typelevel" %% "cats-effect" % "2.1.2"
 libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.8.0"
-libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.0-RC6-10"
+libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.0-RC6-11"
 libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.8"
 libraryDependencies += "io.estatico" %% "newtype" % "0.4.3"
 libraryDependencies += "eu.timepit" %% "refined" % "0.9.13"
-libraryDependencies += "com.github.julien-truffaut" %% "monocle-core" % "2.0.4"
-libraryDependencies += "com.github.julien-truffaut" %% "monocle-macro" % "2.0.4"
+libraryDependencies += "com.github.julien-truffaut" %% "monocle-core" % "2.0.1"
+libraryDependencies += "com.github.julien-truffaut" %% "monocle-macro" % "2.0.1"
+libraryDependencies += "com.47deg" %% "github4s" % "0.22.0"
+libraryDependencies += "io.lemonlabs" %% "scala-uri" % "2.1.0"

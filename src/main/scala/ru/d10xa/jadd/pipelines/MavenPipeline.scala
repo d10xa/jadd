@@ -26,7 +26,7 @@ class MavenPipeline[F[_]: Sync](
 ) extends Pipeline[F]
     with StrictLogging {
 
-  val buildFileName = "pom.xml"
+  val buildFileName: FileName = FileName("pom.xml")
 
   def buildFileSource: F[TextFile] =
     for {
@@ -67,9 +67,8 @@ class MavenPipeline[F[_]: Sync](
   def install(artifacts: List[Artifact]): F[Unit] =
     for {
       source <- buildFileSource
-      fileName <- FileName.make[F](buildFileName)
       newSource = sourceToNewSource(source.content.value, artifacts)
-      _ <- fileOps.write(fileName, newSource)
+      _ <- fileOps.write(buildFileName, newSource)
     } yield ()
 
   override def show(): F[Chain[Artifact]] =

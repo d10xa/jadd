@@ -6,8 +6,6 @@ import cats.effect.Sync
 import cats.implicits._
 import github4s.Github
 import github4s.GithubResponses.GHResponse
-import github4s.GithubResponses.GHResult
-import github4s.GithubResponses.JsonParsingException
 import github4s.domain.Content
 import ru.d10xa.jadd.core.types
 import ru.d10xa.jadd.core.types.FsItem.TextFile
@@ -27,17 +25,15 @@ class GithubFileOps[F[_]: MonadThrowable](
 
   def responseToFsItem(r: GHResponse[NonEmptyList[Content]]): F[FsItem] =
     r match {
-      case Right(value) =>
-        resultToFsItem(value).pure[F]
-      case Left(JsonParsingException(msg, _))
-          if msg.contains("\"message\" : \"Not Found\"") =>
-        FsItem.FileNotFound.pure[F].widen[FsItem]
-      case Left(gHException) =>
-        ApplicativeError[F, Throwable].raiseError(gHException)
+      case GHResponse(_, 404, _) => FsItem.FileNotFound.pure[F].widen[FsItem]
+      case GHResponse(Right(result), _, _) =>
+        resultToFsItem(result).pure[F]
+      case GHResponse(Left(e), _, _) =>
+        ApplicativeError[F, Throwable].raiseError(e)
     }
 
-  def resultToFsItem(r: GHResult[NonEmptyList[Content]]): FsItem =
-    r.result match {
+  def resultToFsItem(r: NonEmptyList[Content]): FsItem =
+    r match {
       case NonEmptyList(head, Nil) if head.`type` == "file" =>
         TextFile(
           FileContent(

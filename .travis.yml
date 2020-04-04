@@ -10,6 +10,7 @@ cache:
   directories:
   - "$HOME/.ivy2/cache"
   - "$HOME/.sbt"
+  - "$HOME/.cache/coursier/v1"
 before_deploy:
   - sbt universal:packageBin
   - export RELEASE_FILE=$(ls target/universal/jadd-*.zip)

@@ -15,7 +15,7 @@ publishTo := sonatypePublishTo.value
 pgpPublicRing := file("ci/pubring.asc")
 pgpSecretRing := file("ci/secring.asc")
 pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toArray)
-usePgpKeyHex("18B691724F2AA4F390507EE2C0B0B4C98DABB925")
+pgpSigningKey := Some("18B691724F2AA4F390507EE2C0B0B4C98DABB925")
 
 lazy val root = project
   .in(file("."))

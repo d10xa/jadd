@@ -2,8 +2,19 @@ name := "jadd"
 organization in ThisBuild := "ru.d10xa"
 
 scalaVersion in ThisBuild := "2.13.1"
-version in ThisBuild := IO.read(file("VERSION")).trim
 mainClass in Compile := Some("ru.d10xa.jadd.Jadd")
+licenses := Seq(("MIT", url("https://opensource.org/licenses/MIT")))
+description := "Command-line tool for adding dependencies to gradle/maven/sbt build files"
+
+import xerial.sbt.Sonatype._
+sonatypeProjectHosting := Some(
+  GitHubHosting("d10xa", "jadd", "Andrey Stolyarov", "d10xa@mail.ru"))
+
+publishTo := sonatypePublishTo.value
+
+pgpPublicRing := file("ci/pubring.asc")
+pgpSecretRing := file("ci/secring.asc")
+pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toArray)
 
 lazy val root = project
   .in(file("."))
@@ -25,7 +36,8 @@ lazy val root = project
 
 enablePlugins(JavaAppPackaging)
 
-addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full)
+addCompilerPlugin(
+  ("org.typelevel" %% "kind-projector" % "0.11.0").cross(CrossVersion.full))
 
 //wartremoverErrors ++= Warts.unsafe
 wartremoverErrors in (Compile, compile) ++= Seq(

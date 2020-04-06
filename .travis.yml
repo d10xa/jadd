@@ -1,27 +1,27 @@
 language: scala
 scala:
-  - 2.13.1
-script: sbt clean coverage test
-after_success: sbt coverageReport coveralls
+- 2.13.1
 before_cache:
-  - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
-  - find $HOME/.sbt        -name "*.lock"               -print -delete
+- find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
+- find $HOME/.sbt        -name "*.lock"               -print -delete
 cache:
   directories:
   - "$HOME/.ivy2/cache"
   - "$HOME/.sbt"
   - "$HOME/.cache/coursier/v1"
-before_deploy:
-  - sbt universal:packageBin
-  - export RELEASE_FILE=$(ls target/universal/jadd-*.zip)
-deploy:
-  provider: releases
-  api_key:
-    secure: hU6sFfkZMRkhx05txd0PTRu7tamZFN5gU+n7eeyjHBP/HMXxDXwYW3azef/4ZehTUes8juILAffiGiNvJCLQ17zP+TQHrTB76+EwKNf9t00GCzm3gns77OGDGGEzcOg+CcAqiDiQphCMP0FBubltMlqXe9KOiMhY2xubTq+w5ZB0aSVeFEswRSEqgpl6wWO2pDfYxe1wtpqsnFAj1tOhTNRWXB/ceqBHdOrspCGKPn1wpXIzp+VQ1UbDLE/6mBd1HsJR7bNhRW7IlBc3dh9S7WHTsqd4QmzhAbCbdGB2bikBxgB0n19lb6cpRLNBgRn2+wTtJFcz/8zBPlsF6PCNPXCurgO3bwHzg8h5VJNQ4sppemOLFvud1Fv3oeeph5bQBW3ypxy1uj6zDbTdNYC9l/D0HSb0+P0LFDX/+l5PFWxvxSW0GdACF+NNrRFXZNQiz3K1QWw7+/GdZUmiUnK1v9lVFsAP9IwxpMvJcL5Sccvg3qd2oJ5Uby9YfpXU9DzJJtC3lYvrdxDttdFsvWLvpWfukORWlBUzEvtnOVJEL2eyR5hmRVbhgXLX390TfqG3Vb4eLZLRojngSYGyiXoTTXMSsVA/oult0mbXfY9WXiTWSRY0AL31COo1NEOyIHJ9LPvpw7Wb8CnOYJ4NJOuTc/QENJWie2j0V9DldKOv5gY=
-  file: "${RELEASE_FILE}"
-  skip_cleanup: true
-  on:
-    tags: true
+jobs:
+  include:
+    - stage: test
+      script: sbt coverage test
+      after_success: sbt coverageReport coveralls
+    - stage: deploy
+      if: tag =~ ^v
+      script: sbt publishSigned sonatypeRelease
 env:
   global:
-    secure: gd1J91mkBKqRfc9+L9qRF2sJkwJ5ogQb+VcEIx33FgraJvP5mtbx+H1gOy829wusJBeMacl9YjPIpojoGIzqUvtsI+U2fTs/gnQH4PZ/TD6CPN6E/eV1Z9pDKrYQsSJ8N1px6OO1RUcha5tHOSBUvYCEnXOMenOL5BgbURNQNrxv5GTlolPvH0yHVjMm2DZD7DYXMLu0zND6nyLHGv5vwEFosufMNujzV+/gkGfHXj/yGke4HXv1GzzpecEm+OjBR+V7DdzA7/Yx0DqDaeBv4TU0P62zlTcUzkvDfdDb7VeIbGYT3FNxZDSAE7CdZk5/9idblvUcSjI15TfXDWXpaURYJfizXz7yaBXJn4/UaUtPeM3QJUyNRgmIlxTKpwo8wWzwiMFv0Ww9cEzKScG6XRkXEZWGPOWcOnGQd6Zx9PJq1B4h3ek99+B4grfWdWOLxr8wCg09o4/LjoADaj0yOPETyylAjXtK+pXqJCfhb3CveevW2WcqGPBhcuHC8tn/bE7FJDSxjF1T+YhMX4ZLXA72R5zlP2ooiQkUokZk0RHXyLn+1UqeTESIpyiI7IoRnGc/43S7vQwMDSRRtl4WW19PrCXscPuaer6HX9SrC/zccUIc61kkOaiM+ILepH4zACGcunnvIX/DNJ9n7xRX/hbaDNltJf3wtyskEla3WxM=
+  - secure: LwJhD5Urb7Quz49fOIy4yJPUNH6asmvXQs5HYtA1LmfUh92MiiALHBEGQc75PhVWGSfG0llS0pzY+W4VaLX83bGCOz4PgQ+3XlTZ1a0+ebGuagDzK6vtn07QNOpBay8aVagnyB9PzI5Nt9jGQkBm5yr+GlsT55IzbVglqezDS/W2MfnrviFBpxD7Eq2DcsNGaXqCJ+JcXeAi1zwxoJw+OmDsmeapnv1hegQMx94qsStxTwYHpsMmXKPSsjIxYLR+1rZVNqETKdE7Ikubx0Au4oMfSnPhyPdkyFa27AgmirMfxLBtKBE+/uS7odYY57l5pivkU6jhBLRACEZpJFSojF0dnC/eq9OfYwKc9tPXOQxgUb2DEiO3dSvyul1nhYdsgEx+KMBew8Llw2oSbglRlvb+4YC5goE1CCZbyikIX1xJMvCKt3CtL9HiBLDMOAcvDPB+XMvQ5t1bEPHuJM/uS73PLtaUsXyOFyDu+Q/1IH5ckMy4l0HdfDrtTBDdcXzOP01Z+XCMW90OFE9PaW/f2yDHBIkCng/AsuYiGV73VBQeOjQ2bw80Au2U4INSOtVbP81VG0nDJ72Eo5utEb5vW40lZer1UWpb7BoMHEm+hGpMdNzXEwvfzFfzR1qPGEA7P/ts6RKKWYYaJThp1F8GJAwk8N9TVW2zrHz/1ReFHcU=
+  - secure: a1ET5y0hb0JtXVYksPqsckH4H2xVK7+sC1z4HG+P1o4XDPJ1df5oxy3gtOXA5VJir/D4bo2UyPkDlDxDqEwEMOZdAb4l009fDxghDXLOJxYsPXBrgXmK6WGijKumE2NZAsYub/BRvdsmnCs9MjknCHQZh12XUrIUcVkg4kE0y/5t0sCOLmMiaXn7TBVoL6O7DhCJQtnu10/p5b2zimEdJ8eSSlQD4sJzURsujVFT4V3T8R1UuFcoXRi+mJNDK7L6rHkanb5XMT4NktuD+kSZ+ZwAPNh72YPg6jV0AnOpxN0lRAAg3BBBwaTiZ2hYpEQrkSzwO6of0pVd31PA8KOmFb7yVp3RxlHsUoX3dfGcwbbc/3hgg4/8Q2Mu+ihsPmW0ojcSTGYeIciqSbAN/EppGpAkpipGgA/EFUmvR4W4xbKBLaOJCGQtjSHFoEu68j4aHmFJMNweBrb77GjohX5fwKOZUg9FjaWLOooQaoaztJk4cf1j62yhD5g6scoWoMeIEdD5lEfv7musmbr6cmoGQ88gxIwT4NMzwygrOz578L1VFDXEv2/02t9GRAyUYN2I6FYtqPW4tqeM0bEpAvBvmd8n2i19O6kQyCt3iHuFR3vOyxQKVWZLphAY/W9uy4fORL8VSwZqry3OTj94Oj0oCg5ubzltHdBT42d4gmSH0kk=
+  - secure: jm1i5dXTE6LWNMBXOz61h5MpyC97umpyy+5EYZY6dSaP4EZx58/jggN6DcvW20diCMlQ/LdyQwUp47YkeYqLuuhRLN1+oItGwZ61Lfi/NUXaeYYipVcEBhrQelcFi3qxAFqmJOheBON3F6j0eE3wVgvLWeMfhtvzmAZnQMN3C6nRWiZObvfLm5cCcT7jHaGl9pTbiq6+8mtckJ7+9bPCH1PF4jT93NQLh/+/Ur35gmoT/Nc2oZJsZYYBKFxWIsbrdYsutOgpf0s4XhkkQM56jgRSXwZSLgaibzv1cycWCO0qPkW97uptytuLFVnCPuNMM2YbVZhp+2q+j/k70vhyPQft/nPOKaBfHPbZi68Z/ymm3EIAYQEsPPjoin/hS2G3uVdoPH2t5660mgdNe6GmvMcg2fw5pgG+ATmUcMy8WV8RtCNMBKMyQJPpYSR34ZvjWd260umZC47nUBYTUtUEQdy0uJWG4HDQqGhh7T+6n4JosO0dGcKHyN/uhEYh7NH4LsPux+Xv4R3Ayo69BOR35DnLGS/Cy2xhefD6y8HhtHwYRfJPm7ajR+0JUYUiORotJaBVuIICte9aNjwElii0aHOyRUoQ3JTNvdcRA9jcW7g9WQgp9jL6v8Oy5msibLASb9ckAl0NYth2BLudhvwyBsKkxlFBtF0vVZywES0PvWg=
+before_install:
+- openssl aes-256-cbc -K $encrypted_e60dfa0a2678_key -iv $encrypted_e60dfa0a2678_iv
+  -in ci/secring.asc.enc -out ci/secring.asc -d

@@ -31,15 +31,7 @@ Just run `jadd` without arguments and enjoy tab completion!
 
 ## installation
 
-    curl -s https://raw.githubusercontent.com/d10xa/jadd/master/install.sh | bash
-
-And then add following to `~/.profile` or `~/.bashrc` or `~/.zshrc`
-
-    export PATH=$PATH:$HOME/.jadd/bin
-
-## update
-
-just run installation script
+    TODO
 
 ## examples
 

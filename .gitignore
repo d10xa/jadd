@@ -13,3 +13,4 @@ zip/
 .bloop
 .metals
 .java-version
+ci/secring.asc

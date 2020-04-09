@@ -18,14 +18,12 @@ jobs:
       if: tag =~ ^v
       before_script:
         - openssl aes-256-cbc -K $encrypted_e60dfa0a2678_key -iv $encrypted_e60dfa0a2678_iv
-          -in ci/secring.asc.enc -out ci/secring.asc -d
+          -in ci/secring.asc.enc -d | gpg --batch --import
         - gpg --import ci/pubring.asc
-        - gpg --import ci/secring.asc
       script: sbt publishSigned sonatypeRelease
-      after_script:
-        - rm ci/secring.asc
-        - gpg --delete-secret-keys 18B691724F2AA4F390507EE2C0B0B4C98DABB925 --yes
-        - gpg --delete-keys 18B691724F2AA4F390507EE2C0B0B4C98DABB925 --yes
+      before_cache:
+        - gpg --batch --yes --delete-secret-keys $GPG_KEYID
+        - gpg --batch --yes --delete-keys $GPG_KEYID
 env:
   global:
   - secure: LwJhD5Urb7Quz49fOIy4yJPUNH6asmvXQs5HYtA1LmfUh92MiiALHBEGQc75PhVWGSfG0llS0pzY+W4VaLX83bGCOz4PgQ+3XlTZ1a0+ebGuagDzK6vtn07QNOpBay8aVagnyB9PzI5Nt9jGQkBm5yr+GlsT55IzbVglqezDS/W2MfnrviFBpxD7Eq2DcsNGaXqCJ+JcXeAi1zwxoJw+OmDsmeapnv1hegQMx94qsStxTwYHpsMmXKPSsjIxYLR+1rZVNqETKdE7Ikubx0Au4oMfSnPhyPdkyFa27AgmirMfxLBtKBE+/uS7odYY57l5pivkU6jhBLRACEZpJFSojF0dnC/eq9OfYwKc9tPXOQxgUb2DEiO3dSvyul1nhYdsgEx+KMBew8Llw2oSbglRlvb+4YC5goE1CCZbyikIX1xJMvCKt3CtL9HiBLDMOAcvDPB+XMvQ5t1bEPHuJM/uS73PLtaUsXyOFyDu+Q/1IH5ckMy4l0HdfDrtTBDdcXzOP01Z+XCMW90OFE9PaW/f2yDHBIkCng/AsuYiGV73VBQeOjQ2bw80Au2U4INSOtVbP81VG0nDJ72Eo5utEb5vW40lZer1UWpb7BoMHEm+hGpMdNzXEwvfzFfzR1qPGEA7P/ts6RKKWYYaJThp1F8GJAwk8N9TVW2zrHz/1ReFHcU=

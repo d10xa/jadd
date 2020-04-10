@@ -14,7 +14,7 @@ class UnshortRepositoryTest extends TestBase {
   }
 
   test("unshort mavenCentral") {
-    unshortRepository("mavenCentral") shouldEqual "http://central.maven.org/maven2"
+    unshortRepository("mavenCentral") shouldEqual "https://repo1.maven.org/maven2"
   }
 
   test("unshort jcenter") {

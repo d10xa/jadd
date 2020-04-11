@@ -13,7 +13,7 @@ sonatypeProjectHosting := Some(
 publishTo := sonatypePublishTo.value
 
 pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toArray)
-pgpSigningKey := Some("18B691724F2AA4F390507EE2C0B0B4C98DABB925")
+pgpSigningKey := sys.env.get("GPG_KEYID")
 
 lazy val root = project
   .in(file("."))

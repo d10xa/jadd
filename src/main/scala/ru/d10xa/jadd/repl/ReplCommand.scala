@@ -1,13 +1,13 @@
 package ru.d10xa.jadd.repl
 
+import cats.Applicative
 import cats.effect.Sync
+import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
 import org.jline.reader._
 import org.jline.terminal.Terminal
 import org.jline.terminal.TerminalBuilder
 import ru.d10xa.jadd.run.RunParams
-
-import scala.util.Try
 
 class ReplCommand[F[_]: Sync] extends StrictLogging {
 
@@ -44,26 +44,27 @@ class ReplCommand[F[_]: Sync] extends StrictLogging {
     logger.info("Welcome to jadd REPL!")
     val replContext = new ReplContext
 
-    Sync[F].delay {
-      // TODO refactoring
-      var running = true
-      while (running) {
-        val line: String = readReplString(replContext)
-        running = needContinue(line)
-        if (running) {
-          action(runParams.copy(args = line.split(" ").toVector))
+    def loop(): F[Unit] =
+      readReplString(replContext)
+        .flatMap { line =>
+          val continue = needContinue(line)
+          if (continue) {
+            action(runParams.copy(args = line.split("\\s+").toVector)) *> loop()
+          } else {
+            Applicative[F].pure(())
+          }
         }
-      }
-    }
+
+    loop()
   }
 
   def needContinue(line: String): Boolean =
     line.trim != "exit" && line.trim != "quit"
 
-  def readReplString(replContext: ReplContext): String =
-    Try(replContext.readLine())
+  def readReplString(replContext: ReplContext): F[String] =
+    Sync[F]
+      .delay(replContext.readLine())
       .recover { case _: UserInterruptException => "exit" } // Ctrl + C
       .recover { case _: EndOfFileException => "exit" } // Ctrl + D
-      .getOrElse("")
 
 }

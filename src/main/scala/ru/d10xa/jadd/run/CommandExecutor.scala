@@ -16,6 +16,7 @@ import ru.d10xa.jadd.pipelines._
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
 import ru.d10xa.jadd.shortcuts.RepositoryShortcutsImpl
+import ru.d10xa.jadd.show.SbtShowCommand2
 
 trait CommandExecutor[F[_]] {
   def execute(
@@ -66,10 +67,15 @@ class LiveCommandExecutor[F[_]: Sync] private (
         case BuildToolLayout.Maven =>
           new MavenPipeline(ctx, artifactInfoFinder, fileOps)
         case BuildToolLayout.Sbt =>
+          val scalaVersionFinder = LiveSbtScalaVersionFinder.make(ctx, fileOps)
           new SbtPipeline(
             ctx,
             artifactInfoFinder,
-            LiveSbtScalaVersionFinder.make(ctx, fileOps),
+            scalaVersionFinder,
+            new SbtShowCommand2(
+              fileOps,
+              scalaVersionFinder
+            ),
             fileOps
           )
         case BuildToolLayout.Ammonite =>

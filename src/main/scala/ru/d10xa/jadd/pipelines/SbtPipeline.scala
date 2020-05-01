@@ -14,12 +14,13 @@ import ru.d10xa.jadd.core.types.FileName
 import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.fs.FileOps
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
-import ru.d10xa.jadd.show.SbtShowCommand
+import ru.d10xa.jadd.show.SbtShowCommand2
 
 class SbtPipeline[F[_]: Sync](
   override val ctx: Ctx,
   artifactInfoFinder: ArtifactInfoFinder,
   scalaVersionFinder: ScalaVersionFinder[F],
+  showCommand: SbtShowCommand2[F],
   fileOps: FileOps[F])
     extends Pipeline[F]
     with StrictLogging {
@@ -45,10 +46,7 @@ class SbtPipeline[F[_]: Sync](
 
   override def show(): F[Chain[Artifact]] =
     for {
-      artifacts <- new SbtShowCommand(
-        fileOps,
-        scalaVersionFinder
-      ).show()
+      artifacts <- showCommand.show()
     } yield artifacts
 
   override def findScalaVersion(): F[Option[ScalaVersion]] =

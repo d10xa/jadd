@@ -53,14 +53,21 @@ class SbtShowCommand2[F[_]: Sync](
         .filter(n => n.value.endsWith(".sbt") || n.value.endsWith(".scala"))
         .traverse(fileOps.read)
         .map(_.collect { case t: TextFile => t })
-      a = (buildFileSource :: otherScalaSources.map(_.content.value)).flatMap {
-        str =>
-          dialects.Sbt1(str).parse[Source].get.collect {
+      listOfScalaSourceStrs = (buildFileSource :: otherScalaSources.map(
+        _.content.value))
+      parsedSources = listOfScalaSourceStrs
+        .map { str =>
+          dialects.Sbt1(str).parse[Source].toEither
+        }
+        .collect { case Right(value) => value }
+      moduleIds = parsedSources
+        .flatMap(source =>
+          source.collect {
             case ModuleIdMatch(m) => m
-          }
-      }
+        })
+        .distinct
       c = Chain.fromSeq(
-        a.map(m =>
+        moduleIds.map(m =>
           Artifact(
             groupId = GroupId(m.groupId),
             artifactId = m.artifactId,

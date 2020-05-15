@@ -68,19 +68,19 @@ libraryDependencies ++= Seq(
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
   "org.typelevel" %% "cats-core" % "2.1.1",
   "org.jline" % "jline" % "3.14.1",
-  "com.lihaoyi" %% "ujson" % "1.0.0",
+  "com.lihaoyi" %% "ujson" % "1.1.0",
   "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.6",
-  "org.scalatest" %% "scalatest" % "3.1.1" % "it,test",
+  "org.scalatest" %% "scalatest" % "3.1.2" % "it,test",
   "com.github.tomakehurst" % "wiremock" % "2.26.3" % "it,test"
 )
 libraryDependencies += "org.jsoup" % "jsoup" % "1.13.1"
-libraryDependencies += "org.typelevel" %% "cats-effect" % "2.1.3"
-libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.8.0"
-libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.0-RC6-12"
+libraryDependencies += "org.typelevel" %% "cats-effect" % "2.1.2"
+libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.9.0"
+libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.0-RC6-16"
 libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.8"
-libraryDependencies += "io.estatico" %% "newtype" % "0.4.3"
-libraryDependencies += "eu.timepit" %% "refined" % "0.9.13"
+libraryDependencies += "io.estatico" %% "newtype" % "0.4.4"
+libraryDependencies += "eu.timepit" %% "refined" % "0.9.14"
 libraryDependencies += "com.github.julien-truffaut" %% "monocle-core" % "2.0.4"
 libraryDependencies += "com.github.julien-truffaut" %% "monocle-macro" % "2.0.4"
 libraryDependencies += "com.47deg" %% "github4s" % "0.23.0"
-libraryDependencies += "io.lemonlabs" %% "scala-uri" % "2.2.0"
+libraryDependencies += "io.lemonlabs" %% "scala-uri" % "2.2.2"

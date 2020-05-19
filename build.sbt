@@ -75,7 +75,7 @@ libraryDependencies ++= Seq(
 )
 libraryDependencies += "org.jsoup" % "jsoup" % "1.13.1"
 libraryDependencies += "org.typelevel" %% "cats-effect" % "2.1.2"
-libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.9.0"
+libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.9.1"
 libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.0-RC6-17"
 libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.8"
 libraryDependencies += "io.estatico" %% "newtype" % "0.4.4"

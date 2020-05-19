@@ -1,4 +1,4 @@
-import $ivy.`com.github.pathikrit::better-files:3.9.0`
+import $ivy.`com.github.pathikrit::better-files:3.9.1`
 import better.files._
 val pathToFiles: String => List[File] = File(_).list(_.isRegularFile).toList
 val removeJavadoc: File => Unit =

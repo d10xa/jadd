@@ -1,12 +1,13 @@
 package ru.d10xa.jadd.core
 
+import java.nio.file.Path
+
 import cats.Applicative
 import cats.effect.Sync
 import cats.implicits._
-import ru.d10xa.jadd.core.types.FsItem.TextFile
+import ru.d10xa.jadd.fs.FsItem.TextFile
 import ru.d10xa.jadd.core.types.ApplicativeThrowable
 import ru.d10xa.jadd.core.types.FileContent
-import ru.d10xa.jadd.core.types.FileName
 import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.fs.FileOps
 
@@ -21,11 +22,11 @@ class LiveSbtScalaVersionFinder[F[_]: Sync] private (
   fileOps: FileOps[F])
     extends ScalaVersionFinder[F] {
 
-  val buildFileName: FileName = FileName("build.sbt")
+  val buildFilePath: Path = Path.of("build.sbt")
 
   override def findScalaVersion(): F[Option[ScalaVersion]] =
     for {
-      fsItem <- fileOps.read(buildFileName)
+      fsItem <- fileOps.read(buildFilePath)
       optScalaVersion <- fsItem match {
         case TextFile(content) =>
           Applicative[F]

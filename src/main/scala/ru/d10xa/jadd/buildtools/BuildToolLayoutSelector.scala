@@ -1,13 +1,16 @@
 package ru.d10xa.jadd.buildtools
 
+import java.nio.file.Path
+
 import cats.effect.Sync
 import ru.d10xa.jadd.core.Ctx
 import cats.implicits._
-import eu.timepit.refined.types.string.NonEmptyString
 import ru.d10xa.jadd.buildtools.BuildToolLayout._
-import ru.d10xa.jadd.core.types.FileName
-import ru.d10xa.jadd.core.types.FsItem
 import ru.d10xa.jadd.fs.FileOps
+import ru.d10xa.jadd.fs.FsItem.Dir
+import ru.d10xa.jadd.fs.FsItem.FileNotFound
+import ru.d10xa.jadd.fs.FsItem.TextFile
+import ru.d10xa.jadd.instances._
 
 trait BuildToolLayoutSelector[F[_]] {
   def select(ctx: Ctx): F[BuildToolLayout]
@@ -19,17 +22,17 @@ object BuildToolLayoutSelector {
   ): BuildToolLayoutSelector[F] =
     new BuildToolLayoutSelector[F] {
 
-      private def fromFileName(n: FileName): Option[BuildToolLayout] =
-        if (n.value.endsWith(".sc")) {
+      private def fromPath(p: Path): Option[BuildToolLayout] =
+        if (p.show.endsWith(".sc")) {
           Ammonite.some
         } else {
           none[BuildToolLayout]
         }
-      private def fromDir(names: Set[FileName]): Option[BuildToolLayout] = {
-        import eu.timepit.refined.auto._
-        def sbt = names.contains(FileName("build.sbt": NonEmptyString))
-        def maven = names.contains(FileName("pom.xml": NonEmptyString))
-        def gradle = names.contains(FileName("build.gradle": NonEmptyString))
+      private def fromDir(names: Set[Path]): Option[BuildToolLayout] = {
+        val namesStr = names.map(_.getFileName.show)
+        def sbt = namesStr.contains("build.sbt")
+        def maven = namesStr.contains("pom.xml")
+        def gradle = namesStr.contains("build.gradle")
         if (maven) {
           Maven.some
         } else if (sbt) {
@@ -41,19 +44,20 @@ object BuildToolLayoutSelector {
         }
       }
 
-      override def select(ctx: Ctx): F[BuildToolLayout] =
+      override def select(ctx: Ctx): F[BuildToolLayout] = {
+        val path = Path.of("")
         for {
-          fileName <- FileName(ctx.projectPath).pure[F]
-          fsItem <- fileOps.read(fileName)
+          fsItem <- fileOps.read(path)
           layout = fsItem match {
-            case FsItem.TextFile(_) =>
-              fromFileName(fileName)
-            case FsItem.Dir(fileNames) =>
+            case TextFile(_) =>
+              fromPath(path)
+            case Dir(_, fileNames) =>
               fromDir(fileNames.toSet)
-            case _ =>
+            case FileNotFound =>
               none[BuildToolLayout]
           }
         } yield layout.getOrElse(Unknown)
+      }
     }
 
 }

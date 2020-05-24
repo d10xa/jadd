@@ -17,11 +17,29 @@ class SbtShowCommandTest extends TestBase {
           val scalaVersions =
             LiveSbtScalaVersionFinder
               .make[SyncIO](Ctx(Config.empty), fileOps)
-          new SbtShowCommand[SyncIO](fileOps, scalaVersions)
+          new SbtShowCommand2[SyncIO](fileOps, scalaVersions)
             .show()
             .map(_.toList)
       }
       .unsafeRunSync()
+
+  test("single java dependency") {
+    val source =
+      s"""
+         |libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"
+       """.stripMargin
+    val result = showArtifacts("build.sbt" -> source)
+    result.head shouldBe art("ch.qos.logback:logback-classic:1.2.3")
+  }
+
+  test("single scala dependency") {
+    val source =
+      s"""
+         |"io.circe" %% "circe-parser" % "0.9.3"
+       """.stripMargin
+    val result = showArtifacts("build.sbt" -> source)
+    result.head shouldBe art("io.circe:circe-parser%%:0.9.3").scala2_12
+  }
 
   test("seq") {
     val source =

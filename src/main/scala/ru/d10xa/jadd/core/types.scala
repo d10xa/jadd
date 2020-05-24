@@ -1,5 +1,7 @@
 package ru.d10xa.jadd.core
 
+import java.nio.file.Path
+
 import cats.ApplicativeError
 import cats.MonadError
 import cats.Show
@@ -9,8 +11,7 @@ import eu.timepit.refined.api.Refined
 import eu.timepit.refined.api.Validate
 import io.estatico.newtype.macros.newtype
 import cats.implicits._
-import monocle.Prism
-import monocle.macros.GenPrism
+import ru.d10xa.jadd.fs.FsItem
 
 import scala.language.implicitConversions
 
@@ -43,7 +44,7 @@ object types {
 
   @newtype case class GroupId(value: String) {
     def path: String =
-      value.replace('.', '/') //refineMV(value.value.replace('.', '/'))
+      value.replace('.', '/')
   }
   object GroupId {
     implicit val showGroupId: Show[GroupId] = Show[GroupId](_.value.toString)
@@ -58,41 +59,10 @@ object types {
 
   @newtype case class FileContent(value: String)
 
-  sealed trait FsItem
-
-  object FsItem {
-    final case class TextFile(content: FileContent) extends FsItem
-
-    object TextFile {
-      def make[F[_]](fsItem: FsItem)(
-        implicit a: ApplicativeThrowable[F]): F[TextFile] =
-        fsItem match {
-          case t: TextFile => a.pure(t)
-          case _: Dir =>
-            a.raiseError[TextFile](
-              new IllegalArgumentException(s"Is not a file")
-            )
-          case FileNotFound =>
-            a.raiseError[TextFile](
-              new IllegalArgumentException("File not found")
-            )
-        }
-    }
-
-    final case class Dir(names: List[FileName]) extends FsItem
-    final case object FileNotFound extends FsItem
-
-    val textFilePrism: Prism[FsItem, TextFile] =
-      GenPrism[FsItem, TextFile]
-
-  }
-
-  @newtype case class FileName(value: String)
-
-  @newtype case class FileCache(value: Map[FileName, FsItem])
+  @newtype case class FileCache(value: Map[Path, FsItem])
 
   object FileCache {
-    val empty: FileCache = FileCache(Map.empty[FileName, FsItem])
+    val empty: FileCache = FileCache(Map.empty[Path, FsItem])
   }
 
   def refineF[F[_]: ApplicativeThrowable, P, T](p: T)(

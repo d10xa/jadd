@@ -1,12 +1,12 @@
 package ru.d10xa.jadd.fs
 
+import java.nio.file.Path
+
 import cats.effect.SyncIO
 import cats.effect.concurrent.Ref
-import ru.d10xa.jadd.core.types
 import ru.d10xa.jadd.core.types.FileCache
 import ru.d10xa.jadd.core.types.FileContent
-import ru.d10xa.jadd.core.types.FileName
-import ru.d10xa.jadd.core.types.FsItem.TextFile
+import ru.d10xa.jadd.fs.FsItem.TextFile
 import ru.d10xa.jadd.testkit.TestBase
 
 class LiveCachedFileOpsTest extends TestBase {
@@ -16,27 +16,26 @@ class LiveCachedFileOpsTest extends TestBase {
       cache <- Ref.of[SyncIO, FileCache](FileCache.empty)
       fileOpsMock <- LiveCachedFileOps.make[SyncIO](
         new FileOps[SyncIO] {
-          override def read(fileName: types.FileName): SyncIO[types.FsItem] =
+          override def read(path: Path): SyncIO[FsItem] =
             for {
               _ <- readCounter.update(_ + 1)
             } yield TextFile(FileContent(""))
-          override def write(
-            fileName: types.FileName,
-            value: String): SyncIO[Unit] = SyncIO.unit
+          override def write(path: Path, value: String): SyncIO[Unit] =
+            SyncIO.unit
         },
         cache
       )
-      fn1 = FileName("a")
-      fn2 = FileName("b")
-      fn3 = FileName("c")
-      _ <- fileOpsMock.read(fn1)
+      pA = Path.of("a")
+      pB = Path.of("b")
+      pC = Path.of("c")
+      _ <- fileOpsMock.read(pA)
       _ <- readCounter.get.map((c: Int) => assert(c == 1))
-      _ <- fileOpsMock.read(fn1)
+      _ <- fileOpsMock.read(pA)
       _ <- readCounter.get.map((c: Int) => assert(c == 1))
-      _ <- fileOpsMock.read(fn2)
+      _ <- fileOpsMock.read(pB)
       _ <- readCounter.get.map((c: Int) => assert(c == 2))
-      _ <- fileOpsMock.write(fn3, "")
-      _ <- fileOpsMock.read(fn3)
+      _ <- fileOpsMock.write(pC, "")
+      _ <- fileOpsMock.read(pC)
       _ <- readCounter.get.map((c: Int) => assert(c == 2))
     } yield ()
     io.unsafeRunSync()

@@ -4,7 +4,7 @@ import scala.meta.Term
 
 /**
   * Match:
-  * libraryDependencies += "org.scalameta" %% "scalameta" % "4.3.8"
+  * libraryDependencies += "org.scalameta" %% "scalameta" % "4.3.12"
   */
 object LibraryDependencies {
   object moduleIds {

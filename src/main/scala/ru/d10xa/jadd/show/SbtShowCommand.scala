@@ -1,197 +1,119 @@
 package ru.d10xa.jadd.show
 
-import cats.Applicative
+import java.nio.file.Path
+
 import cats.data.Chain
 import cats.effect.Sync
 import cats.implicits._
 import coursier.core.Version
-import org.antlr.v4.runtime.CharStreams
-import org.antlr.v4.runtime.CommonTokenStream
-import ru.d10xa.jadd.code.regex.SbtVerbalExpressions
-import ru.d10xa.jadd.core
+import ru.d10xa.jadd.code.scalameta.ModuleIdMatch
 import ru.d10xa.jadd.core.Artifact
-import ru.d10xa.jadd.core.CodeBlock
 import ru.d10xa.jadd.core.ScalaVersionFinder
 import ru.d10xa.jadd.core.Scope
-import ru.d10xa.jadd.core.types.FsItem.TextFile
 import ru.d10xa.jadd.core.types._
 import ru.d10xa.jadd.fs.FileOps
-import ru.d10xa.jadd.generated.antlr.SbtDependenciesBaseVisitor
-import ru.d10xa.jadd.generated.antlr.SbtDependenciesLexer
-import ru.d10xa.jadd.generated.antlr.SbtDependenciesParser
+import ru.d10xa.jadd.fs.FsItem.Dir
+import ru.d10xa.jadd.fs.FsItem.TextFile
 import ru.d10xa.jadd.versions.ScalaVersions
+import ru.d10xa.jadd.instances._
 
-import scala.jdk.CollectionConverters._
+import scala.meta.Source
+import scala.meta.Term
+import scala.meta.Tree
+import scala.meta.dialects
+import scala.meta.parsers.Parsed
+import scala.meta.transversers.SimpleTraverser
 
 class SbtShowCommand[F[_]: Sync](
   fileOps: FileOps[F],
   scalaVersionFinder: ScalaVersionFinder[F]) {
-  import SbtShowCommand._
 
-  def lexer(blockInner: String): SbtDependenciesLexer =
-    new SbtDependenciesLexer(CharStreams.fromString(blockInner))
-
-  def parser(lexer: SbtDependenciesLexer): SbtDependenciesParser =
-    new SbtDependenciesParser(new CommonTokenStream(lexer))
-
-  val makeParser: String => SbtDependenciesParser =
-    (parser _).compose(lexer)
+  def collectNoDuplicate[T](
+    tree: Tree,
+    fn: PartialFunction[Tree, T]): List[T] = {
+    val liftedFn = fn.lift
+    val buf = scala.collection.mutable.ListBuffer[T]()
+    object traverser extends SimpleTraverser {
+      override def apply(tree: Tree): Unit = {
+        val x = liftedFn(tree)
+        x.foreach(buf += _)
+        if (x.isEmpty) super.apply(tree)
+      }
+    }
+    traverser(tree)
+    buf.toList
+  }
 
   def show(): F[Chain[Artifact]] =
-    FileName("build.sbt")
+    Path
+      .of("build.sbt")
       .pure[F]
       .flatMap(fileOps.read)
       .flatMap(TextFile.make[F])
       .map(_.content)
       .flatMap(showFromSource)
 
+  def parseSource(s: String): Parsed[Source] =
+    dialects
+      .Sbt1(s)
+      .parse[Source]
+
+  def scalaFilePredicate(p: Path): Boolean = {
+    val n = p.getFileName.show
+    n.endsWith(".sbt") || n.endsWith(".scala")
+  }
+
   def showFromSource(fileContent: FileContent): F[Chain[Artifact]] = {
     val buildFileSource = fileContent.value
-
-    val blocks: Seq[CodeBlock] = Seq("Seq", "List", "Vector")
-      .map(s => s"libraryDependencies ++= $s(")
-      .flatMap(CodeBlock.find(buildFileSource, _))
-
     val scalaVersionF: F[ScalaVersion] =
       scalaVersionFinder
         .findScalaVersion()
         .map(_.getOrElse(ScalaVersions.defaultScalaVersion))
 
-    val multiple: ScalaVersion => Seq[Artifact] = scalaVersion =>
-      blocks.map(_.innerContent).flatMap { innerContent =>
-        val p = makeParser(innerContent)
-        val v = new LibraryDependenciesVisitor(scalaVersion)
-        v.visitMultipleDependencies(p.multipleDependencies())
+    val otherSbtFilesF = fileOps.read(Path.of("project")).map {
+      case Dir(_, names) => names
+      case _ => List.empty[Path]
     }
-
-    val list: List[String] =
-      SbtVerbalExpressions.singleLibraryDependency
-        .getTextGroups(buildFileSource, 1)
-        .asScala
-        .toList
-
-    val visitor0: ScalaVersion => SingleDependencyVisitor = scalaVersion =>
-      new SingleDependencyVisitor(scalaVersion)
-
-    val single0: SingleDependencyVisitor => List[Artifact] = visitor =>
-      list
-        .map(makeParser)
-        .map(_.singleDependency())
-        .flatMap(visitor.visitSingleDependency(_).toList)
-
-    val fromDependenciesExternalFile: ScalaVersion => F[Chain[Artifact]] =
-      scalaVersion =>
-        if (buildFileSource.contains("import Dependencies._")) {
-          val tupleToArtifact
-            : ((String, String, String, String)) => Artifact = {
-            case (gId, "%%", aId, version) =>
-              core.Artifact(
-                groupId = GroupId(gId),
-                artifactId = s"$aId%%",
-                maybeVersion = Some(Version(version)),
-                maybeScalaVersion = Some(scalaVersion))
-            case (gId, _, aId, version) =>
-              Artifact(
-                groupId = GroupId(gId),
-                artifactId = aId,
-                maybeVersion = Some(Version(version)),
-                maybeScalaVersion = None
-              )
-          }
-          import ru.d10xa.jadd.code.regex.RegexImplicits._
-          val p: F[FileContent] = FileName("project/Dependencies.scala")
-            .pure[F]
-            .flatMap(
-              n =>
-                fileOps
-                  .read(n)
-                  .flatMap(TextFile.make[F](_))
-                  .map(_.content))
-          p.map { source =>
-              SbtVerbalExpressions.declaredDependency.groups4(source.value)
-            }
-            .map {
-              _.map(tupleToArtifact)
-            }
-            .map(Chain.fromSeq)
-        } else {
-          Applicative[F].pure(Chain.empty[Artifact])
-      }
 
     for {
       scalaVersion <- scalaVersionF
-      visitor <- Sync[F].delay(visitor0(scalaVersion))
-      single <- Sync[F].delay(single0(visitor))
-      multiple <- Sync[F].delay(multiple(scalaVersion))
-      fromFile <- fromDependenciesExternalFile(scalaVersion)
-    } yield Chain.fromSeq((single ++ multiple ++ fromFile.toList).distinct)
-  }
-}
+      otherSbtFiles <- otherSbtFilesF
+      otherSbtSources <- otherSbtFiles
+        .filter(scalaFilePredicate)
+        .traverse(fileOps.read)
+        .map(_.collect { case t: TextFile => t })
+      listOfScalaSourceStrs = buildFileSource :: otherSbtSources.map(
+        _.content.value)
+      parsedSources = listOfScalaSourceStrs
+        .map { str =>
+          dialects.Sbt1(str).parse[Source].toEither
+        }
+        .collect { case Right(value) => value }
+      moduleIds = parsedSources
+        .flatMap(source =>
+          collectNoDuplicate(source, {
+            case ModuleIdMatch(m) => m
+          }))
+        .distinct
+      c = Chain.fromSeq(
+        moduleIds.map(m =>
+          Artifact(
+            groupId = GroupId(m.groupId),
+            artifactId = if (m.percentsCount > 1) {
+              s"${m.artifactId}%%"
+            } else m.artifactId,
+            maybeVersion = Version(m.version).some,
+            maybeScalaVersion = if (m.percentsCount > 1) {
+              scalaVersion.some
+            } else None,
+            scope = m.terms
+              .find {
+                case Term.Name("Test") => true
+                case _ => false
+              }
+              .map(_ => Scope.Test)
+        )))
+    } yield c
 
-object SbtShowCommand {
-
-  class LibraryDependenciesVisitor(scalaVersion: ScalaVersion)
-      extends SbtDependenciesBaseVisitor[List[Artifact]] {
-
-    override def visitMultipleDependencies(
-      ctx: SbtDependenciesParser.MultipleDependenciesContext
-    ): List[Artifact] = {
-      val v = new SingleDependencyVisitor(scalaVersion)
-      ctx
-        .singleDependency()
-        .asScala
-        .toList
-        .flatMap(v.visitSingleDependency(_).toList)
-    }
-  }
-
-  class SingleDependencyVisitor(scalaVersion: ScalaVersion)
-      extends SbtDependenciesBaseVisitor[Option[Artifact]] {
-    override def visitSingleDependency(
-      ctx: SbtDependenciesParser.SingleDependencyContext
-    ): Option[Artifact] = {
-      val arr: List[String] =
-        ctx
-          .ScalaString()
-          .asScala
-          .toList
-          .map(_.getText)
-          .filter(_ != null)
-          .filter(_.startsWith("\""))
-          .filter(_.endsWith("\""))
-          .map(_.drop(1).dropRight(1))
-      val isScala =
-        Option(ctx.percents())
-          .map(_.getText)
-          .exists(_.length == 2)
-
-      val scope: Option[Scope] =
-        Option(ctx.Scope())
-          .map(_.getText)
-          .map(_.replaceAll("\"", ""))
-          .map(_.toLowerCase)
-          .map(_ == "test")
-          .flatMap(if (_) Some(Scope.Test) else None)
-
-      arr match {
-        case g :: a :: v :: Nil =>
-          Some(
-            Artifact(
-              groupId = GroupId(g),
-              artifactId = if (isScala) s"$a%%" else a,
-              maybeVersion = Some(Version(v)),
-              maybeScalaVersion = if (isScala) Some(scalaVersion) else None,
-              scope = scope
-            ))
-        case _ => None
-      }
-    }
-  }
-
-  class PercentsVisitor extends SbtDependenciesBaseVisitor[Int] {
-    override def visitPercents(
-      ctx: SbtDependenciesParser.PercentsContext
-    ): Int =
-      ctx.getText.length
   }
 }

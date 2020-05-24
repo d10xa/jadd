@@ -9,19 +9,17 @@ import cats.effect.concurrent.Ref
 import cats.implicits._
 import ru.d10xa.jadd.core.types.FileCache
 import ru.d10xa.jadd.core.types.FileContent
-import ru.d10xa.jadd.core.types.FileName
-import ru.d10xa.jadd.core.types.FsItem
-import ru.d10xa.jadd.core.types.FsItem.TextFile
+import ru.d10xa.jadd.fs.FsItem.TextFile
 
 trait FileOps[F[_]] {
-  def read(fileName: FileName): F[FsItem]
-  def write(fileName: FileName, value: String): F[Unit]
+  def read(path: Path): F[FsItem]
+  def write(path: Path, value: String): F[Unit]
 }
 
 class LiveFileOps[F[_]: Sync] private (path: Path) extends FileOps[F] {
-  override def read(fileName: FileName): F[FsItem] =
+  override def read(localPath: Path): F[FsItem] =
     for {
-      file <- Sync[F].delay(better.files.File(path.resolve(fileName.value)))
+      file <- Sync[F].delay(better.files.File(path.resolve(localPath)))
       isFile <- Sync[F].delay(file.isRegularFile)
       isDirectory <- Sync[F].delay(file.isDirectory)
       fsItem <- if (isFile) {
@@ -35,18 +33,18 @@ class LiveFileOps[F[_]: Sync] private (path: Path) extends FileOps[F] {
         Sync[F]
           .delay {
             file.list
-              .map(_.name)
+              .map(f => localPath.resolve(f.name))
               .toList
           }
-          .map(list => FsItem.Dir(list.map(s => FileName(s))))
+          .map(list => FsItem.Dir(localPath, list))
           .widen[FsItem]
       } else { Sync[F].pure[FsItem](FsItem.FileNotFound) }
     } yield fsItem
 
-  override def write(fileName: FileName, value: String): F[Unit] =
+  override def write(localPath: Path, value: String): F[Unit] =
     Sync[F].delay(
       better.files
-        .File(path.resolve(fileName.value))
+        .File(path.resolve(localPath))
         .createFileIfNotExists(createParents = true)
         .write(value))
 }
@@ -55,24 +53,24 @@ class LiveCachedFileOps[F[_]: Sync] private (
   fileOps: FileOps[F],
   cacheRef: Ref[F, FileCache])
     extends FileOps[F] {
-  override def read(fileName: FileName): F[FsItem] =
+  override def read(path: Path): F[FsItem] =
     for {
       cache <- cacheRef.get
-      fsItem <- cache.value.get(fileName) match {
+      fsItem <- cache.value.get(path) match {
         case Some(v) => v.pure[F]
         case None =>
-          fileOps.read(fileName).flatMap { fsItem =>
+          fileOps.read(path).flatMap { fsItem =>
             cacheRef
-              .set(FileCache(cache.value + (fileName -> fsItem)))
+              .set(FileCache(cache.value + (path -> fsItem)))
               .map(_ => fsItem)
           }
       }
     } yield fsItem
 
-  override def write(fileName: FileName, value: String): F[Unit] = {
-    val write = fileOps.write(fileName, value)
+  override def write(path: Path, value: String): F[Unit] = {
+    val write = fileOps.write(path, value)
     val updateCache = cacheRef.update(cache =>
-      FileCache(cache.value + (fileName -> TextFile(FileContent(value)))))
+      FileCache(cache.value + (path -> TextFile(FileContent(value)))))
     write *> updateCache
   }
 }

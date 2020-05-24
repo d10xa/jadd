@@ -1,5 +1,7 @@
 package ru.d10xa.jadd.pipelines
 
+import java.nio.file.Path
+
 import cats.data.Chain
 import cats.effect._
 import cats.implicits._
@@ -7,8 +9,7 @@ import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.core.Utils
-import ru.d10xa.jadd.core.types.FsItem.TextFile
-import ru.d10xa.jadd.core.types.FileName
+import ru.d10xa.jadd.fs.FsItem.TextFile
 import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.fs.FileOps
 import ru.d10xa.jadd.show.AmmoniteFormatShowPrinter
@@ -20,10 +21,10 @@ class AmmonitePipeline[F[_]: Sync](
 ) extends Pipeline[F]
     with StrictLogging {
 
-  val buildFileName: FileName = FileName(ctx.projectPath)
+  val buildFile: Path = Path.of(ctx.projectPath)
 
   val buildFileF: F[TextFile] =
-    Utils.textFileFromString(fileOps, buildFileName)
+    Utils.textFileFromString(fileOps, buildFile)
 
   def buildFileSource: F[TextFile] =
     for {
@@ -37,7 +38,7 @@ class AmmonitePipeline[F[_]: Sync](
         AmmoniteFormatShowPrinter.mkString(artifacts))
       source <- buildFileSource
       newSource = List(newDependencies, source.content.value).mkString("\n")
-      _ <- fileOps.write(buildFileName, newSource)
+      _ <- fileOps.write(buildFile, newSource)
     } yield ()
 
   // TODO implement

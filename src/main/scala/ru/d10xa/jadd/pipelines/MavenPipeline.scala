@@ -1,5 +1,7 @@
 package ru.d10xa.jadd.pipelines
 
+import java.nio.file.Path
+
 import cats.data.Chain
 import cats.effect._
 import cats.implicits._
@@ -9,10 +11,9 @@ import ru.d10xa.jadd.code.Indentation
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.core.Utils
-import ru.d10xa.jadd.core.types.FileName
 import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.code.inserts.MavenFileInserts
-import ru.d10xa.jadd.core.types.FsItem.TextFile
+import ru.d10xa.jadd.fs.FsItem.TextFile
 import ru.d10xa.jadd.fs.FileOps
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.show.MavenFormatShowPrinter
@@ -26,11 +27,11 @@ class MavenPipeline[F[_]: Sync](
 ) extends Pipeline[F]
     with StrictLogging {
 
-  val buildFileName: FileName = FileName("pom.xml")
+  val buildFile: Path = Path.of("pom.xml")
 
   def buildFileSource: F[TextFile] =
     for {
-      textFile <- Utils.textFileFromString(fileOps, buildFileName)
+      textFile <- Utils.textFileFromString(fileOps, buildFile)
       source = textFile
     } yield source
 
@@ -68,7 +69,7 @@ class MavenPipeline[F[_]: Sync](
     for {
       source <- buildFileSource
       newSource = sourceToNewSource(source.content.value, artifacts)
-      _ <- fileOps.write(buildFileName, newSource)
+      _ <- fileOps.write(buildFile, newSource)
     } yield ()
 
   override def show(): F[Chain[Artifact]] =

@@ -24,7 +24,7 @@ import scala.meta.dialects
 import scala.meta.parsers.Parsed
 import scala.meta.transversers.SimpleTraverser
 
-class SbtShowCommand2[F[_]: Sync](
+class SbtShowCommand[F[_]: Sync](
   fileOps: FileOps[F],
   scalaVersionFinder: ScalaVersionFinder[F]) {
 
@@ -82,8 +82,8 @@ class SbtShowCommand2[F[_]: Sync](
         .filter(scalaFilePredicate)
         .traverse(fileOps.read)
         .map(_.collect { case t: TextFile => t })
-      listOfScalaSourceStrs = (buildFileSource :: otherSbtSources.map(
-        _.content.value))
+      listOfScalaSourceStrs = buildFileSource :: otherSbtSources.map(
+        _.content.value)
       parsedSources = listOfScalaSourceStrs
         .map { str =>
           dialects.Sbt1(str).parse[Source].toEither

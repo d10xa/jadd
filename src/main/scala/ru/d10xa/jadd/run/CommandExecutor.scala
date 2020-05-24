@@ -16,7 +16,7 @@ import ru.d10xa.jadd.pipelines._
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
 import ru.d10xa.jadd.shortcuts.RepositoryShortcutsImpl
-import ru.d10xa.jadd.show.SbtShowCommand2
+import ru.d10xa.jadd.show.SbtShowCommand
 
 trait CommandExecutor[F[_]] {
   def execute(
@@ -72,7 +72,7 @@ class LiveCommandExecutor[F[_]: Sync] private (
             ctx,
             artifactInfoFinder,
             scalaVersionFinder,
-            new SbtShowCommand2(
+            new SbtShowCommand(
               fileOps,
               scalaVersionFinder
             ),

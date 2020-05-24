@@ -17,7 +17,7 @@ class SbtShowCommandTest extends TestBase {
           val scalaVersions =
             LiveSbtScalaVersionFinder
               .make[SyncIO](Ctx(Config.empty), fileOps)
-          new SbtShowCommand2[SyncIO](fileOps, scalaVersions)
+          new SbtShowCommand[SyncIO](fileOps, scalaVersions)
             .show()
             .map(_.toList)
       }

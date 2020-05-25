@@ -7,7 +7,6 @@ import ru.d10xa.jadd.cli.Cli
 import ru.d10xa.jadd.log.LoggingUtil
 import ru.d10xa.jadd.run.JaddRunner
 import ru.d10xa.jadd.run.RunParams
-import cats.implicits._
 import github4s.Github
 import ru.d10xa.jadd.github.LiveGithubUrlParser
 

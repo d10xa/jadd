@@ -1,6 +1,7 @@
 package ru.d10xa.jadd.buildtools
 
 import java.nio.file.Path
+import java.nio.file.Paths
 
 import cats.effect.Sync
 import ru.d10xa.jadd.core.Ctx
@@ -45,7 +46,7 @@ object BuildToolLayoutSelector {
       }
 
       override def select(ctx: Ctx): F[BuildToolLayout] = {
-        val path = Path.of("")
+        val path = Paths.get("")
         for {
           fsItem <- fileOps.read(path)
           layout = fsItem match {

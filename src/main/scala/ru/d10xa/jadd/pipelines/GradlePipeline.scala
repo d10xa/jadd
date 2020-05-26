@@ -1,6 +1,7 @@
 package ru.d10xa.jadd.pipelines
 
 import java.nio.file.Path
+import java.nio.file.Paths
 
 import cats.data.Chain
 import cats.effect.Sync
@@ -24,7 +25,7 @@ class GradlePipeline[F[_]: Sync](
 ) extends Pipeline[F]
     with StrictLogging {
 
-  val buildFile: Path = Path.of("build.gradle")
+  val buildFile: Path = Paths.get("build.gradle")
 
   def buildFileSource: F[TextFile] =
     for {

@@ -1,6 +1,7 @@
 package ru.d10xa.jadd.pipelines
 
 import java.nio.file.Path
+import java.nio.file.Paths
 
 import cats.data.Chain
 import cats.effect._
@@ -21,7 +22,7 @@ class AmmonitePipeline[F[_]: Sync](
 ) extends Pipeline[F]
     with StrictLogging {
 
-  val buildFile: Path = Path.of(ctx.projectPath)
+  val buildFile: Path = Paths.get(ctx.projectPath)
 
   val buildFileF: F[TextFile] =
     Utils.textFileFromString(fileOps, buildFile)

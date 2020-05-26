@@ -4,10 +4,12 @@ import java.nio.file.Path
 
 import cats.ApplicativeError
 import cats.data.NonEmptyList
+import cats.effect.Bracket
+import cats.effect.Resource
 import cats.effect.Sync
 import cats.implicits._
+import github4s.GHResponse
 import github4s.Github
-import github4s.GithubResponses.GHResponse
 import github4s.domain.Content
 import ru.d10xa.jadd.fs.FsItem.TextFile
 import ru.d10xa.jadd.core.types.FileContent
@@ -17,8 +19,8 @@ import ru.d10xa.jadd.fs.FsItem
 import ru.d10xa.jadd.github.GithubUrlParser.GithubUrlParts
 import ru.d10xa.jadd.instances._
 
-class GithubFileOps[F[_]: MonadThrowable](
-  github: Github[F],
+class GithubFileOps[F[_]: MonadThrowable: Bracket[*[_], Throwable]](
+  githubResource: Resource[F, Github[F]],
   owner: String,
   repo: String,
   ref: Option[String])
@@ -52,15 +54,23 @@ class GithubFileOps[F[_]: MonadThrowable](
     }
 
   override def read(path: Path): F[FsItem] =
-    github.repos
-      .getContents(owner, repo, path.show, ref)
-      .flatMap(ghr => responseToFsItem(path, ghr))
+    for {
+      response <- githubResource.use(
+        _.repos.getContents(owner, repo, path.show, ref))
+      fsItem <- responseToFsItem(path, response)
+    } yield fsItem
 
   override def write(path: Path, value: String): F[Unit] = ???
 }
 
 object GithubFileOps {
-  def make[F[_]: Sync](gh: Github[F], p: GithubUrlParts): F[FileOps[F]] =
+  def make[F[_]: Sync](
+    githubResource: Resource[F, Github[F]],
+    p: GithubUrlParts): F[FileOps[F]] =
     Sync[F].delay(
-      new GithubFileOps[F](gh, owner = p.owner, repo = p.repo, ref = p.ref))
+      new GithubFileOps[F](
+        githubResource,
+        owner = p.owner,
+        repo = p.repo,
+        ref = p.ref))
 }

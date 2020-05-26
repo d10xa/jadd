@@ -1,26 +1,37 @@
 package ru.d10xa.jadd.fs
 
 import java.nio.file.Path
+import java.nio.file.Paths
 
 import cats.effect.IO
+import cats.effect.Resource
+import org.http4s.client.blaze.BlazeClientBuilder
 import ru.d10xa.jadd.fs.FsItem.Dir
 import ru.d10xa.jadd.fs.FsItem.TextFile
 import ru.d10xa.jadd.fs.testkit.ItTestBase
 import ru.d10xa.jadd.github.GithubFileOps
+import ru.d10xa.jadd.github.GithubUrlParser.GithubUrlParts
+
+import scala.concurrent.ExecutionContext
 
 class GithubFileOpsTest extends ItTestBase {
   import github4s.Github
   import scala.concurrent.ExecutionContext.Implicits.global
 
   implicit val cs = IO.contextShift(global)
-  val github = Github[IO]()
-  val ops =
-    new GithubFileOps[IO](github, "d10xa", "jadd", None)
+
+  val githubResourceIO: Resource[IO, Github[IO]] =
+    BlazeClientBuilder[IO](ExecutionContext.global).resource
+      .map(client => Github[IO](client, None))
+
+  def read(p: Path): IO[FsItem] =
+    GithubFileOps
+      .make(githubResourceIO, GithubUrlParts("d10xa", "jadd", None, None))
+      .flatMap(_.read(p))
 
   test("file") {
     val gitignore =
-      ops
-        .read(Path.of(".gitignore"))
+      read(Paths.get(".gitignore"))
         .unsafeRunSync()
     gitignore match {
       case TextFile(content) =>
@@ -31,7 +42,7 @@ class GithubFileOpsTest extends ItTestBase {
 
   test("dir") {
     val dir =
-      ops.read(Path.of("src")).unsafeRunSync()
+      read(Path.of("src")).unsafeRunSync()
     dir match {
       case Dir(_, files) =>
         (files.map(_.getFileName.toString) should contain)
@@ -42,7 +53,7 @@ class GithubFileOpsTest extends ItTestBase {
 
   test("empty") {
     val notFound: FsItem =
-      ops.read(Path.of("404")).unsafeRunSync()
+      read(Path.of("404")).unsafeRunSync()
     notFound shouldBe FsItem.FileNotFound
   }
 

@@ -3,11 +3,14 @@ package ru.d10xa.jadd.run
 import java.net.URI
 import java.nio.file.Paths
 
+import cats.effect.ConcurrentEffect
+import cats.effect.Resource
 import cats.effect.Sync
 import cats.effect.concurrent.Ref
 import com.typesafe.scalalogging.StrictLogging
 import cats.implicits._
 import github4s.Github
+import org.http4s.client.blaze.BlazeClientBuilder
 import ru.d10xa.jadd.buildtools.BuildToolLayoutSelector
 import ru.d10xa.jadd.cli.Command.Repl
 import ru.d10xa.jadd.cli.Cli
@@ -29,10 +32,11 @@ import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
 import ru.d10xa.jadd.shortcuts.RepositoryShortcutsImpl
 import ru.d10xa.jadd.log.LoggingUtil
 
-class JaddRunner[F[_]: Sync](
+import scala.concurrent.ExecutionContext
+
+class JaddRunner[F[_]: Sync: ConcurrentEffect](
   cli: Cli,
   loggingUtil: LoggingUtil,
-  github: Github[F],
   githubUrlParser: GithubUrlParser[F]
 ) {
 
@@ -85,11 +89,16 @@ class JaddRunner[F[_]: Sync](
       _ <- JaddRunner.runOnce[F](ctx, fileOps, commandExecutor)
     } yield ()
 
+  def githubResource: Resource[F, Github[F]] =
+    for {
+      client <- BlazeClientBuilder[F](ExecutionContext.global).resource
+    } yield Github[F](client, None)
+
   def ctxToFileOps(ctx: Ctx): F[FileOps[F]] =
     for {
       cacheRef <- Ref.of[F, FileCache](FileCache.empty)
       ops <- ctx.meta.githubUrlParts match {
-        case Some(parts) => GithubFileOps.make[F](github, parts)
+        case Some(parts) => GithubFileOps.make[F](githubResource, parts)
         case None => LiveFileOps.make(Paths.get(ctx.projectPath))
       }
       cachedOps <- LiveCachedFileOps.make(ops, cacheRef)

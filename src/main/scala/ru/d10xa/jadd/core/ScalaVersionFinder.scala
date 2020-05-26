@@ -1,6 +1,7 @@
 package ru.d10xa.jadd.core
 
 import java.nio.file.Path
+import java.nio.file.Paths
 
 import cats.Applicative
 import cats.effect.Sync
@@ -22,7 +23,7 @@ class LiveSbtScalaVersionFinder[F[_]: Sync] private (
   fileOps: FileOps[F])
     extends ScalaVersionFinder[F] {
 
-  val buildFilePath: Path = Path.of("build.sbt")
+  val buildFilePath: Path = Paths.get("build.sbt")
 
   override def findScalaVersion(): F[Option[ScalaVersion]] =
     for {

@@ -1,6 +1,7 @@
 package ru.d10xa.jadd.show
 
 import java.nio.file.Path
+import java.nio.file.Paths
 
 import cats.data.Chain
 import cats.effect.Sync
@@ -45,8 +46,8 @@ class SbtShowCommand[F[_]: Sync](
   }
 
   def show(): F[Chain[Artifact]] =
-    Path
-      .of("build.sbt")
+    Paths
+      .get("build.sbt")
       .pure[F]
       .flatMap(fileOps.read)
       .flatMap(TextFile.make[F])
@@ -64,13 +65,12 @@ class SbtShowCommand[F[_]: Sync](
   }
 
   def showFromSource(fileContent: FileContent): F[Chain[Artifact]] = {
-    val buildFileSource = fileContent.value
     val scalaVersionF: F[ScalaVersion] =
       scalaVersionFinder
         .findScalaVersion()
         .map(_.getOrElse(ScalaVersions.defaultScalaVersion))
 
-    val otherSbtFilesF = fileOps.read(Path.of("project")).map {
+    val otherSbtFilesF = fileOps.read(Paths.get("project")).map {
       case Dir(_, names) => names
       case _ => List.empty[Path]
     }
@@ -82,7 +82,7 @@ class SbtShowCommand[F[_]: Sync](
         .filter(scalaFilePredicate)
         .traverse(fileOps.read)
         .map(_.collect { case t: TextFile => t })
-      listOfScalaSourceStrs = buildFileSource :: otherSbtSources.map(
+      listOfScalaSourceStrs = fileContent.value :: otherSbtSources.map(
         _.content.value)
       parsedSources = listOfScalaSourceStrs
         .map { str =>

@@ -1,6 +1,7 @@
 package ru.d10xa.jadd.pipelines
 
 import java.nio.file.Path
+import java.nio.file.Paths
 
 import cats.data.Chain
 import cats.effect._
@@ -27,7 +28,7 @@ class MavenPipeline[F[_]: Sync](
 ) extends Pipeline[F]
     with StrictLogging {
 
-  val buildFile: Path = Path.of("pom.xml")
+  val buildFile: Path = Paths.get("pom.xml")
 
   def buildFileSource: F[TextFile] =
     for {

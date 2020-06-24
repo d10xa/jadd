@@ -70,7 +70,7 @@ libraryDependencies ++= Seq(
   "org.jline" % "jline" % "3.15.0",
   "com.lihaoyi" %% "ujson" % "1.1.0",
   "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.6",
-  "org.scalatest" %% "scalatest" % "3.1.2" % "it,test",
+  "org.scalatest" %% "scalatest" % "3.2.0" % "it,test",
   "com.github.tomakehurst" % "wiremock" % "2.26.3" % "it,test"
 )
 libraryDependencies += "org.jsoup" % "jsoup" % "1.13.1"
@@ -82,6 +82,6 @@ libraryDependencies += "io.estatico" %% "newtype" % "0.4.4"
 libraryDependencies += "eu.timepit" %% "refined" % "0.9.14"
 libraryDependencies += "com.github.julien-truffaut" %% "monocle-core" % "2.0.5"
 libraryDependencies += "com.github.julien-truffaut" %% "monocle-macro" % "2.0.5"
-libraryDependencies += "com.47deg" %% "github4s" % "0.24.1"
-libraryDependencies += "io.lemonlabs" %% "scala-uri" % "2.2.2"
+libraryDependencies += "com.47deg" %% "github4s" % "0.24.0"
+libraryDependencies += "io.lemonlabs" %% "scala-uri" % "2.2.3"
 libraryDependencies += "org.scalameta" %% "scalameta" % "4.3.15"

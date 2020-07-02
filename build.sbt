@@ -71,7 +71,7 @@ libraryDependencies ++= Seq(
   "com.lihaoyi" %% "ujson" % "1.1.0",
   "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.6",
   "org.scalatest" %% "scalatest" % "3.2.0" % "it,test",
-  "com.github.tomakehurst" % "wiremock" % "2.27.0" % "it,test"
+  "com.github.tomakehurst" % "wiremock" % "2.27.1" % "it,test"
 )
 libraryDependencies += "org.jsoup" % "jsoup" % "1.13.1"
 libraryDependencies += "org.typelevel" %% "cats-effect" % "2.1.3"

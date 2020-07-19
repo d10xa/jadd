@@ -3,7 +3,6 @@ package ru.d10xa.jadd.code.scalameta
 import monocle.Lens
 import monocle.macros.GenLens
 
-import scala.meta.Lit
 import scala.meta.Term
 
 /**
@@ -17,7 +16,7 @@ final case class ModuleId(
   groupId: String,
   percentsCount: Int,
   artifactId: String,
-  version: String,
+  version: ModuleVersion,
   terms: List[Term]
 )
 
@@ -31,13 +30,13 @@ object ModuleIdMatch {
       case ApplyInfixPercent(
           GroupIdPercentArtifactIdMatch(ga),
           1,
-          Lit.String(v)) =>
+          ModuleVersionMatch(moduleVersion)) =>
         Some(
           ModuleId(
             groupId = ga.groupId,
             percentsCount = ga.percents.n,
             artifactId = ga.artifactId,
-            version = v,
+            version = moduleVersion,
             terms = List.empty[Term]
           ))
       case ApplyInfixPercent(ModuleIdMatch(mId), 1, term) =>

@@ -5,15 +5,15 @@ import ru.d10xa.jadd.testkit.TestBase
 import scala.meta.Term
 
 class ScalametaTest extends TestBase {
-  test("GroupIdPercentArtifactIdMatch.unapply") {
-    parseSource("\"org.jline\" % \"jline\"").stats.head match {
-      case GroupIdPercentArtifactIdMatch(
-          GroupIdPercentArtifactId(groupId, artifactId, percents)) =>
-        groupId shouldBe "org.jline"
-        artifactId shouldBe "jline"
-        percents.n shouldBe 1
-    }
-  }
+
+  val sbtModuleIdFinder: SbtModuleIdFinder = SbtModuleIdFinder
+  val sbtStringValFinder: SbtStringValFinder = SbtStringValFinder
+
+  def findModules(str: String): List[ModuleId] =
+    sbtModuleIdFinder.find(parseSource(str))
+
+  def findStringVals(str: String): List[StringVal] =
+    sbtStringValFinder.find(parseSource(str))
 
   test("PercentCharsMatch.unapply") {
     PercentCharsMatch.unapply("%") shouldEqual Some(1)
@@ -24,60 +24,72 @@ class ScalametaTest extends TestBase {
   }
 
   test("ModuleIdMatch g %% a % v") {
-    val s = parseSource("\"org.something\" %% \"something-name\" % \"0.0.1\"")
-    s.stats.head match {
-      case ModuleIdMatch(ModuleId(g, p, a, v, Nil)) =>
-        g shouldBe "org.something"
-        p shouldBe 2
-        a shouldBe "something-name"
-        v shouldBe "0.0.1"
-    }
+    val List(moduleId) =
+      findModules("\"org.something\" %% \"something-name\" % \"0.0.1\"")
+    moduleId.groupId shouldBe "org.something"
+    moduleId.percentsCount shouldBe 2
+    moduleId.artifactId shouldBe "something-name"
+    moduleId.version shouldBe VersionString("0.0.1")
   }
 
   test("ModuleIdMatch g %% a % v % Test") {
-    val s = parseSource(
+    val List(moduleId) = findModules(
       "\"org.something\" %% \"something-name\" % \"0.0.1\" % Test"
     )
-    s.stats.head match {
-      case ModuleIdMatch(ModuleId(g, p, a, v, terms)) =>
-        g shouldBe "org.something"
-        p shouldBe 2
-        a shouldBe "something-name"
-        v shouldBe "0.0.1"
-        (terms should have).size(1)
-        terms.head.asInstanceOf[Term.Name].value shouldBe "Test"
+    moduleId.groupId shouldBe "org.something"
+    moduleId.percentsCount shouldBe 2
+    moduleId.artifactId shouldBe "something-name"
+    moduleId.version shouldBe VersionString("0.0.1")
+    (moduleId.terms should have).size(1)
+    moduleId.terms match {
+      case List(name: Term.Name) => name.value shouldBe "Test"
+    }
+  }
+
+  test("ModuleIdMatch VersionVal") {
+    val List(moduleId) = findModules(
+      "\"org.something\" %% \"something-name\" % somethingVersion % Test"
+    )
+    moduleId.version shouldBe VersionVal("somethingVersion")
+    moduleId.terms match {
+      case List(name: Term.Name) => name.value shouldBe "Test"
     }
   }
 
   test("libraryDependencies +=") {
-    val s = parseSource(
+    val List(moduleId): List[ModuleId] = findModules(
       "libraryDependencies += \"org.something\" %% \"something-name\" % \"0.0.1\""
     )
-    s.stats.head match {
-      case LibraryDependencies(List(moduleId)) =>
-        moduleId.groupId shouldBe "org.something"
-        moduleId.percentsCount shouldBe 2
-        moduleId.artifactId shouldBe "something-name"
-        moduleId.version shouldBe "0.0.1"
-    }
+    moduleId.groupId shouldBe "org.something"
+    moduleId.percentsCount shouldBe 2
+    moduleId.artifactId shouldBe "something-name"
+    moduleId.version shouldBe VersionString("0.0.1")
   }
 
   test("libraryDependencies ++=") {
-    val s = parseSource(
-      """libraryDependencies ++= Seq(
+    val moduleIds: List[ModuleId] =
+      findModules("""libraryDependencies ++= Seq(
         |  "com.github.scopt" %% "scopt" % "3.7.1",
         |  "ch.qos.logback" % "logback-classic" % "1.2.3"
-        |)""".stripMargin
-    )
+        |)""".stripMargin)
 
-    val List(m1, m2) = s.stats.flatMap {
-      case LibraryDependencies(list) => list
-    }
+    val List(m1, m2) = moduleIds
 
     m1.groupId shouldBe "com.github.scopt"
     m1.percentsCount shouldBe 2
     m2.groupId shouldBe "ch.qos.logback"
     m2.percentsCount shouldBe 1
+  }
+
+  test("find val string in sbt file") {
+    val vals = findStringVals("""
+        |val catsVersion = "1.0.0"
+        |def x = "???"
+        |""".stripMargin)
+
+    val List(v) = vals
+    v.name shouldBe "catsVersion"
+    v.value shouldBe "1.0.0"
   }
 
 }

@@ -15,12 +15,10 @@ import ru.d10xa.jadd.core.Utils
 import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.fs.FileOps
 import ru.d10xa.jadd.fs.FsItem.TextFile
-import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.show.SbtShowCommand
 
 class SbtPipeline[F[_]: Sync](
   override val ctx: Ctx,
-  artifactInfoFinder: ArtifactInfoFinder,
   scalaVersionFinder: ScalaVersionFinder[F],
   showCommand: SbtShowCommand[F],
   fileOps: FileOps[F])

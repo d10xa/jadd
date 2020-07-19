@@ -8,7 +8,8 @@ import ru.d10xa.jadd.testkit.WireMockTestBase
 
 class MavenRemoteMetadataRepositoryApiTest extends WireMockTestBase {
 
-  def api = new MavenRemoteMetadataRepositoryApi(mockedRepositoryUrl)
+  def api: MavenRemoteMetadataRepositoryApi =
+    new MavenRemoteMetadataRepositoryApi(mockedRepositoryUrl)
 
   test("simple metadata read") {
     val meta =

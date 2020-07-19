@@ -7,7 +7,7 @@ class ArtifactShortcutsTest extends TestBase {
 
   import ru.d10xa.jadd.core.Utils._
 
-  val artifactShortcuts = ArtifactShortcutsClasspath
+  val artifactShortcuts: ArtifactShortcuts = ArtifactShortcutsClasspath
   val unshort: String => Option[String] = artifactShortcuts.unshort
 
   test("find full by shortcut") {

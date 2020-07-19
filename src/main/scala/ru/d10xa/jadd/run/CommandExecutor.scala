@@ -7,6 +7,8 @@ import ru.d10xa.jadd.buildtools.BuildToolLayout
 import ru.d10xa.jadd.buildtools.BuildToolLayoutSelector
 import ru.d10xa.jadd.cli.Command.Help
 import ru.d10xa.jadd.cli.Command.Repl
+import ru.d10xa.jadd.code.scalameta.SbtModuleIdFinder
+import ru.d10xa.jadd.code.scalameta.SbtStringValFinder
 import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.core.LiveSbtScalaVersionFinder
 import ru.d10xa.jadd.core.Loader
@@ -70,11 +72,12 @@ class LiveCommandExecutor[F[_]: Sync] private (
           val scalaVersionFinder = LiveSbtScalaVersionFinder.make(ctx, fileOps)
           new SbtPipeline(
             ctx,
-            artifactInfoFinder,
             scalaVersionFinder,
             new SbtShowCommand(
               fileOps,
-              scalaVersionFinder
+              scalaVersionFinder,
+              SbtModuleIdFinder,
+              SbtStringValFinder
             ),
             fileOps
           )

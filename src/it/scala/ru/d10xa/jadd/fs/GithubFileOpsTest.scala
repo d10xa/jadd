@@ -3,22 +3,26 @@ package ru.d10xa.jadd.fs
 import java.nio.file.Path
 import java.nio.file.Paths
 
+import cats.effect.ContextShift
 import cats.effect.IO
 import cats.effect.Resource
+import cats.implicits._
 import org.http4s.client.blaze.BlazeClientBuilder
 import ru.d10xa.jadd.fs.FsItem.Dir
 import ru.d10xa.jadd.fs.FsItem.TextFile
 import ru.d10xa.jadd.fs.testkit.ItTestBase
 import ru.d10xa.jadd.github.GithubFileOps
 import ru.d10xa.jadd.github.GithubUrlParser.GithubUrlParts
+import ru.d10xa.jadd.instances._
 
 import scala.concurrent.ExecutionContext
 
 class GithubFileOpsTest extends ItTestBase {
   import github4s.Github
+
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  implicit val cs = IO.contextShift(global)
+  implicit val cs: ContextShift[IO] = IO.contextShift(global)
 
   val githubResourceIO: Resource[IO, Github[IO]] =
     BlazeClientBuilder[IO](ExecutionContext.global).resource
@@ -45,7 +49,7 @@ class GithubFileOpsTest extends ItTestBase {
       read(Path.of("src")).unsafeRunSync()
     dir match {
       case Dir(_, files) =>
-        (files.map(_.getFileName.toString) should contain)
+        (files.map(_.getFileName.show) should contain)
           .allOf("main", "test")
       case _ => assert(false)
     }

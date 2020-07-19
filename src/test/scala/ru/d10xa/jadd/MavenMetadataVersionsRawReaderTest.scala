@@ -1,17 +1,20 @@
 package ru.d10xa.jadd
 
+import java.io.InputStream
+
 import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.repository.MavenMetadata
 import ru.d10xa.jadd.xml.MavenMetadataVersionsRawReader
 
+import scala.xml.Elem
 import scala.xml.XML
 
 class MavenMetadataVersionsRawReaderTest extends TestBase {
 
-  val resource =
+  val resource: InputStream =
     getClass.getResourceAsStream("/maven-metadata/scala-maven-metadata.xml")
-  val text = scala.io.Source.fromInputStream(resource).mkString
-  val elem = XML.loadString(text)
+  val text: String = scala.io.Source.fromInputStream(resource).mkString
+  val elem: Elem = XML.loadString(text)
 
   test("parse xml") {
 

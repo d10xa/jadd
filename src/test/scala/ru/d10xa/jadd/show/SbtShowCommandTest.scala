@@ -2,6 +2,8 @@ package ru.d10xa.jadd.show
 
 import cats.effect.SyncIO
 import ru.d10xa.jadd.cli.Config
+import ru.d10xa.jadd.code.scalameta.SbtModuleIdFinder
+import ru.d10xa.jadd.code.scalameta.SbtStringValFinder
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.core.LiveSbtScalaVersionFinder
@@ -17,7 +19,11 @@ class SbtShowCommandTest extends TestBase {
           val scalaVersions =
             LiveSbtScalaVersionFinder
               .make[SyncIO](Ctx(Config.empty), fileOps)
-          new SbtShowCommand[SyncIO](fileOps, scalaVersions)
+          new SbtShowCommand[SyncIO](
+            fileOps,
+            scalaVersions,
+            SbtModuleIdFinder,
+            SbtStringValFinder)
             .show()
             .map(_.toList)
       }
@@ -147,7 +153,23 @@ class SbtShowCommandTest extends TestBase {
     val result = showArtifacts("build.sbt" -> source)
 
     val expected = Seq(
-      art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_11,
+      art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_11
+    )
+    (result should contain).theSameElementsAs(expected)
+  }
+
+  test("version from val") {
+    val source =
+      s"""
+         |val someVersion = "3.9.0"
+         |libraryDependencies ++= Seq(
+         |  "a" % "b" % someVersion
+         |)
+       """.stripMargin
+
+    val result = showArtifacts("build.sbt" -> source)
+    val expected = Seq(
+      art("a:b:3.9.0")
     )
     (result should contain).theSameElementsAs(expected)
   }

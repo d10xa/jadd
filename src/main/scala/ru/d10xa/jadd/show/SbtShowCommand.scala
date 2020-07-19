@@ -7,7 +7,11 @@ import cats.data.Chain
 import cats.effect.Sync
 import cats.implicits._
 import coursier.core.Version
-import ru.d10xa.jadd.code.scalameta.ModuleIdMatch
+import ru.d10xa.jadd.code.scalameta.SbtModuleIdFinder
+import ru.d10xa.jadd.code.scalameta.SbtStringValFinder
+import ru.d10xa.jadd.code.scalameta.StringVal
+import ru.d10xa.jadd.code.scalameta.VersionString
+import ru.d10xa.jadd.code.scalameta.VersionVal
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.ScalaVersionFinder
 import ru.d10xa.jadd.core.Scope
@@ -20,30 +24,15 @@ import ru.d10xa.jadd.instances._
 
 import scala.meta.Source
 import scala.meta.Term
-import scala.meta.Tree
 import scala.meta.dialects
 import scala.meta.parsers.Parsed
-import scala.meta.transversers.SimpleTraverser
 
 class SbtShowCommand[F[_]: Sync](
   fileOps: FileOps[F],
-  scalaVersionFinder: ScalaVersionFinder[F]) {
-
-  def collectNoDuplicate[T](
-    tree: Tree,
-    fn: PartialFunction[Tree, T]): List[T] = {
-    val liftedFn = fn.lift
-    val buf = scala.collection.mutable.ListBuffer[T]()
-    object traverser extends SimpleTraverser {
-      override def apply(tree: Tree): Unit = {
-        val x = liftedFn(tree)
-        x.foreach(buf += _)
-        if (x.isEmpty) super.apply(tree)
-      }
-    }
-    traverser(tree)
-    buf.toList
-  }
+  scalaVersionFinder: ScalaVersionFinder[F],
+  sbtModuleIdFinder: SbtModuleIdFinder,
+  sbtStringValFinder: SbtStringValFinder
+) {
 
   def show(): F[Chain[Artifact]] =
     Paths
@@ -89,12 +78,11 @@ class SbtShowCommand[F[_]: Sync](
           dialects.Sbt1(str).parse[Source].toEither
         }
         .collect { case Right(value) => value }
-      moduleIds = parsedSources
-        .flatMap(source =>
-          collectNoDuplicate(source, {
-            case ModuleIdMatch(m) => m
-          }))
-        .distinct
+      moduleIds = parsedSources.flatMap(sbtModuleIdFinder.find).distinct
+      stringValsMap = parsedSources
+        .flatMap(sbtStringValFinder.find)
+        .map { case StringVal(name, value) => name -> value }
+        .toMap
       c = Chain.fromSeq(
         moduleIds.map(m =>
           Artifact(
@@ -102,7 +90,10 @@ class SbtShowCommand[F[_]: Sync](
             artifactId = if (m.percentsCount > 1) {
               s"${m.artifactId}%%"
             } else m.artifactId,
-            maybeVersion = Version(m.version).some,
+            maybeVersion = m.version match {
+              case VersionString(v) => Version(v).some
+              case VersionVal(v) => stringValsMap.get(v).map(Version(_))
+            },
             maybeScalaVersion = if (m.percentsCount > 1) {
               scalaVersion.some
             } else None,

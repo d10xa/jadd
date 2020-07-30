@@ -23,20 +23,28 @@ object Utils extends StrictLogging {
   def unshortAll(
     rawDependencies: List[String],
     artifactInfoFinder: ArtifactInfoFinder): List[Artifact] =
-    rawDependencies
-      .flatMap(
-        raw =>
-          artifactInfoFinder
-            .artifactFromString[IO](raw)
-            .unsafeRunSync() match { // TODO unsafeRunSync
-            case Right(artifact) => artifact :: Nil
-            case Left(_: ArtifactNotFoundByAlias) =>
-              logger.info(s"$raw - artifact not found by shortcut")
-              Nil
-            case Left(trouble) =>
-              logger.info(s"some error occurred $trouble")
-              Nil
-        })
+    unshortAllF[IO](rawDependencies, artifactInfoFinder)
+      .unsafeRunSync() // TODO
+
+  def unshortAllF[F[_]: Sync](
+    rawDependencies: List[String],
+    artifactInfoFinder: ArtifactInfoFinder): F[List[Artifact]] =
+    rawDependencies.flatTraverse(s => unshortOne(s, artifactInfoFinder))
+
+  def unshortOne[F[_]: Sync](
+    raw: String,
+    artifactInfoFinder: ArtifactInfoFinder): F[List[Artifact]] =
+    artifactInfoFinder
+      .artifactFromString[F](raw)
+      .map {
+        case Right(artifact) => artifact :: Nil
+        case Left(_: ArtifactNotFoundByAlias) =>
+          logger.info(s"$raw - artifact not found by shortcut")
+          Nil
+        case Left(trouble) =>
+          logger.info(s"some error occurred $trouble")
+          Nil
+      }
 
   def sourceFromSpringUri(string: String): BufferedSource =
     if (string.startsWith("classpath:")) Source.fromResource(string.drop(10))

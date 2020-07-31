@@ -20,13 +20,8 @@ import scala.io.BufferedSource
 import scala.io.Source
 
 object Utils extends StrictLogging {
-  def unshortAll(
-    rawDependencies: List[String],
-    artifactInfoFinder: ArtifactInfoFinder): List[Artifact] =
-    unshortAllF[IO](rawDependencies, artifactInfoFinder)
-      .unsafeRunSync() // TODO
 
-  def unshortAllF[F[_]: Sync](
+  def unshortAll[F[_]: Sync](
     rawDependencies: List[String],
     artifactInfoFinder: ArtifactInfoFinder): F[List[Artifact]] =
     rawDependencies.flatTraverse(s => unshortOne(s, artifactInfoFinder))

@@ -126,7 +126,6 @@ object Pipeline {
   def extractArtifacts[F[_]: Sync](ctx: Ctx): F[Seq[String]] =
     for {
       fromReq <- fromRequirements(ctx.config)
-      fromConf = fromConfig(ctx.config)
-    } yield fromReq.orElse(fromConf).getOrElse(Seq.empty)
+    } yield fromReq.orElse(fromConfig(ctx.config)).getOrElse(Seq.empty)
 
 }

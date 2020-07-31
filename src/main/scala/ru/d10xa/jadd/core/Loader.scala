@@ -1,5 +1,6 @@
 package ru.d10xa.jadd.core
 
+import cats.Functor
 import cats.data.Ior
 import cats.data.IorNel
 import cats.effect.Sync
@@ -17,18 +18,20 @@ trait Loader[F[_]] {
 
 class LiveLoader[F[_]: Sync] private (
   artifactInfoFinder: ArtifactInfoFinder,
-  repositoryShortcuts: RepositoryShortcuts)
+  repositoryShortcuts: RepositoryShortcuts,
+  versionTools: VersionTools = VersionTools)
     extends Loader[F] {
 
   override def load(ctx: Ctx): F[IorNel[ArtifactTrouble, List[Artifact]]] =
     Pipeline
       .extractArtifacts(ctx)
-      .map(artifacts => loadByString(ctx, artifacts.toList))
+      .flatMap(artifacts => loadByString(ctx, artifacts.toList))
 
-  def loadByString(
+  def withScalaVersion[M[_]: Functor](
     ctx: Ctx,
-    artifacts: List[String]): IorNel[ArtifactTrouble, List[Artifact]] = {
-    val withScalaVersion: Seq[Artifact] => Seq[Artifact] = _.map(
+    artifacts: M[Artifact]
+  ): M[Artifact] =
+    artifacts.map(
       u =>
         if (u.isScala)
           u.copy(
@@ -36,15 +39,23 @@ class LiveLoader[F[_]: Sync] private (
               u.maybeScalaVersion.orElse(ctx.meta.scalaVersion))
         else u
     )
-    val unshorted: Seq[Artifact] = Utils
-      .unshortAll(artifacts, artifactInfoFinder)
-    val repositoriesUnshorted: Seq[String] =
-      ctx.config.repositories.map(repositoryShortcuts.unshortRepository)
-    loadAllArtifacts(
-      withScalaVersion(unshorted),
-      VersionTools,
-      repositoriesUnshorted)
-  }
+
+  def loadByString(
+    ctx: Ctx,
+    artifacts: List[String]
+  ): F[IorNel[ArtifactTrouble, List[Artifact]]] =
+    for {
+      unshorted <- Utils
+        .unshortAll(artifacts, artifactInfoFinder)
+      repositoriesUnshorted = ctx.config.repositories
+        .map(repositoryShortcuts.unshortRepository)
+        .toList
+      x = loadAllArtifacts(
+        withScalaVersion(ctx, unshorted),
+        versionTools,
+        repositoriesUnshorted)
+    } yield x
+
   def loadAllArtifacts(
     artifacts: Seq[Artifact],
     versionTools: VersionTools,

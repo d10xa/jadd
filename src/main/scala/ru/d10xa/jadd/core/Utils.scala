@@ -3,7 +3,6 @@ package ru.d10xa.jadd.core
 import java.nio.file.Path
 
 import cats.ApplicativeError
-import cats.effect.IO
 import cats.effect.Resource
 import cats.effect.Sync
 import com.typesafe.scalalogging.StrictLogging

@@ -3,7 +3,6 @@ package ru.d10xa.jadd.core
 import java.nio.file.Path
 
 import cats.ApplicativeError
-import cats.effect.IO
 import cats.effect.Resource
 import cats.effect.Sync
 import com.typesafe.scalalogging.StrictLogging
@@ -20,23 +19,26 @@ import scala.io.BufferedSource
 import scala.io.Source
 
 object Utils extends StrictLogging {
-  def unshortAll(
+
+  def unshortAll[F[_]: Sync](
     rawDependencies: List[String],
-    artifactInfoFinder: ArtifactInfoFinder): List[Artifact] =
-    rawDependencies
-      .flatMap(
-        raw =>
-          artifactInfoFinder
-            .artifactFromString[IO](raw)
-            .unsafeRunSync() match { // TODO unsafeRunSync
-            case Right(artifact) => artifact :: Nil
-            case Left(_: ArtifactNotFoundByAlias) =>
-              logger.info(s"$raw - artifact not found by shortcut")
-              Nil
-            case Left(trouble) =>
-              logger.info(s"some error occurred $trouble")
-              Nil
-        })
+    artifactInfoFinder: ArtifactInfoFinder): F[List[Artifact]] =
+    rawDependencies.flatTraverse(s => unshortOne(s, artifactInfoFinder))
+
+  def unshortOne[F[_]: Sync](
+    raw: String,
+    artifactInfoFinder: ArtifactInfoFinder): F[List[Artifact]] =
+    artifactInfoFinder
+      .artifactFromString[F](raw)
+      .map {
+        case Right(artifact) => artifact :: Nil
+        case Left(_: ArtifactNotFoundByAlias) =>
+          logger.info(s"$raw - artifact not found by shortcut")
+          Nil
+        case Left(trouble) =>
+          logger.info(s"some error occurred $trouble")
+          Nil
+      }
 
   def sourceFromSpringUri(string: String): BufferedSource =
     if (string.startsWith("classpath:")) Source.fromResource(string.drop(10))

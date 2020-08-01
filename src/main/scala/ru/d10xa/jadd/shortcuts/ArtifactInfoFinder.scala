@@ -1,5 +1,7 @@
 package ru.d10xa.jadd.shortcuts
 
+import java.io.FileNotFoundException
+
 import cats.effect.Sync
 import cats.implicits._
 import ru.d10xa.jadd.core.Artifact
@@ -55,7 +57,12 @@ class ArtifactInfoFinder(
             )
           }.toOption
         }
-        .recover { case _: NullPointerException => None }
+        .recover {
+          // https://github.com/scala/scala/pull/8443 Throw
+          //   FileNotFoundException in Source.fromResource
+          case _: NullPointerException => None
+          case _: FileNotFoundException => None // since 2.13.3
+        }
     }
 
     // find file by $groupId:$artifactId.json and then $groupId.json

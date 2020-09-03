@@ -2,7 +2,6 @@ package ru.d10xa.jadd.run
 
 import cats.Applicative
 import cats.effect.Sync
-import cats.implicits._
 import ru.d10xa.jadd.buildtools.BuildToolLayout
 import ru.d10xa.jadd.buildtools.BuildToolLayoutSelector
 import ru.d10xa.jadd.cli.Command.Help

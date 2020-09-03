@@ -3,7 +3,6 @@ package ru.d10xa.jadd.code.inserts
 import com.typesafe.scalalogging.LazyLogging
 import ru.d10xa.jadd.show.SbtFormatShowPrinter
 import ru.d10xa.jadd.view.ArtifactView
-import cats.implicits._
 import ru.d10xa.jadd.core.Artifact
 
 class SbtFileInserts extends LazyLogging {

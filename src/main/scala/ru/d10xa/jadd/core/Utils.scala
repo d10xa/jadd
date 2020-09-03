@@ -8,7 +8,6 @@ import cats.effect.Sync
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.core.troubles.ArtifactNotFoundByAlias
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
-import cats.implicits._
 import ru.d10xa.jadd.core.types.MonadThrowable
 import ru.d10xa.jadd.fs.FsItem.TextFile
 import ru.d10xa.jadd.fs.FileOps

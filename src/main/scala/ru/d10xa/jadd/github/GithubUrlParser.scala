@@ -1,6 +1,4 @@
 package ru.d10xa.jadd.github
-
-import cats.implicits._
 import ru.d10xa.jadd.core.types.ApplicativeThrowable
 import ru.d10xa.jadd.core.types.MonadThrowable
 import io.lemonlabs.uri.Url

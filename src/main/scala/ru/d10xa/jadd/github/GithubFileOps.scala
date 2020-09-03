@@ -7,7 +7,6 @@ import cats.data.NonEmptyList
 import cats.effect.Bracket
 import cats.effect.Resource
 import cats.effect.Sync
-import cats.implicits._
 import github4s.GHResponse
 import github4s.Github
 import github4s.domain.Content

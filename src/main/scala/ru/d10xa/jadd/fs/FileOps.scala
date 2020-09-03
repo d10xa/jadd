@@ -6,7 +6,6 @@ import java.nio.file.Path
 
 import cats.effect.Sync
 import cats.effect.concurrent.Ref
-import cats.implicits._
 import ru.d10xa.jadd.core.types.FileCache
 import ru.d10xa.jadd.core.types.FileContent
 import ru.d10xa.jadd.fs.FsItem.TextFile

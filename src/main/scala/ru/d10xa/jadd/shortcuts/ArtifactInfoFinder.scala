@@ -3,7 +3,6 @@ package ru.d10xa.jadd.shortcuts
 import java.io.FileNotFoundException
 
 import cats.effect.Sync
-import cats.implicits._
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.ArtifactInfo
 import ru.d10xa.jadd.core.Scope

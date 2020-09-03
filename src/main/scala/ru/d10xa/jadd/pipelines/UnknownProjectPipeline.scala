@@ -2,7 +2,6 @@ package ru.d10xa.jadd.pipelines
 
 import cats.data.Chain
 import cats.effect.Sync
-import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.Ctx

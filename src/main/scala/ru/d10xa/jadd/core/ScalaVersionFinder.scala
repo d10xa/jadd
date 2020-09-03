@@ -5,7 +5,6 @@ import java.nio.file.Paths
 
 import cats.Applicative
 import cats.effect.Sync
-import cats.implicits._
 import ru.d10xa.jadd.fs.FsItem.TextFile
 import ru.d10xa.jadd.core.types.ApplicativeThrowable
 import ru.d10xa.jadd.core.types.FileContent

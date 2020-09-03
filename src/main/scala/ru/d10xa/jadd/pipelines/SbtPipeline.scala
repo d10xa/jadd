@@ -5,7 +5,6 @@ import java.nio.file.Paths
 
 import cats.data.Chain
 import cats.effect._
-import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.code.inserts.SbtFileInserts
 import ru.d10xa.jadd.core.Artifact

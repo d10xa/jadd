@@ -1,7 +1,6 @@
 package ru.d10xa.jadd.repl
 
 import cats.effect._
-import cats.implicits._
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import ru.d10xa.jadd.repository.RepositoryConstants

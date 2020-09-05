@@ -1,6 +1,6 @@
 package ru.d10xa.jadd.show
 
-import cats.implicits._
+import cats.syntax.all._
 import ru.d10xa.jadd.core.Scope.Test
 import ru.d10xa.jadd.code.Indent
 import ru.d10xa.jadd.core.Artifact

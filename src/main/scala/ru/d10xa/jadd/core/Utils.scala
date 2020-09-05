@@ -1,14 +1,13 @@
 package ru.d10xa.jadd.core
 
 import java.nio.file.Path
-
+import cats.syntax.all._
 import cats.ApplicativeError
 import cats.effect.Resource
 import cats.effect.Sync
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.core.troubles.ArtifactNotFoundByAlias
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
-import cats.implicits._
 import ru.d10xa.jadd.core.types.MonadThrowable
 import ru.d10xa.jadd.fs.FsItem.TextFile
 import ru.d10xa.jadd.fs.FileOps

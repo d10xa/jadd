@@ -1,10 +1,10 @@
 package ru.d10xa.jadd.core
 
+import cats.syntax.all._
 import cats.Functor
 import cats.data.Ior
 import cats.data.IorNel
 import cats.effect.Sync
-import cats.implicits._
 import ru.d10xa.jadd.core.troubles.ArtifactTrouble
 import ru.d10xa.jadd.pipelines.Pipeline
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder

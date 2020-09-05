@@ -1,10 +1,10 @@
 package ru.d10xa.jadd.github
 
-import cats.implicits._
+import cats.syntax.all._
 import ru.d10xa.jadd.core.types.ApplicativeThrowable
 import ru.d10xa.jadd.core.types.MonadThrowable
-import io.lemonlabs.uri.Url
 import ru.d10xa.jadd.github.GithubUrlParser.GithubUrlParts
+import io.lemonlabs.uri.Url
 
 trait GithubUrlParser[F[_]] {
   def parse(url: String): F[GithubUrlParts]

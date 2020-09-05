@@ -7,15 +7,15 @@ import cats.data.NonEmptyList
 import cats.effect.Bracket
 import cats.effect.Resource
 import cats.effect.Sync
-import cats.implicits._
+import cats.syntax.all._
 import github4s.GHResponse
 import github4s.Github
 import github4s.domain.Content
-import ru.d10xa.jadd.fs.FsItem.TextFile
 import ru.d10xa.jadd.core.types.FileContent
 import ru.d10xa.jadd.core.types.MonadThrowable
 import ru.d10xa.jadd.fs.FileOps
 import ru.d10xa.jadd.fs.FsItem
+import ru.d10xa.jadd.fs.FsItem.TextFile
 import ru.d10xa.jadd.github.GithubUrlParser.GithubUrlParts
 import ru.d10xa.jadd.instances._
 

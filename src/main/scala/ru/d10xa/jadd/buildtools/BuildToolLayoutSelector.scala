@@ -4,8 +4,8 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 import cats.effect.Sync
+import cats.syntax.all._
 import ru.d10xa.jadd.core.Ctx
-import cats.implicits._
 import ru.d10xa.jadd.buildtools.BuildToolLayout._
 import ru.d10xa.jadd.fs.FileOps
 import ru.d10xa.jadd.fs.FsItem.Dir

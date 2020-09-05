@@ -3,9 +3,9 @@ package ru.d10xa.jadd.show
 import java.nio.file.Path
 import java.nio.file.Paths
 
+import cats.syntax.all._
 import cats.data.Chain
 import cats.effect.Sync
-import cats.implicits._
 import coursier.core.Version
 import ru.d10xa.jadd.code.scalameta.SbtModuleIdFinder
 import ru.d10xa.jadd.code.scalameta.SbtStringValFinder

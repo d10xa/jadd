@@ -1,7 +1,7 @@
 package ru.d10xa.jadd.core
 
 import java.nio.file.Path
-
+import cats.syntax.all._
 import cats.ApplicativeError
 import cats.MonadError
 import cats.Show
@@ -10,7 +10,6 @@ import eu.timepit.refined.api.RefType
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.api.Validate
 import io.estatico.newtype.macros.newtype
-import cats.implicits._
 import ru.d10xa.jadd.fs.FsItem
 
 import scala.language.implicitConversions

@@ -1,10 +1,10 @@
 package ru.d10xa.jadd.pipelines
 
+import cats.syntax.all._
 import cats.data.Chain
 import cats.data.Ior
 import cats.data.IorNel
 import cats.effect.Sync
-import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.cli.Command.Install
 import ru.d10xa.jadd.cli.Command.Search

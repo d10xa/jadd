@@ -3,12 +3,12 @@ package ru.d10xa.jadd.run
 import java.net.URI
 import java.nio.file.Paths
 
+import cats.syntax.all._
 import cats.effect.ConcurrentEffect
 import cats.effect.Resource
 import cats.effect.Sync
 import cats.effect.concurrent.Ref
 import com.typesafe.scalalogging.StrictLogging
-import cats.implicits._
 import github4s.Github
 import org.http4s.client.blaze.BlazeClientBuilder
 import ru.d10xa.jadd.buildtools.BuildToolLayoutSelector

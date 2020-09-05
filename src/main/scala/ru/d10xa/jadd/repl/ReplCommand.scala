@@ -2,7 +2,7 @@ package ru.d10xa.jadd.repl
 
 import cats.Applicative
 import cats.effect.Sync
-import cats.implicits._
+import cats.syntax.all._
 import com.typesafe.scalalogging.StrictLogging
 import org.jline.reader._
 import org.jline.terminal.Terminal

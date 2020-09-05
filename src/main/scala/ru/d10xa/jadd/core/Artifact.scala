@@ -1,7 +1,7 @@
 package ru.d10xa.jadd.core
 
+import cats.syntax.all._
 import cats.Show
-import cats.implicits._
 import com.typesafe.scalalogging.StrictLogging
 import coursier.core.Version
 import ru.d10xa.jadd.core.types.GroupId

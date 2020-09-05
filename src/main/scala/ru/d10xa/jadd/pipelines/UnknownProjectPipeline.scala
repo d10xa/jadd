@@ -1,5 +1,6 @@
 package ru.d10xa.jadd.pipelines
 
+import cats.syntax.all._
 import cats.data.Chain
 import cats.effect.Sync
 import com.typesafe.scalalogging.StrictLogging

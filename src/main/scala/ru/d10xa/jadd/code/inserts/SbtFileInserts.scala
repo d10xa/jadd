@@ -1,5 +1,6 @@
 package ru.d10xa.jadd.code.inserts
 
+import cats.syntax.all._
 import com.typesafe.scalalogging.LazyLogging
 import ru.d10xa.jadd.show.SbtFormatShowPrinter
 import ru.d10xa.jadd.view.ArtifactView

@@ -1,5 +1,6 @@
 package ru.d10xa.jadd.core
 
+import cats.syntax.all._
 import cats.Functor
 import cats.data.Ior
 import cats.data.IorNel

@@ -3,7 +3,7 @@ package ru.d10xa.jadd.fs
 import java.nio.file.Files
 import java.nio.file.LinkOption
 import java.nio.file.Path
-
+import cats.syntax.all._
 import cats.effect.Sync
 import cats.effect.concurrent.Ref
 import ru.d10xa.jadd.core.types.FileCache

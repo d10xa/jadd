@@ -1,4 +1,6 @@
 package ru.d10xa.jadd.code.inserts
+
+import cats.syntax.all._
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.CodeBlock
 import ru.d10xa.jadd.core.types.ScalaVersion

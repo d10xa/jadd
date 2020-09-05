@@ -4,6 +4,7 @@ import java.net.URL
 
 import better.files._
 import cats.data.EitherNel
+import cats.syntax.all._
 import cats.data.NonEmptyList
 import com.typesafe.scalalogging.LazyLogging
 import coursier.core.Version

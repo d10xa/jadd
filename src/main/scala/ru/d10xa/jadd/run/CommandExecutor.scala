@@ -1,5 +1,6 @@
 package ru.d10xa.jadd.run
 
+import cats.syntax.all._
 import cats.Applicative
 import cats.effect.Sync
 import ru.d10xa.jadd.buildtools.BuildToolLayout

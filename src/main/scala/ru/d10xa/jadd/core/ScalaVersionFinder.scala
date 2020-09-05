@@ -2,7 +2,7 @@ package ru.d10xa.jadd.core
 
 import java.nio.file.Path
 import java.nio.file.Paths
-
+import cats.syntax.all._
 import cats.Applicative
 import cats.effect.Sync
 import ru.d10xa.jadd.fs.FsItem.TextFile

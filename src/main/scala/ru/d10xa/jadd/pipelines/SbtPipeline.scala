@@ -2,7 +2,7 @@ package ru.d10xa.jadd.pipelines
 
 import java.nio.file.Path
 import java.nio.file.Paths
-
+import cats.syntax.all._
 import cats.data.Chain
 import cats.effect._
 import com.typesafe.scalalogging.StrictLogging

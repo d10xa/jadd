@@ -1,5 +1,6 @@
 package ru.d10xa.jadd.core
 
+import cats.syntax.all._
 import cats.data.EitherNel
 
 object troubles {

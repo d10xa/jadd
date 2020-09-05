@@ -4,6 +4,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 
 import cats.data.Chain
+import cats.syntax.all._
 import cats.effect._
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.core.Artifact

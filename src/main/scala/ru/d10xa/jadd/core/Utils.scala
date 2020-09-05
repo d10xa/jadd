@@ -1,7 +1,7 @@
 package ru.d10xa.jadd.core
 
 import java.nio.file.Path
-
+import cats.syntax.all._
 import cats.ApplicativeError
 import cats.effect.Resource
 import cats.effect.Sync

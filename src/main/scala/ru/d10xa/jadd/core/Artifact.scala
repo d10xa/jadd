@@ -1,5 +1,6 @@
 package ru.d10xa.jadd.core
 
+import cats.syntax.all._
 import cats.Show
 import com.typesafe.scalalogging.StrictLogging
 import coursier.core.Version

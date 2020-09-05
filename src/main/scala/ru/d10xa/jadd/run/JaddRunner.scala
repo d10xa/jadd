@@ -3,6 +3,7 @@ package ru.d10xa.jadd.run
 import java.net.URI
 import java.nio.file.Paths
 
+import cats.syntax.all._
 import cats.effect.ConcurrentEffect
 import cats.effect.Resource
 import cats.effect.Sync

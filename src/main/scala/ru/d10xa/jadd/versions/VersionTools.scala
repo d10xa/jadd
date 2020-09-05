@@ -1,5 +1,6 @@
 package ru.d10xa.jadd.versions
 
+import cats.syntax.all._
 import cats.data.EitherNel
 import cats.data.NonEmptyList
 import com.typesafe.scalalogging.StrictLogging

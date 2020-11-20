@@ -34,7 +34,7 @@ lazy val root = project
   )
 
 addCompilerPlugin(
-  ("org.typelevel" %% "kind-projector" % "0.11.0").cross(CrossVersion.full))
+  ("org.typelevel" %% "kind-projector" % "0.11.1").cross(CrossVersion.full))
 
 //wartremoverErrors ++= Warts.unsafe
 wartremoverErrors in (Compile, compile) ++= Seq(

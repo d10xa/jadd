@@ -69,7 +69,7 @@ class ScalametaTest extends TestBase {
   test("libraryDependencies ++=") {
     val moduleIds: List[ModuleId] =
       findModules("""libraryDependencies ++= Seq(
-        |  "com.github.scopt" %% "scopt" % "3.7.1",
+        |  "com.github.scopt" %% "scopt" % "4.0.0",
         |  "ch.qos.logback" % "logback-classic" % "1.2.3"
         |)""".stripMargin)
 

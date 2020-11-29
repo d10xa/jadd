@@ -63,7 +63,7 @@ wartremoverErrors in (Compile, compile) ++= Seq(
 
 libraryDependencies ++= Seq(
   "org.scala-lang.modules" %% "scala-xml" % "1.3.0",
-  "com.github.scopt" %% "scopt" % "3.7.1",
+  "com.github.scopt" %% "scopt" % "4.0.0",
   "ch.qos.logback" % "logback-classic" % "1.2.3",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
   "org.typelevel" %% "cats-core" % "2.3.0",

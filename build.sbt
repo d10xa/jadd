@@ -66,7 +66,7 @@ libraryDependencies ++= Seq(
   "com.github.scopt" %% "scopt" % "3.7.1",
   "ch.qos.logback" % "logback-classic" % "1.2.3",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
-  "org.typelevel" %% "cats-core" % "2.3.0",
+  "org.typelevel" %% "cats-core" % "2.3.1",
   "org.jline" % "jline" % "3.18.0",
   "com.lihaoyi" %% "ujson" % "1.2.2",
   "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.6",

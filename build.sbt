@@ -28,38 +28,14 @@ lazy val root = project
       "-feature", // warn about misused language features
       "-language:higherKinds", // allow higher kinded types without `import scala.language.higherKinds`
       "-Xlint", // enable handy linter warnings
-      "-Xfatal-warnings", // turn compiler warnings into errors,
+//      "-Xfatal-warnings", // turn compiler warnings into errors,
       "-Ymacro-annotations" // for @newtype
-    )
+    ),
+    fork in run := true
   )
 
 addCompilerPlugin(
   ("org.typelevel" %% "kind-projector" % "0.11.2").cross(CrossVersion.full))
-
-//wartremoverErrors ++= Warts.unsafe
-wartremoverErrors in (Compile, compile) ++= Seq(
-//  Wart.Any,
-  Wart.AnyVal,
-  Wart.ArrayEquals,
-  Wart.AsInstanceOf,
-  Wart.FinalCaseClass,
-  Wart.FinalVal,
-  Wart.ImplicitConversion,
-  Wart.ImplicitParameter,
-  Wart.JavaConversions,
-  Wart.LeakingSealed,
-  Wart.Null,
-  Wart.Option2Iterable,
-  Wart.Overloading,
-  Wart.Product,
-  Wart.PublicInference,
-  Wart.Return,
-  Wart.Serializable,
-  Wart.StringPlusAny,
-  Wart.ToString,
-  Wart.StringPlusAny,
-  Wart.TryPartial
-)
 
 libraryDependencies ++= Seq(
   "org.scala-lang.modules" %% "scala-xml" % "1.3.0",
@@ -86,3 +62,5 @@ libraryDependencies += "com.47deg" %% "github4s" % "0.27.1"
 libraryDependencies += "io.lemonlabs" %% "scala-uri" % "3.0.0"
 libraryDependencies += "org.http4s" %% "http4s-blaze-client" % "0.21.15"
 libraryDependencies += "org.scalameta" %% "scalameta" % "4.4.4"
+libraryDependencies += "io.get-coursier" %% "coursier" % "2.0.7"
+libraryDependencies += "io.get-coursier" %% "coursier-cats-interop" % "2.0.7"

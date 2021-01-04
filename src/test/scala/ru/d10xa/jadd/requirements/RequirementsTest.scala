@@ -13,7 +13,10 @@ class RequirementsTest extends TestBase {
         Ctx(
           Config(
             artifacts = Seq("junit"),
-            requirements = Seq("classpath:jrequirements/jrequirements.txt"))))
+            requirements = Seq("classpath:jrequirements/jrequirements.txt")
+          )
+        )
+      )
       .unsafeRunSync()
     val Seq(a, b, c) = artifacts
     a shouldEqual "commons-csv"

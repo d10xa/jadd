@@ -56,7 +56,8 @@ object Cli extends Cli {
 
     opt[String]("proxy")
       .text(
-        "http proxy. (Format http://host:port or http://user:password@host:port)")
+        "http proxy. (Format http://host:port or http://user:password@host:port)"
+      )
       .action((x, c) => c.copy(proxy = Some(x)))
 
     opt[String]("shortcuts-uri")
@@ -66,13 +67,15 @@ object Cli extends Cli {
     // TODO generate list of formats automatically
     opt[String]('f', "output-format")
       .text(
-        "artifacts output format (ammonite, gradle, groovy, leiningen, maven, mill, sbt, jadd, jadd-no-versions)")
-      .action(
-        (x, c) =>
-          c.copy(
-            showPrinter = ShowPrinter
-              .fromString(x)
-              .getOrElse(JaddFormatShowPrinter.withVersions)))
+        "artifacts output format (ammonite, gradle, groovy, leiningen, maven, mill, sbt, jadd, jadd-no-versions)"
+      )
+      .action((x, c) =>
+        c.copy(
+          showPrinter = ShowPrinter
+            .fromString(x)
+            .getOrElse(JaddFormatShowPrinter.withVersions)
+        )
+      )
 
     cmd("install")
       .text("install dependency to build file")

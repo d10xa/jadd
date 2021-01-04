@@ -8,7 +8,8 @@ description := "Command-line tool for adding dependencies to gradle/maven/sbt bu
 
 import xerial.sbt.Sonatype._
 sonatypeProjectHosting := Some(
-  GitHubHosting("d10xa", "jadd", "Andrey Stolyarov", "d10xa@mail.ru"))
+  GitHubHosting("d10xa", "jadd", "Andrey Stolyarov", "d10xa@mail.ru")
+)
 
 publishTo := sonatypePublishTo.value
 
@@ -35,7 +36,8 @@ lazy val root = project
   )
 
 addCompilerPlugin(
-  ("org.typelevel" %% "kind-projector" % "0.11.2").cross(CrossVersion.full))
+  ("org.typelevel" %% "kind-projector" % "0.11.2").cross(CrossVersion.full)
+)
 
 libraryDependencies ++= Seq(
   "org.scala-lang.modules" %% "scala-xml" % "1.3.0",

@@ -40,7 +40,8 @@ class ReplCommand[F[_]: Sync] extends StrictLogging {
 
   def runRepl(
     runParams: RunParams[F],
-    action: RunParams[F] => F[Unit]): F[Unit] = {
+    action: RunParams[F] => F[Unit]
+  ): F[Unit] = {
     logger.info("Welcome to jadd REPL!")
     val replContext = new ReplContext
 

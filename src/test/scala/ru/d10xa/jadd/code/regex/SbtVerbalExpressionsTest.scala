@@ -19,7 +19,8 @@ class SbtVerbalExpressionsTest extends TestBase {
       "org.typelevel",
       "%%",
       "cats-core",
-      "1.1.0") :: Nil
+      "1.1.0"
+    ) :: Nil
   }
 
 }

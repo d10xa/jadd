@@ -19,7 +19,7 @@ object SbtVerbalExpressions {
       .endOfLine()
       .build()
 
-  val declaredDependency: VerbalExpression = {
+  val declaredDependency: VerbalExpression =
     VerbalExpression
       .regex()
       .add("\"")
@@ -46,6 +46,5 @@ object SbtVerbalExpressions {
       .endCapt()
       .add("\"")
       .build()
-  }
 
 }

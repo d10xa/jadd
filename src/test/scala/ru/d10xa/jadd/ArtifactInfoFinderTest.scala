@@ -39,7 +39,8 @@ class ArtifactInfoFinderTest extends TestBase {
       ArtifactInfo(
         scope = Some("test"),
         repository = None
-      ))
+      )
+    )
   }
 
   test("find artifactInfo with bintray repository") {
@@ -48,7 +49,8 @@ class ArtifactInfoFinderTest extends TestBase {
       ArtifactInfo(
         scope = None,
         repository = Some("bintray/hseeberger/maven")
-      ))
+      )
+    )
   }
 
   test("find artifact with bintray repository") {

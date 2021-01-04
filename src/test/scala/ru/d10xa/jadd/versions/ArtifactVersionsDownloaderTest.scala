@@ -17,7 +17,8 @@ class ArtifactVersionsDownloaderTest extends TestBase {
           artifact
             .copy(
               availableVersions = Seq(Version("42")),
-              maybeVersion = Some(Version("42")))
+              maybeVersion = Some(Version("42"))
+            )
             .asRight
       )
       .right
@@ -32,13 +33,15 @@ class ArtifactVersionsDownloaderTest extends TestBase {
         Artifact(
           groupId = GroupId("a"),
           artifactId = "b",
-          maybeVersion = Some(Version("1.0"))),
+          maybeVersion = Some(Version("1.0"))
+        ),
         Seq("repo1"),
         (artifact: Artifact) =>
           artifact
             .copy(
               availableVersions = Seq(Version("42")),
-              maybeVersion = Some(Version("42")))
+              maybeVersion = Some(Version("42"))
+            )
             .asRight
       )
       .right

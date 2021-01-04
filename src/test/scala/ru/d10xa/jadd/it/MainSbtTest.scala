@@ -22,7 +22,9 @@ class MainSbtTest extends WireMockTestBase with BuildFileTestBase {
         projectDirArg,
         "--repository",
         mockedRepositoryUrl,
-        "logback-core"))
+        "logback-core"
+      )
+    )
 
     read() shouldEqual
       """

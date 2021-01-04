@@ -21,7 +21,10 @@ class GithubUrlParserTest extends TestBase {
             "d10xa",
             "jadd",
             Some("project/plugins.sbt"),
-            Some("master"))))
+            Some("master")
+          )
+        )
+      )
   }
 
   test("repo root") {

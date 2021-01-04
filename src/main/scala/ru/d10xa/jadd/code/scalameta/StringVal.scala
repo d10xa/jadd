@@ -12,10 +12,11 @@ object StringValMatch {
   def unapply(t: Defn): Option[StringVal] =
     t match {
       case Defn.Val(
-          Nil,
-          List(Pat.Var(Term.Name(name))),
-          None,
-          Lit.String(value)) =>
+            Nil,
+            List(Pat.Var(Term.Name(name))),
+            None,
+            Lit.String(value)
+          ) =>
         Some(StringVal(name, value))
       case _ => None
     }

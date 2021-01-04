@@ -14,7 +14,8 @@ trait VersionTools {
   // TODO api refactoring
 
   def loadVersionAndInitLatest(
-    artifact: Artifact): EitherNel[ArtifactTrouble, Artifact]
+    artifact: Artifact
+  ): EitherNel[ArtifactTrouble, Artifact]
 }
 
 object VersionTools extends VersionTools with StrictLogging {

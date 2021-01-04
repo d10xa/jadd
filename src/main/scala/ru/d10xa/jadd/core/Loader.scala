@@ -19,8 +19,8 @@ trait Loader[F[_]] {
 class LiveLoader[F[_]: Sync] private (
   artifactInfoFinder: ArtifactInfoFinder,
   repositoryShortcuts: RepositoryShortcuts,
-  versionTools: VersionTools = VersionTools)
-    extends Loader[F] {
+  versionTools: VersionTools = VersionTools
+) extends Loader[F] {
 
   override def load(ctx: Ctx): F[IorNel[ArtifactTrouble, List[Artifact]]] =
     Pipeline
@@ -31,13 +31,12 @@ class LiveLoader[F[_]: Sync] private (
     ctx: Ctx,
     artifacts: M[Artifact]
   ): M[Artifact] =
-    artifacts.map(
-      u =>
-        if (u.isScala)
-          u.copy(
-            maybeScalaVersion =
-              u.maybeScalaVersion.orElse(ctx.meta.scalaVersion))
-        else u
+    artifacts.map(u =>
+      if (u.isScala)
+        u.copy(
+          maybeScalaVersion = u.maybeScalaVersion.orElse(ctx.meta.scalaVersion)
+        )
+      else u
     )
 
   def loadByString(
@@ -53,7 +52,8 @@ class LiveLoader[F[_]: Sync] private (
       x = loadAllArtifacts(
         withScalaVersion(ctx, unshorted),
         versionTools,
-        repositoriesUnshorted)
+        repositoriesUnshorted
+      )
     } yield x
 
   def loadAllArtifacts(
@@ -65,8 +65,10 @@ class LiveLoader[F[_]: Sync] private (
     val initial: IorNel[ArtifactTrouble, List[Artifact]] = Ior.Right(List())
 
     artifacts
-      .map(ArtifactVersionsDownloader
-        .loadArtifactVersions(_, repositories, versionTools))
+      .map(
+        ArtifactVersionsDownloader
+          .loadArtifactVersions(_, repositories, versionTools)
+      )
       .map(_.map(List(_)))
       .foldLeft(initial)((a, b) => a.combine(b))
   }

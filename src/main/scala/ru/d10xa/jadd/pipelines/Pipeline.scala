@@ -57,10 +57,9 @@ abstract class Pipeline[F[_]: Sync] extends StrictLogging {
     for {
       predefinedScalaVersion <- Sync[F].pure(ctx.config.scalaVersion)
       optScalaVersion <- findScalaVersion()
-    } yield
-      predefinedScalaVersion
-        .orElse(optScalaVersion)
-        .getOrElse(ScalaVersions.defaultScalaVersion)
+    } yield predefinedScalaVersion
+      .orElse(optScalaVersion)
+      .getOrElse(ScalaVersions.defaultScalaVersion)
 
   def run(
     loader: Loader[F]
@@ -69,7 +68,8 @@ abstract class Pipeline[F[_]: Sync] extends StrictLogging {
       for {
         scalaVersion <- readScalaVersion()
         res <- loader.load(
-          ctx.copy(meta = ProjectMeta(scalaVersion = Some(scalaVersion))))
+          ctx.copy(meta = ProjectMeta(scalaVersion = Some(scalaVersion)))
+        )
       } yield res
     ctx.config.command match {
       case Show =>
@@ -90,10 +90,10 @@ abstract class Pipeline[F[_]: Sync] extends StrictLogging {
     val artifactsWithVersions = artifacts.map(_.inlineScalaVersion)
     logger.info(ctx.config.showPrinter.mkString(artifactsWithVersions))
     val stringsForPrint = artifactsWithVersions
-      .map(
-        artifact =>
-          JaddFormatShowPrinter.withVersions
-            .single(artifact) + " // " + artifact.versionsForPrint)
+      .map(artifact =>
+        JaddFormatShowPrinter.withVersions
+          .single(artifact) + " // " + artifact.versionsForPrint
+      )
     logger.debug(stringsForPrint.mkString("\n"))
   }
 
@@ -106,7 +106,8 @@ abstract class Pipeline[F[_]: Sync] extends StrictLogging {
 object Pipeline {
 
   def requirementToArtifacts[F[_]: Sync](
-    requirementResourcePath: String): F[Seq[String]] =
+    requirementResourcePath: String
+  ): F[Seq[String]] =
     Utils
       .mkStringFromResourceF(requirementResourcePath)
       .map(_.trim.split("\\r?\\n").map(_.trim).toVector)
@@ -116,7 +117,8 @@ object Pipeline {
       case requirements if requirements.nonEmpty =>
         val artifactStrings = requirements.toList
           .flatTraverse(requirement =>
-            requirementToArtifacts(requirement).map(_.toList))
+            requirementToArtifacts(requirement).map(_.toList)
+          )
         artifactStrings.map(_.some)
       case _ => Sync[F].pure(None)
     }

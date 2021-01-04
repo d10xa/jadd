@@ -15,7 +15,8 @@ object Jadd extends IOApp {
     new JaddRunner[IO](
       cli = Cli,
       loggingUtil = LoggingUtil,
-      LiveGithubUrlParser.make[IO]())
+      LiveGithubUrlParser.make[IO]()
+    )
       .run(RunParams[IO](args.toVector)) *> IO(ExitCode.Success)
 
 }

@@ -13,8 +13,9 @@ object FsItem {
   final case class TextFile(content: FileContent) extends FsItem
 
   object TextFile {
-    def make[F[_]](fsItem: FsItem)(
-      implicit a: ApplicativeThrowable[F]): F[TextFile] =
+    def make[F[_]](
+      fsItem: FsItem
+    )(implicit a: ApplicativeThrowable[F]): F[TextFile] =
       fsItem match {
         case t: TextFile => a.pure(t)
         case _: Dir =>

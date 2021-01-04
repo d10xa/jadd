@@ -11,7 +11,8 @@ object ArtifactVersionsDownloader {
   def loadArtifactVersions(
     artifact: Artifact,
     configRepositories: Seq[String],
-    versionTools: VersionTools): IorNel[ArtifactTrouble, Artifact] =
+    versionTools: VersionTools
+  ): IorNel[ArtifactTrouble, Artifact] =
     if (artifact.maybeVersion.isDefined) {
       artifact.rightIor
     } else {
@@ -20,8 +21,11 @@ object ArtifactVersionsDownloader {
 
   def loadArtifactVersionsForce(
     artifact: Artifact,
-    configRepositories: Seq[String], // TODO ValueClass for repository representation
-    versionTools: VersionTools): IorNel[ArtifactTrouble, Artifact] = {
+    configRepositories: Seq[
+      String
+    ], // TODO ValueClass for repository representation
+    versionTools: VersionTools
+  ): IorNel[ArtifactTrouble, Artifact] = {
     val artifactWithRepoList: LazyList[Artifact] =
       if (artifact.repository.isDefined) LazyList(artifact)
       else

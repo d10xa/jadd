@@ -11,7 +11,7 @@ object CodeBlock {
 
   val braces: Map[Char, Char] = Map(
     '{' -> '}',
-    '(' -> ')',
+    '(' -> ')'
   )
 
   def find(source: String, block: String): Seq[CodeBlock] = {
@@ -26,13 +26,12 @@ object CodeBlock {
         op <- openChar.toList
         cl <- closeChar.toList
         res <- extractBlockContentFromLeftTrimmed(sourceLeftTrimmed, op, cl)
-      } yield
-        CodeBlock(
-          outerIndex = outerIndex,
-          innerStartIndex = innerIndex,
-          innerEndIndex = innerIndex + res.length,
-          innerContent = res
-        )
+      } yield CodeBlock(
+        outerIndex = outerIndex,
+        innerStartIndex = innerIndex,
+        innerEndIndex = innerIndex + res.length,
+        innerContent = res
+      )
     }
   }
 

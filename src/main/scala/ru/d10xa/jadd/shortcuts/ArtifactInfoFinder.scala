@@ -23,7 +23,8 @@ class ArtifactInfoFinder(
   import troubles._
 
   def findArtifactInfo[F[_]: Sync](
-    fullArtifact: String): F[Option[ArtifactInfo]] = {
+    fullArtifact: String
+  ): F[Option[ArtifactInfo]] = {
 
     // if left field is empty then try to add it from right
     def combineEmptyFields(a: ArtifactInfo, b: ArtifactInfo): ArtifactInfo =
@@ -69,10 +70,12 @@ class ArtifactInfoFinder(
     val primary: F[Option[ArtifactInfo]] = readFile(
       fullArtifact
         .replaceFirst(":", "__")
-        .replaceFirst("%%", "") + ".json")
+        .replaceFirst("%%", "") + ".json"
+    )
 
     val secondary: F[Option[ArtifactInfo]] = readFile(
-      fullArtifact.takeWhile(_ != ':') + ".json")
+      fullArtifact.takeWhile(_ != ':') + ".json"
+    )
 
     primary.product(secondary).map {
       case (Some(a), Some(b)) =>
@@ -100,13 +103,13 @@ class ArtifactInfoFinder(
       artifactShortcuts
         .unshort(artifactRaw)
         .map(_.split(':'))
-        .collect {
-          case Array(a, b) =>
-            Artifact(
-              groupId = GroupId(a),
-              artifactId = b,
-              shortcut = Some(artifactRaw))
-      }
+        .collect { case Array(a, b) =>
+          Artifact(
+            groupId = GroupId(a),
+            artifactId = b,
+            shortcut = Some(artifactRaw)
+          )
+        }
 
   def full(str: String): Either[ArtifactTrouble, Artifact] =
     if (str.contains(":")) {

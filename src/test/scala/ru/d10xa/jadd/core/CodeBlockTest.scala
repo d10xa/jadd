@@ -20,7 +20,10 @@ class CodeBlockTest extends TestBase {
       """
         |    testCompile 'junit:junit:4.11'
         |""".stripMargin
-    find(buildFileSource, "dependencies {").head.innerContent shouldEqual expected
+    find(
+      buildFileSource,
+      "dependencies {"
+    ).head.innerContent shouldEqual expected
   }
 
   test("extract code block with single line comments") {
@@ -40,7 +43,8 @@ class CodeBlockTest extends TestBase {
     val blockContent = find(buildFileSource, "dependencies {").head
     blockContent.innerContent shouldEqual expected
     buildFileSource.substring(blockContent.innerStartIndex) should startWith(
-      " // }\n    testCompile 'junit:junit:4.11'")
+      " // }\n    testCompile 'junit:junit:4.11'"
+    )
   }
 
   test("block not found") {
@@ -61,7 +65,10 @@ class CodeBlockTest extends TestBase {
         |)
         |// some code here
         |""".stripMargin
-    find(buildFileSource, "libraryDependencies ++= Seq(").head.innerContent shouldEqual
+    find(
+      buildFileSource,
+      "libraryDependencies ++= Seq("
+    ).head.innerContent shouldEqual
       """
         |  "ch.qos.logback" % "logback-classic" % "1.2.3"
         |""".stripMargin

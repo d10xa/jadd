@@ -36,7 +36,8 @@ class LiveGithubUrlParser[F[_]: MonadThrowable] private ()
           repo = repo,
           file = {
             val x = p.parts.drop(4)
-            if (x.nonEmpty) { Some(x.mkString("/")) } else { None }
+            if (x.nonEmpty) { Some(x.mkString("/")) }
+            else { None }
           },
           ref = p.parts.lift(3)
         ).pure[F]

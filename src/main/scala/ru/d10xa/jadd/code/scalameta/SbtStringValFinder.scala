@@ -8,7 +8,10 @@ trait SbtStringValFinder {
 
 object SbtStringValFinder extends SbtStringValFinder {
   override def find(source: Source): List[StringVal] =
-    ScalametaUtils.collectNoDuplicate(source, {
-      case StringValMatch(m) => m
-    })
+    ScalametaUtils.collectNoDuplicate(
+      source,
+      { case StringValMatch(m) =>
+        m
+      }
+    )
 }

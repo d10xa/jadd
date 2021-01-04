@@ -22,7 +22,8 @@ object troubles {
 
   def findAndHandleTroubles(
     artifacts: Seq[EitherNel[ArtifactTrouble, Artifact]],
-    action: String => Unit): Unit = {
+    action: String => Unit
+  ): Unit = {
     val troubles = artifacts.flatMap { e =>
       e match {
         case Right(_) => Seq.empty
@@ -34,7 +35,8 @@ object troubles {
 
   def handleTroubles(
     troubles: Seq[ArtifactTrouble],
-    action: String => Unit): Unit =
+    action: String => Unit
+  ): Unit =
     troubles
       .map {
         case ArtifactNotFoundByAlias(alias) =>

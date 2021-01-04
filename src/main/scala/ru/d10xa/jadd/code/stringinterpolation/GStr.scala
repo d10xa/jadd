@@ -41,13 +41,12 @@ final class GStr(str: String) {
       val r = ve.toString.r
       r.replaceAllIn(str, replacement)
     }
-    ps.foldLeft(str) {
-      case (acc, placeholder) =>
-        m.get(placeholder) match {
-          case Some(value) =>
-            replace(acc, placeholder, value)
-          case None => acc
-        }
+    ps.foldLeft(str) { case (acc, placeholder) =>
+      m.get(placeholder) match {
+        case Some(value) =>
+          replace(acc, placeholder, value)
+        case None => acc
+      }
     }
   }
 }
@@ -66,9 +65,8 @@ object GStr {
     }
 
     LazyList
-      .iterate((Map.empty[String, String], m)) {
-        case (_, cur) =>
-          cur -> interpolateStep(cur)
+      .iterate((Map.empty[String, String], m)) { case (_, cur) =>
+        cur -> interpolateStep(cur)
       }
       .takeWhile { case (pre, cur) => pre != cur }
       .map { case (_, cur) => cur }

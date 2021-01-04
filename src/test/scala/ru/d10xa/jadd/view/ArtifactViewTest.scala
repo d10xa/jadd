@@ -30,7 +30,8 @@ class ArtifactViewTest extends TestBase {
     val artifact = Artifact(
       GroupId("com.typesafe.scala-logging"),
       "scala-logging%%",
-      maybeScalaVersion = Some(ScalaVersion.fromString("2.12")))
+      maybeScalaVersion = Some(ScalaVersion.fromString("2.12"))
+    )
     find(artifact, sbtSource).head.value should be(
       """libraryDependencies += "com.typesafe.scala-logging" % "scala-logging_2.12" % "3.8.0""""
     )

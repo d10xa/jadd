@@ -5,12 +5,12 @@ import scala.meta.transversers.SimpleTraverser
 
 object ScalametaUtils {
 
-  /**
-    * Modified version of scala.meta.transversers.Api.XtensionCollectionLikeUI#collect(scala.PartialFunction)
+  /** Modified version of scala.meta.transversers.Api.XtensionCollectionLikeUI#collect(scala.PartialFunction)
     */
   def collectNoDuplicate[T](
     tree: Tree,
-    fn: PartialFunction[Tree, T]): List[T] = {
+    fn: PartialFunction[Tree, T]
+  ): List[T] = {
     val liftedFn = fn.lift
     val buf = scala.collection.mutable.ListBuffer[T]()
     object traverser extends SimpleTraverser {

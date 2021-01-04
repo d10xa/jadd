@@ -1,9 +1,11 @@
 !.idea/codeStyles/Project.xml
 !.idea/codeStyles/codeStyleConfig.xml
 !.idea/runConfigurations/debug5005.xml
+**/.ammonite/
 .DS_Store
 .attach_pid*
 .bloop
+.bsp/
 .idea/
 .java-version
 .metals

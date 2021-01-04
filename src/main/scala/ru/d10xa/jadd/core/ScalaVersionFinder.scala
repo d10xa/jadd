@@ -19,8 +19,8 @@ trait ScalaVersionFinder[F[_]] {
 
 class LiveSbtScalaVersionFinder[F[_]: Sync] private (
   ctx: Ctx,
-  fileOps: FileOps[F])
-    extends ScalaVersionFinder[F] {
+  fileOps: FileOps[F]
+) extends ScalaVersionFinder[F] {
 
   val buildFilePath: Path = Paths.get("build.sbt")
 
@@ -31,12 +31,13 @@ class LiveSbtScalaVersionFinder[F[_]: Sync] private (
         case TextFile(content) =>
           Applicative[F]
             .pure(
-              LiveSbtScalaVersionFinder.extractScalaVersionFromBuildSbt(
-                content))
+              LiveSbtScalaVersionFinder.extractScalaVersionFromBuildSbt(content)
+            )
         case _ =>
           ApplicativeThrowable[F]
             .raiseError[Option[ScalaVersion]](
-              new IllegalStateException("can not read build.sbt"))
+              new IllegalStateException("can not read build.sbt")
+            )
       }
     } yield optScalaVersion
 

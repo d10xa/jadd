@@ -35,7 +35,9 @@ class ArtifactTest extends TestBase {
   }
 
   test("needScalaVersionResolving") {
-    art("org.scala-lang.modules:scala-async%%").needScalaVersionResolving shouldEqual true
+    art(
+      "org.scala-lang.modules:scala-async%%"
+    ).needScalaVersionResolving shouldEqual true
     art("org.jline:jline").needScalaVersionResolving shouldEqual false
   }
 
@@ -46,7 +48,8 @@ class ArtifactTest extends TestBase {
     val metadataUrl =
       "https://jcenter.bintray.com/junit/junit/maven-metadata.xml"
     a.withMetadataUrl(metadataUrl).mavenMetadata shouldEqual Some(
-      MavenMetadata(url = Some(metadataUrl)))
+      MavenMetadata(url = Some(metadataUrl))
+    )
   }
 
   test("fromString wrong") {
@@ -61,11 +64,10 @@ class ArtifactTest extends TestBase {
     Artifact.fromTuple3(("a", "b", "1.0")) shouldEqual Artifact(
       GroupId("a"),
       "b",
-      Some(Version("1.0")))
-    Artifact.fromTuple2(("a", "b")) shouldEqual Artifact(
-      GroupId("a"),
-      "b",
-      None)
+      Some(Version("1.0"))
+    )
+    Artifact
+      .fromTuple2(("a", "b")) shouldEqual Artifact(GroupId("a"), "b", None)
   }
 
   test("scalaVersionAsPlaceholders") {

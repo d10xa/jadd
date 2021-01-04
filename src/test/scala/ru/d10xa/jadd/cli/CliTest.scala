@@ -70,10 +70,30 @@ class CliTest extends TestBase {
   }
 
   test("parse --output-format") {
-    parse("i", "junit", "-f", "amm").showPrinter shouldBe AmmoniteFormatShowPrinter
-    parse("i", "junit", "--output-format", "mvn").showPrinter shouldBe MavenFormatShowPrinter
-    parse("i", "junit", "--output-format", "maven").showPrinter shouldBe MavenFormatShowPrinter
-    parse("i", "--output-format", "maven", "junit").showPrinter shouldBe MavenFormatShowPrinter
+    parse(
+      "i",
+      "junit",
+      "-f",
+      "amm"
+    ).showPrinter shouldBe AmmoniteFormatShowPrinter
+    parse(
+      "i",
+      "junit",
+      "--output-format",
+      "mvn"
+    ).showPrinter shouldBe MavenFormatShowPrinter
+    parse(
+      "i",
+      "junit",
+      "--output-format",
+      "maven"
+    ).showPrinter shouldBe MavenFormatShowPrinter
+    parse(
+      "i",
+      "--output-format",
+      "maven",
+      "junit"
+    ).showPrinter shouldBe MavenFormatShowPrinter
   }
 
   test("parse --shortcuts-uri") {

@@ -4,7 +4,8 @@ object Indentation {
 
   def predictIndentation(
     fileLines: Seq[String],
-    defaultIndent: Indent = Indent.space(4)): Indent = {
+    defaultIndent: Indent = Indent.space(4)
+  ): Indent = {
     val indents: Seq[Option[Indent]] = fileLines.map(Indent.fromCodeLine)
 
     def countSizeMedian(seq: Seq[Int]): Int = {

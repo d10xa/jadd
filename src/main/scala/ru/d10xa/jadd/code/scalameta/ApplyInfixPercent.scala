@@ -2,8 +2,7 @@ package ru.d10xa.jadd.code.scalameta
 
 import scala.meta.Term
 
-/**
-  * Match
+/** Match
   * leftTerm % rightTerm
   */
 object ApplyInfixPercent {

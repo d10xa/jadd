@@ -19,7 +19,8 @@ import scala.xml.XML
 trait RepositoryApi {
   def repository: String
   def receiveRepositoryMetaWithMaxVersion(
-    artifact: Artifact): EitherNel[MetadataLoadTrouble, MavenMetadata]
+    artifact: Artifact
+  ): EitherNel[MetadataLoadTrouble, MavenMetadata]
 }
 
 object RepositoryApi {
@@ -29,7 +30,7 @@ object RepositoryApi {
       metas.filter(_.versions.nonEmpty) match {
         case xs if xs.isEmpty => None
         case xs => xs.maxBy(_.versions.map(Version(_)).max).some
-    }
+      }
 
   def fromString(repository: String): RepositoryApi =
     if (repository.startsWith("http")) {
@@ -51,19 +52,23 @@ trait MavenMetadataBase extends RepositoryApi with LazyLogging {
     s"$absoluteRepositoryPath/$path/$mavenMetadataXmlName"
   def receiveRepositoryMetaWithArtifactPath(
     artifact: Artifact,
-    artifactPath: String): Either[MetadataLoadTrouble, MavenMetadata]
+    artifactPath: String
+  ): Either[MetadataLoadTrouble, MavenMetadata]
   def receiveRepositoryMetaWithMaxVersion(
-    artifact: Artifact): EitherNel[MetadataLoadTrouble, MavenMetadata] = {
+    artifact: Artifact
+  ): EitherNel[MetadataLoadTrouble, MavenMetadata] = {
 
     val metas: NonEmptyList[Either[MetadataLoadTrouble, MavenMetadata]] =
       if (artifact.isScala && artifact.maybeScalaVersion.isEmpty) {
         ScalaVersions.supportedMinorVersions
           .map(scalaVersion =>
-            artifact.copy(maybeScalaVersion = Some(scalaVersion)))
+            artifact.copy(maybeScalaVersion = Some(scalaVersion))
+          )
           .map(a => receiveRepositoryMetaWithArtifactPath(a, a.asPath))
       } else {
         NonEmptyList.one(
-          receiveRepositoryMetaWithArtifactPath(artifact, artifact.asPath))
+          receiveRepositoryMetaWithArtifactPath(artifact, artifact.asPath)
+        )
       }
 
     val (troubles, maybeArtifactList) = metas.toList.separate
@@ -73,12 +78,16 @@ trait MavenMetadataBase extends RepositoryApi with LazyLogging {
         RepositoryApi.metadataWithMaxVersion(maybeArtifactList) match {
           case Some(meta) => meta.asRight
           case None =>
-            MetadataLoadTrouble(artifact, "Versions not found").asLeft.toEitherNel
+            MetadataLoadTrouble(
+              artifact,
+              "Versions not found"
+            ).asLeft.toEitherNel
         }
       } else troubles.toNel.get.asLeft
 
     result.foreach((meta: MavenMetadata) =>
-      logger.debug(s"Metadata with max version: $meta"))
+      logger.debug(s"Metadata with max version: $meta")
+    )
 
     result
   }
@@ -106,7 +115,8 @@ final class MavenRemoteMetadataRepositoryApi(val repository: String)
           .copy(
             url = Some(url),
             repository = Some(repository),
-            maybeScalaVersion = artifact.maybeScalaVersion)
+            maybeScalaVersion = artifact.maybeScalaVersion
+          )
       Right(meta)
     } catch {
       case NonFatal(e) => Left(MetadataLoadTrouble(artifact, e.getMessage))

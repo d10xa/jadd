@@ -26,7 +26,8 @@ class ArtifactShortcutsTest extends TestBase {
 
     // TODO add tests
     sourceFromSpringUri("classpath:jadd-shortcuts.csv").mkString shouldNot be(
-      empty)
+      empty
+    )
 
     //    sourceFromSpringUri("https://github.com/d10xa/jadd/raw/master/src/main/resources/jadd-shortcuts.csv")
     //      .mkString shouldNot be(empty)

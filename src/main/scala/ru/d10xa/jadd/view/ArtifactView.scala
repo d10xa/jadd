@@ -22,8 +22,8 @@ object ArtifactView {
   final case class MatchImpl(
     start: Int,
     value: String,
-    inSequence: Boolean = false)
-      extends Match {
+    inSequence: Boolean = false
+  ) extends Match {
     require(value.nonEmpty, "match must be non empty")
     require(start > 0, "start of match must be positive")
   }

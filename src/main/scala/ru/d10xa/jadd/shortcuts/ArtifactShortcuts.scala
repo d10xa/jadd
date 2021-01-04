@@ -12,8 +12,8 @@ class ArtifactShortcuts(source: Source) {
       if (lines.head == "shortcut,artifact") lines.tail else lines
     linesWithoutHeader
       .map(_.split(','))
-      .map {
-        case Array(short, full) => (short, full)
+      .map { case Array(short, full) =>
+        (short, full)
       }
       .toMap
   }

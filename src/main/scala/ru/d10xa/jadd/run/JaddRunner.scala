@@ -69,7 +69,9 @@ class JaddRunner[F[_]: Sync: ConcurrentEffect](
             config,
             ProjectMeta(
               path = urlParts.file.orElse("".some),
-              githubUrlParts = urlParts.some))
+              githubUrlParts = urlParts.some
+            )
+          )
         }
       } else {
         Ctx(
@@ -107,11 +109,12 @@ class JaddRunner[F[_]: Sync: ConcurrentEffect](
   def run(runParams: RunParams[F]): F[Unit] =
     for {
       ctx <- runParamsToCtx(runParams)
-      _ <- if (ctx.config.command == Repl) {
-        new ReplCommand[F]().runRepl(runParams, runOnce)
-      } else {
-        runOnce(runParams)
-      }
+      _ <-
+        if (ctx.config.command == Repl) {
+          new ReplCommand[F]().runRepl(runParams, runOnce)
+        } else {
+          runOnce(runParams)
+        }
     } yield ()
 
 }
@@ -120,12 +123,14 @@ object JaddRunner extends StrictLogging {
   def runOnce[F[_]: Sync](
     ctx: Ctx,
     fileOps: FileOps[F],
-    commandExecutor: CommandExecutor[F]): F[Unit] = {
+    commandExecutor: CommandExecutor[F]
+  ): F[Unit] = {
     val repositoryShortcuts = RepositoryShortcutsImpl
     val artifactInfoFinder: ArtifactInfoFinder =
       new ArtifactInfoFinder(
         artifactShortcuts = new ArtifactShortcuts(
-          Utils.sourceFromSpringUri(ctx.config.shortcutsUri)),
+          Utils.sourceFromSpringUri(ctx.config.shortcutsUri)
+        ),
         repositoryShortcuts = repositoryShortcuts
       )
     val loader = LiveLoader.make(artifactInfoFinder, repositoryShortcuts)
@@ -133,6 +138,7 @@ object JaddRunner extends StrictLogging {
       ctx,
       loader,
       fileOps,
-      () => logger.info(ctx.config.usage))
+      () => logger.info(ctx.config.usage)
+    )
   }
 }

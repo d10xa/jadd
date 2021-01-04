@@ -5,13 +5,11 @@ import scala.meta.Term
 
 sealed trait ModuleVersion
 
-/**
-  * @param version for example "0.1.0-SNAPSHOT"
+/** @param version for example "0.1.0-SNAPSHOT"
   */
 final case class VersionString(version: String) extends ModuleVersion
 
-/**
-  * @param value for example scalaTestVersion
+/** @param value for example scalaTestVersion
   */
 final case class VersionVal(value: String) extends ModuleVersion
 

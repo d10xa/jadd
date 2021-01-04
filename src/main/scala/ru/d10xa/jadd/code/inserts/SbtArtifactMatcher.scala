@@ -74,7 +74,8 @@ class SbtArtifactMatcher(val source: String) extends AnyVal {
       (artifact.isScala, artifact.maybeScalaVersion) match {
         case (true, Some(scalaVersion)) =>
           Seq(
-            raw"""libraryDependencies\s\+=\s${r2(artifact, scalaVersion)}""".r)
+            raw"""libraryDependencies\s\+=\s${r2(artifact, scalaVersion)}""".r
+          )
         case _ => Seq.empty
       }
 

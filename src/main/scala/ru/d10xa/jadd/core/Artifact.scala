@@ -37,7 +37,8 @@ final case class Artifact(
         s"${groupId.path}/${artifactIdWithScalaVersion(scalaVersion)}"
       case _ =>
         throw new IllegalStateException(
-          s"artifact $artifactId cannot be represented as path")
+          s"artifact $artifactId cannot be represented as path"
+        )
     }
 
   // TODO think about merge needScalaVersionResolving and isScala methods
@@ -53,7 +54,8 @@ final case class Artifact(
   def artifactIdWithScalaVersion(v: ScalaVersion): String = {
     require(
       artifactId.endsWith("%%"),
-      "scala version resolving require placeholder %%")
+      "scala version resolving require placeholder %%"
+    )
     artifactId.replace("%%", s"_${v.show}")
   }
 
@@ -81,10 +83,12 @@ final case class Artifact(
   def versionsForPrint: String = availableVersions.map(_.repr).mkString(", ")
 
   def initLatestVersion(
-    versionFilter: VersionFilter = VersionFilter): Artifact =
+    versionFilter: VersionFilter = VersionFilter
+  ): Artifact =
     copy(
       maybeVersion =
-        versionFilter.excludeNonRelease(availableVersions).headOption)
+        versionFilter.excludeNonRelease(availableVersions).headOption
+    )
 
 }
 
@@ -110,15 +114,16 @@ object Artifact {
       )
   }
 
-  /**
-    * Example: Split artifact id cats-core_2.12 to tuple (cats-core%%, Some(2.12))
+  /** Example: Split artifact id cats-core_2.12 to tuple (cats-core%%, Some(2.12))
     */
   def scalaVersionAsPlaceholders(
-    artifactId: String): (String, Option[ScalaVersion]) = {
+    artifactId: String
+  ): (String, Option[ScalaVersion]) = {
 
     val foundScalaVersion: Option[ScalaVersion] =
       ScalaVersions.supportedMinorVersions.find(v =>
-        artifactId.contains(s"_${v.show}"))
+        artifactId.contains(s"_${v.show}")
+      )
     foundScalaVersion match {
       case Some(v) =>
         val s = artifactId.dropRight("_".length + v.show.length) + "%%"

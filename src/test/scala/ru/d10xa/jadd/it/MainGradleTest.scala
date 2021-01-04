@@ -24,7 +24,9 @@ class MainGradleTest extends WireMockTestBase with BuildFileTestBase {
         projectDirArg,
         "--repository",
         mockedRepositoryUrl,
-        "junit:junit"))
+        "junit:junit"
+      )
+    )
 
     read() shouldEqual
       """
@@ -51,7 +53,9 @@ class MainGradleTest extends WireMockTestBase with BuildFileTestBase {
         projectDirArg,
         "--repository",
         mockedRepositoryUrl,
-        "io.circe:circe-generic%%"))
+        "io.circe:circe-generic%%"
+      )
+    )
 
     read() shouldEqual
       """

@@ -23,12 +23,13 @@ class GithubFileOps[F[_]: MonadThrowable: Bracket[*[_], Throwable]](
   githubResource: Resource[F, Github[F]],
   owner: String,
   repo: String,
-  ref: Option[String])
-    extends FileOps[F] {
+  ref: Option[String]
+) extends FileOps[F] {
 
   def responseToFsItem(
     path: Path,
-    r: GHResponse[NonEmptyList[Content]]): F[FsItem] =
+    r: GHResponse[NonEmptyList[Content]]
+  ): F[FsItem] =
     r match {
       case GHResponse(_, 404, _) => FsItem.FileNotFound.pure[F].widen[FsItem]
       case GHResponse(Right(result), _, _) =>
@@ -44,7 +45,9 @@ class GithubFileOps[F[_]: MonadThrowable: Bracket[*[_], Throwable]](
           FileContent(
             head.content
               .map(s => new String(java.util.Base64.getMimeDecoder.decode(s)))
-              .getOrElse("")))
+              .getOrElse("")
+          )
+        )
       case nel =>
         val files = nel
           .map(_.name)
@@ -56,7 +59,8 @@ class GithubFileOps[F[_]: MonadThrowable: Bracket[*[_], Throwable]](
   override def read(path: Path): F[FsItem] =
     for {
       response <- githubResource.use(
-        _.repos.getContents(owner, repo, path.show, ref))
+        _.repos.getContents(owner, repo, path.show, ref)
+      )
       fsItem <- responseToFsItem(path, response)
     } yield fsItem
 
@@ -66,11 +70,14 @@ class GithubFileOps[F[_]: MonadThrowable: Bracket[*[_], Throwable]](
 object GithubFileOps {
   def make[F[_]: Sync](
     githubResource: Resource[F, Github[F]],
-    p: GithubUrlParts): F[FileOps[F]] =
+    p: GithubUrlParts
+  ): F[FileOps[F]] =
     Sync[F].delay(
       new GithubFileOps[F](
         githubResource,
         owner = p.owner,
         repo = p.repo,
-        ref = p.ref))
+        ref = p.ref
+      )
+    )
 }

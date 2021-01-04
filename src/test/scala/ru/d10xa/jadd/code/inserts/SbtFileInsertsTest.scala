@@ -22,7 +22,8 @@ class SbtFileInsertsTest extends TestBase {
       Artifact(
         groupId = GroupId("ch.qos.logback"),
         artifactId = "logback-classic",
-        maybeVersion = Some(Version("1.2.3")))
+        maybeVersion = Some(Version("1.2.3"))
+      )
     )
 
     result.trim shouldEqual

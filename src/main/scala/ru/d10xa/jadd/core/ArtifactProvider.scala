@@ -13,8 +13,8 @@ trait ArtifactProvider[T] {
 object ArtifactProvider {
   final case class GradleBuildDescription(buildFileSource: String)
 
-  implicit val gradleArtifactProvider
-    : ArtifactProvider[GradleBuildDescription] =
+  implicit
+  val gradleArtifactProvider: ArtifactProvider[GradleBuildDescription] =
     (d: GradleBuildDescription) => {
 
       import ru.d10xa.jadd.code.regex.RegexImplicits._
@@ -25,11 +25,13 @@ object ArtifactProvider {
       val t3 = Chain.fromSeq(
         stringWithGroupIdArtifactIdVersion()
           .groups3(d.buildFileSource)
-          .map { case (g, a, v) => s"$g:$a:$v" })
+          .map { case (g, a, v) => s"$g:$a:$v" }
+      )
       val t2 = Chain.fromSeq(
         stringWithGroupIdArtifactId()
           .groups2(d.buildFileSource)
-          .map { case (g, a) => s"$g:$a" })
+          .map { case (g, a) => s"$g:$a" }
+      )
 
       val all: Chain[String] = t3 ++ t2
 
@@ -39,8 +41,9 @@ object ArtifactProvider {
         .flatMap(e => Chain.fromSeq(e.toSeq))
     }
 
-  implicit class BuildDescriptionImplicits[T](val buildDescription: T)(
-    implicit artifactProvider: ArtifactProvider[T]) {
+  implicit class BuildDescriptionImplicits[T](val buildDescription: T)(implicit
+    artifactProvider: ArtifactProvider[T]
+  ) {
     def artifacts: Chain[Artifact] = artifactProvider.provide(buildDescription)
   }
 

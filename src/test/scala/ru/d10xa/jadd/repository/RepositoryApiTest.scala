@@ -8,8 +8,12 @@ class RepositoryApiTest extends TestBase {
     import RepositoryApi.rtrimSlash
     rtrimSlash("http://localhost:8080/") shouldEqual "http://localhost:8080"
     rtrimSlash("http://localhost:8080") shouldEqual "http://localhost:8080"
-    rtrimSlash("http://localhost:8080/something/") shouldEqual "http://localhost:8080/something"
-    rtrimSlash("http://localhost:8080/something") shouldEqual "http://localhost:8080/something"
+    rtrimSlash(
+      "http://localhost:8080/something/"
+    ) shouldEqual "http://localhost:8080/something"
+    rtrimSlash(
+      "http://localhost:8080/something"
+    ) shouldEqual "http://localhost:8080/something"
   }
 
   test("metadata with max version") {

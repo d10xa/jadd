@@ -72,7 +72,8 @@ class SbtShowCommand[F[_]: Sync](
         .traverse(fileOps.read)
         .map(_.collect { case t: TextFile => t })
       listOfScalaSourceStrs = fileContent.value :: otherSbtSources.map(
-        _.content.value)
+        _.content.value
+      )
       parsedSources = listOfScalaSourceStrs
         .map { str =>
           dialects.Sbt1(str).parse[Source].toEither
@@ -103,7 +104,9 @@ class SbtShowCommand[F[_]: Sync](
                 case _ => false
               }
               .map(_ => Scope.Test)
-        )))
+          )
+        )
+      )
     } yield c
 
   }

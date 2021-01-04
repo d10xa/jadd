@@ -63,7 +63,9 @@ class SbtArtifactMatcherTest extends TestBase {
         MatchImpl(
           start = 4,
           value =
-            """libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.8.0""""))
+            """libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.8.0""""
+        )
+      )
       .shouldEqual(true)
 
     matcher
@@ -71,7 +73,9 @@ class SbtArtifactMatcherTest extends TestBase {
         MatchImpl(
           start = 85,
           value =
-            """libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.8.0""""))
+            """libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.8.0""""
+        )
+      )
       .shouldEqual(false)
   }
 

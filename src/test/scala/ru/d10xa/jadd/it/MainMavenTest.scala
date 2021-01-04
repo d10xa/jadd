@@ -96,7 +96,8 @@ class MainMavenTest extends WireMockTestBase with BuildFileTestBase {
         "--repository",
         "src/test/resources/m2/repository",
         "com.example:projectname"
-      ))
+      )
+    )
 
     val expected =
       """

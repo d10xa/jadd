@@ -14,8 +14,7 @@ import ru.d10xa.jadd.fs.FsItem
 
 import scala.language.implicitConversions
 
-/**
-  * Warnings disabled because of @newtype
+/** Warnings disabled because of @newtype
   */
 @SuppressWarnings(
   Array(
@@ -23,21 +22,24 @@ import scala.language.implicitConversions
     "org.wartremover.warts.ImplicitParameter",
     "org.wartremover.warts.PublicInference",
     "org.wartremover.warts.ImplicitConversion"
-  ))
+  )
+)
 object types {
 
   type ApplicativeThrowable[F[_]] = ApplicativeError[F, Throwable]
   object ApplicativeThrowable {
-    def apply[F[_]](implicit applicativeError: ApplicativeError[F, Throwable])
-      : ApplicativeThrowable[F] =
+    def apply[F[_]](implicit
+      applicativeError: ApplicativeError[F, Throwable]
+    ): ApplicativeThrowable[F] =
       applicativeError
   }
 
   type MonadThrowable[F[_]] = MonadError[F, Throwable]
 
   object MonadThrowable {
-    def apply[F[_]](
-      implicit monadThrowable: MonadError[F, Throwable]): MonadThrowable[F] =
+    def apply[F[_]](implicit
+      monadThrowable: MonadError[F, Throwable]
+    ): MonadThrowable[F] =
       monadThrowable
   }
 
@@ -64,12 +66,14 @@ object types {
     val empty: FileCache = FileCache(Map.empty[Path, FsItem])
   }
 
-  def refineF[F[_]: ApplicativeThrowable, P, T](p: T)(
-    implicit v: Validate[T, P]): F[Refined[T, P]] =
+  def refineF[F[_]: ApplicativeThrowable, P, T](
+    p: T
+  )(implicit v: Validate[T, P]): F[Refined[T, P]] =
     ApplicativeError[F, Throwable].fromEither(
       RefType.refinedRefType
         .refine[P](p)
         .leftMap(s => new IllegalArgumentException(s))
-        .leftWiden[Throwable])
+        .leftWiden[Throwable]
+    )
 
 }

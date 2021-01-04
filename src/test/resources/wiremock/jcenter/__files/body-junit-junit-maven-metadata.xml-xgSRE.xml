@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<metadata>
+<metadata modelVersion="1.1.0">
   <groupId>junit</groupId>
   <artifactId>junit</artifactId>
-  <version>4.12</version>
+  <version>4.13.1</version>
   <versioning>
-    <latest>4.12</latest>
-    <release>4.12</release>
+    <latest>4.13.1</latest>
+    <release>4.13.1</release>
     <versions>
       <version>3.7</version>
       <version>3.8</version>
@@ -31,7 +31,14 @@
       <version>4.12-beta-2</version>
       <version>4.12-beta-3</version>
       <version>4.12</version>
+      <version>4.13-beta-1</version>
+      <version>4.13-beta-2</version>
+      <version>4.13-beta-3</version>
+      <version>4.13-rc-1</version>
+      <version>4.13-rc-2</version>
+      <version>4.13</version>
+      <version>4.13.1</version>
     </versions>
-    <lastUpdated>20141204184830</lastUpdated>
+    <lastUpdated>20201103191334</lastUpdated>
   </versioning>
 </metadata>

@@ -1,0 +1,13 @@
+{
+  "request" : {
+    "url" : "/org/testng/testng/maven-metadata.xml.sha1",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "body-org-testng-testng-maven-metadata.xml.sha1-HlKTZ.txt",
+    "headers" : {
+      "Content-Type" : "text/plain; charset=utf-8"
+    }
+  }
+}

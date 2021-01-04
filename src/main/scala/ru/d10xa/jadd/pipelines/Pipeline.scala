@@ -21,6 +21,7 @@ import ru.d10xa.jadd.core.troubles
 import ru.d10xa.jadd.core.troubles.ArtifactTrouble
 import ru.d10xa.jadd.core.troubles.handleTroubles
 import ru.d10xa.jadd.versions.ScalaVersions
+import ru.d10xa.jadd.versions.VersionTools
 
 abstract class Pipeline[F[_]: Sync] extends StrictLogging {
 
@@ -62,13 +63,15 @@ abstract class Pipeline[F[_]: Sync] extends StrictLogging {
       .getOrElse(ScalaVersions.defaultScalaVersion)
 
   def run(
-    loader: Loader[F]
+    loader: Loader[F],
+    versionTools: VersionTools[F]
   ): F[Unit] = {
     def loaded: F[IorNel[troubles.ArtifactTrouble, List[Artifact]]] =
       for {
         scalaVersion <- readScalaVersion()
         res <- loader.load(
-          ctx.copy(meta = ProjectMeta(scalaVersion = Some(scalaVersion)))
+          ctx.copy(meta = ProjectMeta(scalaVersion = Some(scalaVersion))),
+          versionTools
         )
       } yield res
     ctx.config.command match {
@@ -90,9 +93,10 @@ abstract class Pipeline[F[_]: Sync] extends StrictLogging {
     val artifactsWithVersions = artifacts.map(_.inlineScalaVersion)
     logger.info(ctx.config.showPrinter.mkString(artifactsWithVersions))
     val stringsForPrint = artifactsWithVersions
-      .map(artifact =>
-        JaddFormatShowPrinter.withVersions
-          .single(artifact) + " // " + artifact.versionsForPrint
+      .map(
+        artifact =>
+          JaddFormatShowPrinter.withVersions
+            .single(artifact) + " // " + artifact.versionsForPrint
       )
     logger.debug(stringsForPrint.mkString("\n"))
   }

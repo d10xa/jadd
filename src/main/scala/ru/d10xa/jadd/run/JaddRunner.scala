@@ -1,10 +1,12 @@
 package ru.d10xa.jadd.run
 
+import cats.Parallel
+
 import java.net.URI
 import java.nio.file.Paths
-
 import cats.syntax.all._
 import cats.effect.ConcurrentEffect
+import cats.effect.ContextShift
 import cats.effect.Resource
 import cats.effect.Sync
 import cats.effect.concurrent.Ref
@@ -21,6 +23,7 @@ import ru.d10xa.jadd.core.LiveLoader
 import ru.d10xa.jadd.core.ProjectMeta
 import ru.d10xa.jadd.core.ProxySettings
 import ru.d10xa.jadd.core.Utils
+import ru.d10xa.jadd.coursier_.CoursierVersions
 import ru.d10xa.jadd.fs.FileOps
 import ru.d10xa.jadd.fs.LiveCachedFileOps
 import ru.d10xa.jadd.fs.LiveFileOps
@@ -34,7 +37,7 @@ import ru.d10xa.jadd.log.LoggingUtil
 
 import scala.concurrent.ExecutionContext
 
-class JaddRunner[F[_]: Sync: ConcurrentEffect](
+class JaddRunner[F[_]: Sync: ConcurrentEffect: Parallel: ContextShift](
   cli: Cli,
   loggingUtil: LoggingUtil,
   githubUrlParser: GithubUrlParser[F]
@@ -87,7 +90,10 @@ class JaddRunner[F[_]: Sync: ConcurrentEffect](
       ctx <- runParamsToCtx(runParams)
       fileOps <- ctxToFileOps(ctx)
       layoutSelector <- BuildToolLayoutSelector.make[F](fileOps).pure[F]
-      commandExecutor <- LiveCommandExecutor.make[F](layoutSelector).pure[F]
+      coursierVersions <- CoursierVersions.make[F]
+      commandExecutor <- LiveCommandExecutor
+        .make[F](coursierVersions, layoutSelector)
+        .pure[F]
       _ <- JaddRunner.runOnce[F](ctx, fileOps, commandExecutor)
     } yield ()
 
@@ -133,7 +139,7 @@ object JaddRunner extends StrictLogging {
         ),
         repositoryShortcuts = repositoryShortcuts
       )
-    val loader = LiveLoader.make(artifactInfoFinder, repositoryShortcuts)
+    val loader = LiveLoader.make(artifactInfoFinder)
     commandExecutor.execute(
       ctx,
       loader,

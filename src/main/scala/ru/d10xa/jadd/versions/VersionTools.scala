@@ -53,7 +53,7 @@ object VersionTools {
 
     private def initLatestVersion(
       artifact: Artifact,
-      versionFilter: VersionFilter = VersionFilter
+      versionFilter: VersionFilter
     ): Artifact =
       artifact.copy(maybeVersion =
         versionFilter.excludeNonRelease(artifact.availableVersions).headOption

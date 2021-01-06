@@ -31,8 +31,7 @@ lazy val root = project
       "-Xlint", // enable handy linter warnings
 //      "-Xfatal-warnings", // turn compiler warnings into errors,
       "-Ymacro-annotations" // for @newtype
-    ),
-    fork in run := true
+    )
   )
 
 addCompilerPlugin(

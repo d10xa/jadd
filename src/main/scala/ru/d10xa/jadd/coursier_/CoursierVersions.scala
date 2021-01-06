@@ -27,7 +27,6 @@ object CoursierVersions {
       override def versions(
         repositories: Seq[Repository],
         module: Module): F[core.Versions] = {
-        println(s"CoursierVersions: $repositories, $module")
         Versions(cache)
           .withRepositories(repositories)
           .withModule(module)

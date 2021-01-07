@@ -1,9 +1,0 @@
-{
-  "request": {
-    "url": "/org/apache/spark/spark-core_2.12/maven-metadata.xml",
-    "method": "GET"
-  },
-  "response": {
-    "status": 404
-  }
-}

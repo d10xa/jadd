@@ -13,30 +13,35 @@ import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.core.LiveSbtScalaVersionFinder
 import ru.d10xa.jadd.core.Loader
 import ru.d10xa.jadd.core.Utils
+import ru.d10xa.jadd.coursier_.CoursierVersions
 import ru.d10xa.jadd.fs.FileOps
 import ru.d10xa.jadd.pipelines._
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
 import ru.d10xa.jadd.shortcuts.RepositoryShortcutsImpl
 import ru.d10xa.jadd.show.SbtShowCommand
+import ru.d10xa.jadd.versions.VersionTools
 
 trait CommandExecutor[F[_]] {
   def execute(
     ctx: Ctx,
     loader: Loader[F],
     fileOps: FileOps[F],
-    showUsage: () => Unit): F[Unit]
+    showUsage: () => Unit
+  ): F[Unit]
 }
 
 class LiveCommandExecutor[F[_]: Sync] private (
-  buildToolLayoutSelector: BuildToolLayoutSelector[F])
-    extends CommandExecutor[F] {
+  coursierVersions: CoursierVersions[F],
+  buildToolLayoutSelector: BuildToolLayoutSelector[F]
+) extends CommandExecutor[F] {
 
   override def execute(
     ctx: Ctx,
     loader: Loader[F],
     fileOps: FileOps[F],
-    showUsage: () => Unit): F[Unit] =
+    showUsage: () => Unit
+  ): F[Unit] =
     ctx.config match {
       case c if c.command == Repl =>
         Applicative[F].unit // already in repl
@@ -47,7 +52,8 @@ class LiveCommandExecutor[F[_]: Sync] private (
         val artifactInfoFinder: ArtifactInfoFinder =
           new ArtifactInfoFinder(
             artifactShortcuts = new ArtifactShortcuts(
-              Utils.sourceFromSpringUri(ctx.config.shortcutsUri)),
+              Utils.sourceFromSpringUri(ctx.config.shortcutsUri)
+            ),
             repositoryShortcuts = repositoryShortcuts
           )
         executePipelines(ctx, loader, fileOps, artifactInfoFinder)
@@ -62,39 +68,39 @@ class LiveCommandExecutor[F[_]: Sync] private (
 
     val pipeline: F[Pipeline[F]] = for {
       layout <- buildToolLayoutSelector.select(ctx)
-    } yield {
-      layout match {
-        case BuildToolLayout.Gradle =>
-          new GradlePipeline(ctx, artifactInfoFinder, fileOps)
-        case BuildToolLayout.Maven =>
-          new MavenPipeline(ctx, artifactInfoFinder, fileOps)
-        case BuildToolLayout.Sbt =>
-          val scalaVersionFinder = LiveSbtScalaVersionFinder.make(ctx, fileOps)
-          new SbtPipeline(
-            ctx,
+    } yield layout match {
+      case BuildToolLayout.Gradle =>
+        new GradlePipeline(ctx, artifactInfoFinder, fileOps)
+      case BuildToolLayout.Maven =>
+        new MavenPipeline(ctx, artifactInfoFinder, fileOps)
+      case BuildToolLayout.Sbt =>
+        val scalaVersionFinder = LiveSbtScalaVersionFinder.make(ctx, fileOps)
+        new SbtPipeline(
+          ctx,
+          scalaVersionFinder,
+          new SbtShowCommand(
+            fileOps,
             scalaVersionFinder,
-            new SbtShowCommand(
-              fileOps,
-              scalaVersionFinder,
-              SbtModuleIdFinder,
-              SbtStringValFinder
-            ),
-            fileOps
-          )
-        case BuildToolLayout.Ammonite =>
-          new AmmonitePipeline(ctx, fileOps)
-        case BuildToolLayout.Unknown =>
-          new UnknownProjectPipeline(ctx, artifactInfoFinder)
-      }
+            SbtModuleIdFinder,
+            SbtStringValFinder
+          ),
+          fileOps
+        )
+      case BuildToolLayout.Ammonite =>
+        new AmmonitePipeline(ctx, fileOps)
+      case BuildToolLayout.Unknown =>
+        new UnknownProjectPipeline(ctx, artifactInfoFinder)
     }
-
-    pipeline.flatMap(_.run(loader))
+    val versionTools = VersionTools.make[F](coursierVersions)
+    pipeline.flatMap(_.run(loader, versionTools))
   }
 
 }
 
 object LiveCommandExecutor {
   def make[F[_]: Sync](
-    buildToolLayoutSelector: BuildToolLayoutSelector[F]): CommandExecutor[F] =
-    new LiveCommandExecutor(buildToolLayoutSelector)
+    coursierVersions: CoursierVersions[F],
+    buildToolLayoutSelector: BuildToolLayoutSelector[F]
+  ): CommandExecutor[F] =
+    new LiveCommandExecutor(coursierVersions, buildToolLayoutSelector)
 }

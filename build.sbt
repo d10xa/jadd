@@ -8,7 +8,8 @@ description := "Command-line tool for adding dependencies to gradle/maven/sbt bu
 
 import xerial.sbt.Sonatype._
 sonatypeProjectHosting := Some(
-  GitHubHosting("d10xa", "jadd", "Andrey Stolyarov", "d10xa@mail.ru"))
+  GitHubHosting("d10xa", "jadd", "Andrey Stolyarov", "d10xa@mail.ru")
+)
 
 publishTo := sonatypePublishTo.value
 
@@ -28,61 +29,38 @@ lazy val root = project
       "-feature", // warn about misused language features
       "-language:higherKinds", // allow higher kinded types without `import scala.language.higherKinds`
       "-Xlint", // enable handy linter warnings
-      "-Xfatal-warnings", // turn compiler warnings into errors,
+//      "-Xfatal-warnings", // turn compiler warnings into errors,
       "-Ymacro-annotations" // for @newtype
     )
   )
 
 addCompilerPlugin(
-  ("org.typelevel" %% "kind-projector" % "0.11.1").cross(CrossVersion.full))
-
-//wartremoverErrors ++= Warts.unsafe
-wartremoverErrors in (Compile, compile) ++= Seq(
-//  Wart.Any,
-  Wart.AnyVal,
-  Wart.ArrayEquals,
-  Wart.AsInstanceOf,
-  Wart.FinalCaseClass,
-  Wart.FinalVal,
-  Wart.ImplicitConversion,
-  Wart.ImplicitParameter,
-  Wart.JavaConversions,
-  Wart.LeakingSealed,
-  Wart.Null,
-  Wart.Option2Iterable,
-  Wart.Overloading,
-  Wart.Product,
-  Wart.PublicInference,
-  Wart.Return,
-  Wart.Serializable,
-  Wart.StringPlusAny,
-  Wart.ToString,
-  Wart.StringPlusAny,
-  Wart.TryPartial
+  ("org.typelevel" %% "kind-projector" % "0.11.2").cross(CrossVersion.full)
 )
 
 libraryDependencies ++= Seq(
-  "org.scala-lang.modules" %% "scala-xml" % "1.3.0",
-  "com.github.scopt" %% "scopt" % "4.0.0",
+  "com.github.scopt" %% "scopt" % "3.7.1",
   "ch.qos.logback" % "logback-classic" % "1.2.3",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
-  "org.typelevel" %% "cats-core" % "2.3.0",
-  "org.jline" % "jline" % "3.17.1",
+  "org.typelevel" %% "cats-core" % "2.3.1",
+  "org.jline" % "jline" % "3.18.0",
   "com.lihaoyi" %% "ujson" % "1.2.2",
   "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.6",
   "org.scalatest" %% "scalatest" % "3.2.3" % "it,test",
   "com.github.tomakehurst" % "wiremock" % "2.27.2" % "it,test"
 )
 libraryDependencies += "org.jsoup" % "jsoup" % "1.13.1"
-libraryDependencies += "org.typelevel" %% "cats-effect" % "2.3.0"
+libraryDependencies += "org.typelevel" %% "cats-effect" % "2.3.1"
 libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.9.1"
-libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.7"
-libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.9"
+libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.8"
+libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.9.1"
 libraryDependencies += "io.estatico" %% "newtype" % "0.4.4"
-libraryDependencies += "eu.timepit" %% "refined" % "0.9.18"
+libraryDependencies += "eu.timepit" %% "refined" % "0.9.20"
 libraryDependencies += "com.github.julien-truffaut" %% "monocle-core" % "2.1.0"
 libraryDependencies += "com.github.julien-truffaut" %% "monocle-macro" % "2.1.0"
 libraryDependencies += "com.47deg" %% "github4s" % "0.27.1"
 libraryDependencies += "io.lemonlabs" %% "scala-uri" % "3.0.0"
-libraryDependencies += "org.http4s" %% "http4s-blaze-client" % "0.21.13"
-libraryDependencies += "org.scalameta" %% "scalameta" % "4.4.0"
+libraryDependencies += "org.http4s" %% "http4s-blaze-client" % "0.21.15"
+libraryDependencies += "org.scalameta" %% "scalameta" % "4.4.4"
+libraryDependencies += "io.get-coursier" %% "coursier" % "2.0.8"
+libraryDependencies += "io.get-coursier" %% "coursier-cats-interop" % "2.0.8"

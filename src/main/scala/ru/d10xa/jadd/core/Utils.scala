@@ -21,12 +21,14 @@ object Utils extends StrictLogging {
 
   def unshortAll[F[_]: Sync](
     rawDependencies: List[String],
-    artifactInfoFinder: ArtifactInfoFinder): F[List[Artifact]] =
+    artifactInfoFinder: ArtifactInfoFinder
+  ): F[List[Artifact]] =
     rawDependencies.flatTraverse(s => unshortOne(s, artifactInfoFinder))
 
-  def unshortOne[F[_]: Sync](
+  private def unshortOne[F[_]: Sync](
     raw: String,
-    artifactInfoFinder: ArtifactInfoFinder): F[List[Artifact]] =
+    artifactInfoFinder: ArtifactInfoFinder
+  ): F[List[Artifact]] =
     artifactInfoFinder
       .artifactFromString[F](raw)
       .map {
@@ -62,16 +64,20 @@ object Utils extends StrictLogging {
       .use((r: BufferedSource) =>
         Sync[F].delay {
           r.mkString
-      })
+        }
+      )
 
   def textFileFromString[F[_]: MonadThrowable](
     fileOps: FileOps[F],
-    path: Path): F[TextFile] =
+    path: Path
+  ): F[TextFile] =
     for {
       fsItem <- fileOps.read(path)
       textFile <- ApplicativeError[F, Throwable].fromOption(
         FsItem.textFilePrism.getOption(fsItem),
         new IllegalStateException(
-          s"File does not exist: ${path.toAbsolutePath.show}"))
+          s"File does not exist: ${path.toAbsolutePath.show}"
+        )
+      )
     } yield textFile
 }

@@ -5,12 +5,9 @@ import monocle.macros.GenLens
 
 import scala.meta.Term
 
-/**
-  *
-  * ModuleID in terms of SBT
+/** ModuleID in terms of SBT
   *
   * "org.something" %% "something-name" % "0.0.1"
-  *
   */
 final case class ModuleId(
   groupId: String,
@@ -28,9 +25,10 @@ object ModuleIdMatch {
   def unapply(t: Term.ApplyInfix): Option[ModuleId] =
     t match {
       case ApplyInfixPercent(
-          GroupIdPercentArtifactIdMatch(ga),
-          1,
-          ModuleVersionMatch(moduleVersion)) =>
+            GroupIdPercentArtifactIdMatch(ga),
+            1,
+            ModuleVersionMatch(moduleVersion)
+          ) =>
         Some(
           ModuleId(
             groupId = ga.groupId,
@@ -38,7 +36,8 @@ object ModuleIdMatch {
             artifactId = ga.artifactId,
             version = moduleVersion,
             terms = List.empty[Term]
-          ))
+          )
+        )
       case ApplyInfixPercent(ModuleIdMatch(mId), 1, term) =>
         Some(ModuleId.termsLens.modify(l => term :: l)(mId))
       case _ => None

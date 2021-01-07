@@ -1,0 +1,13 @@
+{
+  "request" : {
+    "url" : "/ch/qos/logback/logback-core/maven-metadata.xml.sha1",
+    "method" : "HEAD"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "body-ch-qos-logback-logback-core-maven-metadata.xml.sha1-J9SKe.txt",
+    "headers" : {
+      "Content-Type" : "text/plain; charset=utf-8"
+    }
+  }
+}

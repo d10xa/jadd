@@ -49,12 +49,13 @@ class GradleFileInserts extends StrictLogging {
     }
 
     val matchedArtifact = maybeFirstMatch
-      .map(
-        m =>
-          artifact
-            .copy(
-              configuration = Some(m.configuration),
-              doubleQuotes = m.doubleQuotes))
+      .map(m =>
+        artifact
+          .copy(
+            configuration = Some(m.configuration),
+            doubleQuotes = m.doubleQuotes
+          )
+      )
       .getOrElse(artifact)
 
     insertOrUpdate(matchedArtifact)

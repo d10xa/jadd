@@ -20,8 +20,8 @@ class SbtPipeline[F[_]: Sync](
   override val ctx: Ctx,
   scalaVersionFinder: ScalaVersionFinder[F],
   showCommand: SbtShowCommand[F],
-  fileOps: FileOps[F])
-    extends Pipeline[F]
+  fileOps: FileOps[F]
+) extends Pipeline[F]
     with StrictLogging {
 
   val buildFile: Path = Paths.get("build.sbt")

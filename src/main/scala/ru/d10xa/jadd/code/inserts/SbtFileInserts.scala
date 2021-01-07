@@ -15,14 +15,14 @@ class SbtFileInserts extends LazyLogging {
     def matchesView =
       matches.map(m => s"${m.start.show} ${m.value.show}")
     logger.debug(
-      s"""${artifact.groupId.show}:${artifact.artifactId} $matchesCount ($matchesView)""")
+      s"""${artifact.groupId.show}:${artifact.artifactId} $matchesCount ($matchesView)"""
+    )
   }
 
   def appendAll(source: String, artifacts: Seq[Artifact]): String =
     artifacts.foldLeft(source) { case (s, artifact) => append(s, artifact) }
 
-  /**
-    * @return updated source
+  /** @return updated source
     */
   def append[T](buildFileSource: String, artifact: Artifact): String = {
     val matches: Seq[Match] =
@@ -57,6 +57,7 @@ class SbtFileInserts extends LazyLogging {
 
   def appendLines(
     buildFileLines: Array[String],
-    dependencies: Seq[String]): Seq[String] =
+    dependencies: Seq[String]
+  ): Seq[String] =
     buildFileLines.toVector ++ dependencies
 }

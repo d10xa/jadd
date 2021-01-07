@@ -53,7 +53,7 @@ class MainMavenTest extends WireMockTestBase with BuildFileTestBase {
         |        <dependency>
         |            <groupId>org.testng</groupId>
         |            <artifactId>testng</artifactId>
-        |            <version>6.14.3</version>
+        |            <version>7.3.0</version>
         |            <scope>test</scope>
         |        </dependency>
         |        <dependency>
@@ -87,6 +87,7 @@ class MainMavenTest extends WireMockTestBase with BuildFileTestBase {
         |""".stripMargin
 
     write(content)
+    val userDir = System.getProperty("user.dir")
 
     Jadd.main(
       Array(
@@ -94,9 +95,10 @@ class MainMavenTest extends WireMockTestBase with BuildFileTestBase {
         "-q",
         projectDirArg,
         "--repository",
-        "src/test/resources/m2/repository",
+        s"file://$userDir/src/test/resources/m2/repository",
         "com.example:projectname"
-      ))
+      )
+    )
 
     val expected =
       """

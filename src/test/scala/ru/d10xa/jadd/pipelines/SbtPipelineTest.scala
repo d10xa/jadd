@@ -9,8 +9,7 @@ class SbtPipelineTest extends TestBase {
 
   test("testExtractScalaVersionFromBuildSbt scalaVersion in ThisBuild") {
     val optionScalaVersion =
-      LiveSbtScalaVersionFinder.extractScalaVersionFromBuildSbt(
-        FileContent("""
+      LiveSbtScalaVersionFinder.extractScalaVersionFromBuildSbt(FileContent("""
         |organization in ThisBuild := "com.example"
         |scalaVersion in ThisBuild := "2.12.8"
         |version in ThisBuild := "0.0.0"
@@ -21,9 +20,7 @@ class SbtPipelineTest extends TestBase {
 
   test("testExtractScalaVersionFromBuildSbt scalaVersion") {
     val optionScalaVersion =
-      LiveSbtScalaVersionFinder.extractScalaVersionFromBuildSbt(
-        FileContent(
-          """
+      LiveSbtScalaVersionFinder.extractScalaVersionFromBuildSbt(FileContent("""
         |lazy val commonSettings = Seq(
         |  organization := "com.example",
         |  name := "example-name",
@@ -36,8 +33,7 @@ class SbtPipelineTest extends TestBase {
 
   test("testExtractScalaVersionFromBuildSbt scalaVersion in comment") {
     val optionScalaVersion =
-      LiveSbtScalaVersionFinder.extractScalaVersionFromBuildSbt(
-        FileContent("""
+      LiveSbtScalaVersionFinder.extractScalaVersionFromBuildSbt(FileContent("""
         |//  scalaVersion := "2.11.12"
         |scalaVersion in ThisBuild := "2.12.8"
         |}

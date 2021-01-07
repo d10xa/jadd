@@ -7,7 +7,8 @@ object MavenFileInserts {
   def append(
     buildFileSource: String,
     dependencies: Seq[Seq[String]],
-    indent: Indent): Seq[String] = {
+    indent: Indent
+  ): Seq[String] = {
     def isSuitableDependenciesTag(line: String): Boolean =
       line.trim.equals("<dependencies>") && Indent
         .fromCodeLine(line)
@@ -23,9 +24,10 @@ object MavenFileInserts {
     optLineIndex match {
       case Some(index) =>
         val d: Seq[String] = dependencies.flatMap(dependencyRows =>
-          dependencyRows.map(r => {
+          dependencyRows.map { r =>
             s"${indent.take(2)}$r"
-          }))
+          }
+        )
         MiddleInsert.insert(fileLines, d, index + 1)
       case None =>
         val d: Seq[String] =
@@ -35,7 +37,8 @@ object MavenFileInserts {
         MiddleInsert.insert(
           fileLines,
           deps.map(d => s"${indent.take(1)}$d"),
-          -1)
+          -1
+        )
     }
 
   }

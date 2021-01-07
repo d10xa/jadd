@@ -26,33 +26,33 @@ abstract class TestBase extends AnyFunSuiteLike with Matchers {
   def art(s: String): Artifact = Artifact.fromString(s).toOption.get
   def tempPathResource[F[_]: Sync]: Resource[F, Path] =
     Resource.make[F, Path](
-      Sync[F].delay(Files.createTempDirectory(s"jadd_${getClass.getName}")))(
-      path => Sync[F].delay(FileUtils.forceDelete(path.toFile)))
+      Sync[F].delay(Files.createTempDirectory(s"jadd_${getClass.getName}"))
+    )(path => Sync[F].delay(FileUtils.forceDelete(path.toFile)))
   def tempFileOpsResource[F[_]: Sync]: Resource[F, (Path, FileOps[F])] =
     for {
       path <- tempPathResource[F]
       ops <- Resource.liftF(LiveFileOps.make[F](path))
     } yield (path, ops)
   def createFileOpsWithFilesF[F[_]: Sync](
-    files: List[(String, String)]): Resource[F, (Path, FileOps[F])] =
-    tempFileOpsResource[F].flatMap {
-      case t @ (path, ops) =>
-        val createFiles: F[List[File]] = files
-          .traverse {
-            case (fileName, content) =>
-              Sync[F].delay(
-                better.files
-                  .File(path.resolve(fileName))
-                  .createFileIfNotExists(createParents = true)
-                  .write(content))
-          }
-        Resource.liftF(createFiles.map(_ => t))
+    files: List[(String, String)]
+  ): Resource[F, (Path, FileOps[F])] =
+    tempFileOpsResource[F].flatMap { case t @ (path, ops) =>
+      val createFiles: F[List[File]] = files
+        .traverse { case (fileName, content) =>
+          Sync[F].delay(
+            better.files
+              .File(path.resolve(fileName))
+              .createFileIfNotExists(createParents = true)
+              .write(content)
+          )
+        }
+      Resource.liftF(createFiles.map(_ => t))
     }
 
-  def createLayoutSelectorWithFilesF[F[_]: Sync](files: List[(String, String)])
-    : Resource[F, (Path, BuildToolLayoutSelector[F])] =
-    createFileOpsWithFilesF[F](files).map {
-      case (path, ops) =>
-        (path, BuildToolLayoutSelector.make[F](ops))
+  def createLayoutSelectorWithFilesF[F[_]: Sync](
+    files: List[(String, String)]
+  ): Resource[F, (Path, BuildToolLayoutSelector[F])] =
+    createFileOpsWithFilesF[F](files).map { case (path, ops) =>
+      (path, BuildToolLayoutSelector.make[F](ops))
     }
 }

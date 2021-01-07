@@ -1,0 +1,13 @@
+{
+  "request" : {
+    "url" : "/junit/junit/maven-metadata.xml",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "body-junit-junit-maven-metadata.xml-xgSRE.xml",
+    "headers" : {
+      "Content-Type" : "text/xml; charset=utf-8"
+    }
+  }
+}

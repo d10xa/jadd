@@ -36,7 +36,8 @@ class AmmonitePipeline[F[_]: Sync](
   def install(artifacts: List[Artifact]): F[Unit] =
     for {
       newDependencies <- Sync[F].delay(
-        AmmoniteFormatShowPrinter.mkString(artifacts))
+        AmmoniteFormatShowPrinter.mkString(artifacts)
+      )
       source <- buildFileSource
       newSource = List(newDependencies, source.content.value).mkString("\n")
       _ <- fileOps.write(buildFile, newSource)

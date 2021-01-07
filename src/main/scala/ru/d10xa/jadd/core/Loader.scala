@@ -5,70 +5,90 @@ import cats.Functor
 import cats.data.Ior
 import cats.data.IorNel
 import cats.effect.Sync
+import com.typesafe.scalalogging.StrictLogging
+import coursier.parse.RepositoryParser
 import ru.d10xa.jadd.core.troubles.ArtifactTrouble
 import ru.d10xa.jadd.pipelines.Pipeline
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
-import ru.d10xa.jadd.shortcuts.RepositoryShortcuts
 import ru.d10xa.jadd.versions.ArtifactVersionsDownloader
 import ru.d10xa.jadd.versions.VersionTools
 
 trait Loader[F[_]] {
-  def load(ctx: Ctx): F[IorNel[ArtifactTrouble, List[Artifact]]]
+  def load(
+    ctx: Ctx,
+    versionTools: VersionTools[F]
+  ): F[IorNel[ArtifactTrouble, List[Artifact]]]
 }
 
 class LiveLoader[F[_]: Sync] private (
-  artifactInfoFinder: ArtifactInfoFinder,
-  repositoryShortcuts: RepositoryShortcuts,
-  versionTools: VersionTools = VersionTools)
-    extends Loader[F] {
+  artifactInfoFinder: ArtifactInfoFinder
+) extends Loader[F]
+    with StrictLogging {
 
-  override def load(ctx: Ctx): F[IorNel[ArtifactTrouble, List[Artifact]]] =
+  override def load(
+    ctx: Ctx,
+    versionTools: VersionTools[F]
+  ): F[IorNel[ArtifactTrouble, List[Artifact]]] =
     Pipeline
       .extractArtifacts(ctx)
-      .flatMap(artifacts => loadByString(ctx, artifacts.toList))
+      .flatMap(artifacts => loadByString(ctx, artifacts.toList, versionTools))
 
   def withScalaVersion[M[_]: Functor](
     ctx: Ctx,
     artifacts: M[Artifact]
   ): M[Artifact] =
-    artifacts.map(
-      u =>
-        if (u.isScala)
-          u.copy(
-            maybeScalaVersion =
-              u.maybeScalaVersion.orElse(ctx.meta.scalaVersion))
-        else u
+    artifacts.map(u =>
+      if (u.isScala)
+        u.copy(
+          maybeScalaVersion = u.maybeScalaVersion.orElse(ctx.meta.scalaVersion)
+        )
+      else u
     )
 
   def loadByString(
     ctx: Ctx,
-    artifacts: List[String]
+    artifacts: List[String],
+    versionTools: VersionTools[F]
   ): F[IorNel[ArtifactTrouble, List[Artifact]]] =
     for {
       unshorted <- Utils
         .unshortAll(artifacts, artifactInfoFinder)
-      repositoriesUnshorted = ctx.config.repositories
-        .map(repositoryShortcuts.unshortRepository)
-        .toList
-      x = loadAllArtifacts(
+      repositoriesParsed <- RepositoryParser
+        .repositories(ctx.config.repositories)
+        .either match {
+        case Left(errs) =>
+          Sync[F].raiseError(
+            new RuntimeException(
+              s"Error parsing repositories:" + System.lineSeparator() +
+                errs.map("  " + _ + System.lineSeparator()).mkString
+            )
+          )
+        case Right(value) => Sync[F].pure(value.map(_.repr))
+      }
+      result <- loadAllArtifacts(
         withScalaVersion(ctx, unshorted),
         versionTools,
-        repositoriesUnshorted)
-    } yield x
+        repositoriesParsed
+      )
+    } yield result
 
   def loadAllArtifacts(
     artifacts: Seq[Artifact],
-    versionTools: VersionTools,
+    versionTools: VersionTools[F],
     repositories: Seq[String]
-  ): IorNel[ArtifactTrouble, List[Artifact]] = {
+  ): F[IorNel[ArtifactTrouble, List[Artifact]]] = {
 
     val initial: IorNel[ArtifactTrouble, List[Artifact]] = Ior.Right(List())
 
     artifacts
-      .map(ArtifactVersionsDownloader
-        .loadArtifactVersions(_, repositories, versionTools))
-      .map(_.map(List(_)))
-      .foldLeft(initial)((a, b) => a.combine(b))
+      .traverse(
+        ArtifactVersionsDownloader
+          .loadArtifactVersions(_, repositories, versionTools)
+      )
+      .map(
+        _.map(_.map(List(_)))
+          .foldLeft(initial)((a, b) => a.combine(b))
+      )
   }
 
 }
@@ -76,8 +96,7 @@ class LiveLoader[F[_]: Sync] private (
 object LiveLoader {
 
   def make[F[_]: Sync](
-    artifactInfoFinder: ArtifactInfoFinder,
-    repositoryShortcuts: RepositoryShortcuts
-  ): Loader[F] = new LiveLoader[F](artifactInfoFinder, repositoryShortcuts)
+    artifactInfoFinder: ArtifactInfoFinder
+  ): Loader[F] = new LiveLoader[F](artifactInfoFinder)
 
 }

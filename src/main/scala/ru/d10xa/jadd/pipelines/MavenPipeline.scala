@@ -44,14 +44,16 @@ class MavenPipeline[F[_]: Sync](
 
   def makeStringsForInsert(
     artifacts: List[Artifact],
-    indent: Indent): List[String] =
+    indent: Indent
+  ): List[String] =
     fix(artifacts)
       .map(MavenFormatShowPrinter.singleWithIndent(_, indent))
 
   def newContent(
     buildFileSource: String,
     stringsForInsert: List[String],
-    indent: Indent): String =
+    indent: Indent
+  ): String =
     MavenFileInserts
       .append(
         buildFileSource,

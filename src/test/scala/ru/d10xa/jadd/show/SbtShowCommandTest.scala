@@ -14,18 +14,18 @@ class SbtShowCommandTest extends TestBase {
 
   def showArtifacts(files: (String, String)*): List[Artifact] =
     createFileOpsWithFilesF[SyncIO](files.toList)
-      .use {
-        case (_, fileOps) =>
-          val scalaVersions =
-            LiveSbtScalaVersionFinder
-              .make[SyncIO](Ctx(Config.empty), fileOps)
-          new SbtShowCommand[SyncIO](
-            fileOps,
-            scalaVersions,
-            SbtModuleIdFinder,
-            SbtStringValFinder)
-            .show()
-            .map(_.toList)
+      .use { case (_, fileOps) =>
+        val scalaVersions =
+          LiveSbtScalaVersionFinder
+            .make[SyncIO](Ctx(Config.empty), fileOps)
+        new SbtShowCommand[SyncIO](
+          fileOps,
+          scalaVersions,
+          SbtModuleIdFinder,
+          SbtStringValFinder
+        )
+          .show()
+          .map(_.toList)
       }
       .unsafeRunSync()
 

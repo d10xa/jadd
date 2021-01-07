@@ -7,7 +7,7 @@ import cats.implicits._
 
 /**
   * To record new mappings run wiremock proxy and uncomment mockedRepositoryUrl with port 9999
-  * wiremock --port 9999 --record-mappings --proxy-all="http://jcenter.bintray.com" --root-dir=src/test/resources/wiremock/jcenter
+  * coursier launch --contrib wiremock -- --port 9999 --record-mappings --proxy-all="https://jcenter.bintray.com" --root-dir=src/test/resources/wiremock/jcenter
   */
 abstract class WireMockTestBase extends TestBase with BeforeAndAfterAll {
 

@@ -10,13 +10,15 @@ import ru.d10xa.jadd.testkit.TestBase
 class BuildToolLayoutSelectorTest extends TestBase with BeforeAndAfterAll {
 
   def createLayoutF[F[_]: Sync](
-    files: List[(String, String)]): F[BuildToolLayout] =
+    files: List[(String, String)]
+  ): F[BuildToolLayout] =
     createLayoutSelectorWithFilesF[F](files)
-      .use {
-        case (path, selector) =>
-          selector.select(
-            Ctx(config =
-              Config.empty.copy(projectDir = path.toFile.getAbsolutePath)))
+      .use { case (path, selector) =>
+        selector.select(
+          Ctx(config =
+            Config.empty.copy(projectDir = path.toFile.getAbsolutePath)
+          )
+        )
       }
 
   val createLayout: List[(String, String)] => BuildToolLayout =

@@ -2,45 +2,70 @@ package ru.d10xa.jadd.versions
 
 import cats.syntax.all._
 import cats.data.EitherNel
-import cats.data.NonEmptyList
-import com.typesafe.scalalogging.StrictLogging
+import cats.effect.Sync
+import coursier.ModuleName
+import coursier.Organization
+import coursier.core.Module
+import coursier.core.Repository
+import coursier.core.Version
 import ru.d10xa.jadd.core.Artifact
-import ru.d10xa.jadd.repository.RepositoryApi
 import ru.d10xa.jadd.core.troubles.ArtifactTrouble
-import ru.d10xa.jadd.core.troubles.RepositoryUndefined
+import ru.d10xa.jadd.coursier_.CoursierVersions
 
-trait VersionTools {
-
-  // TODO api refactoring
+// TODO rename
+trait VersionTools[F[_]] {
 
   def loadVersionAndInitLatest(
-    artifact: Artifact): EitherNel[ArtifactTrouble, Artifact]
+    artifact: Artifact,
+    repositories: Seq[Repository]
+  ): F[EitherNel[ArtifactTrouble, Artifact]]
 }
 
-object VersionTools extends VersionTools with StrictLogging {
+object VersionTools {
 
-  def repositoryApiFromArtifact(
-    artifact: Artifact
-  ): Either[ArtifactTrouble, RepositoryApi] =
-    artifact.repository match {
-      case Some(r) => Right(RepositoryApi.fromString(r))
-      case None => Left(RepositoryUndefined(artifact))
+  def make[F[_]: Sync](
+    coursierVersions: CoursierVersions[F]
+  ): VersionTools[F] = new VersionTools[F] {
+
+    private def loadVersions(
+      artifact: Artifact,
+      repositories: Seq[Repository]
+    ): F[EitherNel[ArtifactTrouble, Artifact]] = {
+
+      val module: Module =
+        coursier.core.Module(
+          Organization(artifact.groupId.value),
+          ModuleName(artifact.inlineScalaVersion.artifactId),
+          Map.empty
+        )
+
+      for {
+        versions <- coursierVersions.versions(repositories, module)
+        res = artifact
+          .copy(
+            availableVersions =
+              versions.available.map(Version(_)).sorted.reverse
+          )
+          .asRight
+      } yield res
+
     }
 
-  val repositoryApiFromArtifactNelErr
-    : Artifact => EitherNel[ArtifactTrouble, RepositoryApi] =
-    (repositoryApiFromArtifact _)
-      .rmap(_.leftMap(NonEmptyList.one))
+    private def initLatestVersion(
+      artifact: Artifact,
+      versionFilter: VersionFilter
+    ): Artifact =
+      artifact.copy(maybeVersion =
+        versionFilter.excludeNonRelease(artifact.availableVersions).headOption
+      )
 
-  def loadVersions(artifact: Artifact): EitherNel[ArtifactTrouble, Artifact] =
-    repositoryApiFromArtifactNelErr(artifact)
-      .flatMap(_.receiveRepositoryMetaWithMaxVersion(artifact))
-      .map(artifact.merge)
+    override def loadVersionAndInitLatest(
+      artifact: Artifact,
+      repositories: Seq[Repository]
+    ): F[EitherNel[ArtifactTrouble, Artifact]] =
+      loadVersions(artifact, repositories).map(
+        _.map(a => initLatestVersion(a, VersionFilter))
+      )
 
-  override def loadVersionAndInitLatest(
-    artifact: Artifact
-  ): EitherNel[ArtifactTrouble, Artifact] =
-    loadVersions(artifact)
-      .map(_.initLatestVersion())
-
+  }
 }

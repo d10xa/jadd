@@ -15,7 +15,8 @@ class ReplAutocomplete(val cache: ArtifactAutocompleteCache) {
       for {
         candidates <- fetchCandidates(
           RepositoryConstants.mavenCentral,
-          word.dropRight(1))
+          word.dropRight(1)
+        )
         _ <- cache.cache(word.dropRight(1), candidates)
       } yield candidates
     } else {
@@ -45,7 +46,8 @@ object ReplAutocomplete {
 
   def autocompleteCandidatesFromDocument(
     d: Document,
-    completeModulePart: String): Vector[String] =
+    completeModulePart: String
+  ): Vector[String] =
     parseMavenCentralHtml(d)
       .map(s => s"$completeModulePart:$s")
 
@@ -54,16 +56,16 @@ object ReplAutocomplete {
       .split("[:.]")
       .mkString("/")
 
-  /**
-    *
-    * @param completeModulePart groupId or groupId:artifactId
+  /** @param completeModulePart groupId or groupId:artifactId
     * @return
     */
   def fetchCandidates(
     repository: String,
-    completeModulePart: String): IO[Vector[String]] = {
+    completeModulePart: String
+  ): IO[Vector[String]] = {
     val ioDoc: IO[Document] = fetchJsoupDocument(
-      s"$repository/${autocompleteCandidateAsPath(completeModulePart)}")
+      s"$repository/${autocompleteCandidateAsPath(completeModulePart)}"
+    )
     ioDoc.map(autocompleteCandidatesFromDocument(_, completeModulePart))
   }
 

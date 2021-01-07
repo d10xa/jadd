@@ -72,9 +72,11 @@ final class JaddFormatShowPrinter private (withVersions: Boolean)
 
 object JaddFormatShowPrinter {
   val withVersions: JaddFormatShowPrinter = new JaddFormatShowPrinter(
-    withVersions = true)
+    withVersions = true
+  )
   val withoutVersions: JaddFormatShowPrinter = new JaddFormatShowPrinter(
-    withVersions = false)
+    withVersions = false
+  )
 }
 
 object AmmoniteFormatShowPrinter extends ShowPrinter {
@@ -158,7 +160,8 @@ final class GradleFormatShowPrinter(lang: GradleLang) extends ShowPrinter {
       a.configuration.getOrElse(
         a.scope
           .collect { case Test => "testImplementation" }
-          .getOrElse("implementation"))
+          .getOrElse("implementation")
+      )
 
     val moduleId =
       (List(a.groupId.show) :: List(artifactId) :: a.maybeVersion
@@ -218,7 +221,9 @@ object SbtFormatShowPrinter extends ShowPrinter {
     val groupAndArtifact =
       (artifact.explicitScalaVersion, artifact.maybeScalaVersion) match {
         case (true, Some(scalaVersion)) if artifact.needScalaVersionResolving =>
-          s""""$groupId" % "${artifact.artifactIdWithScalaVersion(scalaVersion)}""""
+          s""""$groupId" % "${artifact.artifactIdWithScalaVersion(
+            scalaVersion
+          )}""""
         case (false, Some(_)) =>
           s""""$groupId" %% "${artifact.artifactIdWithoutScalaVersion}""""
         case (_, None) =>

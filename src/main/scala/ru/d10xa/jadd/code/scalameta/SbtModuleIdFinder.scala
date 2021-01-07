@@ -9,8 +9,11 @@ trait SbtModuleIdFinder {
 object SbtModuleIdFinder extends SbtModuleIdFinder {
 
   override def find(source: Source): List[ModuleId] =
-    ScalametaUtils.collectNoDuplicate(source, {
-      case ModuleIdMatch(m) => m
-    })
+    ScalametaUtils.collectNoDuplicate(
+      source,
+      { case ModuleIdMatch(m) =>
+        m
+      }
+    )
 
 }

@@ -1,7 +1,6 @@
 package ru.d10xa.jadd
 
 import coursier.core.Version
-import ru.d10xa.jadd.repository.MavenMetadata
 import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.core.troubles.WrongArtifactRaw
 import cats.implicits._
@@ -39,16 +38,6 @@ class ArtifactTest extends TestBase {
     art("org.jline:jline").needScalaVersionResolving shouldEqual false
   }
 
-  test("withMetadataUrl") {
-    val a = art("junit:junit")
-    a.mavenMetadata shouldEqual None
-
-    val metadataUrl =
-      "https://jcenter.bintray.com/junit/junit/maven-metadata.xml"
-    a.withMetadataUrl(metadataUrl).mavenMetadata shouldEqual Some(
-      MavenMetadata(url = Some(metadataUrl)))
-  }
-
   test("fromString wrong") {
     Artifact.fromString("a:b:1.0").isRight shouldEqual true
     Artifact.fromString("a:b:c:d") shouldEqual WrongArtifactRaw.asLeft[Artifact]
@@ -61,11 +50,10 @@ class ArtifactTest extends TestBase {
     Artifact.fromTuple3(("a", "b", "1.0")) shouldEqual Artifact(
       GroupId("a"),
       "b",
-      Some(Version("1.0")))
-    Artifact.fromTuple2(("a", "b")) shouldEqual Artifact(
-      GroupId("a"),
-      "b",
-      None)
+      Some(Version("1.0"))
+    )
+    Artifact
+      .fromTuple2(("a", "b")) shouldEqual Artifact(GroupId("a"), "b", None)
   }
 
   test("scalaVersionAsPlaceholders") {

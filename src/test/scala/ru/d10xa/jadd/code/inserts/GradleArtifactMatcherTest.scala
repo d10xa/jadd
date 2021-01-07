@@ -54,7 +54,8 @@ class GradleArtifactMatcherTest extends TestBase {
     match1.size shouldEqual 1
     match1.head.value shouldEqual """implementation group: "i", name: "j", version: "12""""
     match1.head.start shouldEqual source.indexOf(
-      """implementation group: "i", name: "j", version: "12"""")
+      """implementation group: "i", name: "j", version: "12""""
+    )
     match1.head.doubleQuotes shouldEqual true
     match1.head.configuration shouldEqual "implementation"
   }

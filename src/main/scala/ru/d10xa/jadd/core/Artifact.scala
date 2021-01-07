@@ -6,12 +6,10 @@ import com.typesafe.scalalogging.StrictLogging
 import coursier.core.Version
 import ru.d10xa.jadd.core.types.GroupId
 import ru.d10xa.jadd.core.types.ScalaVersion
-import ru.d10xa.jadd.repository.MavenMetadata
 import ru.d10xa.jadd.show.JaddFormatShowPrinter
 import troubles.ArtifactTrouble
 import troubles.WrongArtifactRaw
 import ru.d10xa.jadd.versions.ScalaVersions
-import ru.d10xa.jadd.versions.VersionFilter
 
 final case class Artifact(
   groupId: GroupId,
@@ -20,7 +18,6 @@ final case class Artifact(
   shortcut: Option[String] = None,
   scope: Option[Scope] = None,
   repository: Option[String] = None,
-  mavenMetadata: Option[MavenMetadata] = None,
   maybeScalaVersion: Option[ScalaVersion] = None,
   availableVersions: Seq[Version] = Seq.empty[Version],
   explicitScalaVersion: Boolean = false,
@@ -59,36 +56,9 @@ final case class Artifact(
     artifactId.replace("%%", s"_${v.show}")
   }
 
-  def merge(mavenMetadata: MavenMetadata): Artifact = {
-    val updated = this
-      .copy(
-        availableVersions = mavenMetadata.versions.reverse.map(Version(_)),
-        mavenMetadata = Some(mavenMetadata),
-        maybeScalaVersion =
-          this.maybeScalaVersion.orElse(mavenMetadata.maybeScalaVersion)
-      )
-    mavenMetadata.url.fold(updated)(updated.withMetadataUrl)
-  }
-
-  def withMetadataUrl(url: String): Artifact = {
-    val newMeta: Option[MavenMetadata] =
-      this.mavenMetadata
-        .map(meta => meta.copy(url = Some(url)))
-        .orElse(Some(MavenMetadata(url = Some(url))))
-    this.copy(mavenMetadata = newMeta)
-  }
-
   def inlineScalaVersion: Artifact = Artifact.inlineScalaVersion(this)
 
   def versionsForPrint: String = availableVersions.map(_.repr).mkString(", ")
-
-  def initLatestVersion(
-    versionFilter: VersionFilter = VersionFilter
-  ): Artifact =
-    copy(
-      maybeVersion =
-        versionFilter.excludeNonRelease(availableVersions).headOption
-    )
 
 }
 

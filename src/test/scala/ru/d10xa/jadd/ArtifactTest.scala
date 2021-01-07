@@ -1,7 +1,6 @@
 package ru.d10xa.jadd
 
 import coursier.core.Version
-import ru.d10xa.jadd.repository.MavenMetadata
 import ru.d10xa.jadd.testkit.TestBase
 import ru.d10xa.jadd.core.troubles.WrongArtifactRaw
 import cats.implicits._
@@ -35,21 +34,8 @@ class ArtifactTest extends TestBase {
   }
 
   test("needScalaVersionResolving") {
-    art(
-      "org.scala-lang.modules:scala-async%%"
-    ).needScalaVersionResolving shouldEqual true
+    art("org.scala-lang.modules:scala-async%%").needScalaVersionResolving shouldEqual true
     art("org.jline:jline").needScalaVersionResolving shouldEqual false
-  }
-
-  test("withMetadataUrl") {
-    val a = art("junit:junit")
-    a.mavenMetadata shouldEqual None
-
-    val metadataUrl =
-      "https://jcenter.bintray.com/junit/junit/maven-metadata.xml"
-    a.withMetadataUrl(metadataUrl).mavenMetadata shouldEqual Some(
-      MavenMetadata(url = Some(metadataUrl))
-    )
   }
 
   test("fromString wrong") {

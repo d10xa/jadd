@@ -25,7 +25,7 @@ object Utils extends StrictLogging {
   ): F[List[Artifact]] =
     rawDependencies.flatTraverse(s => unshortOne(s, artifactInfoFinder))
 
-  def unshortOne[F[_]: Sync](
+  private def unshortOne[F[_]: Sync](
     raw: String,
     artifactInfoFinder: ArtifactInfoFinder
   ): F[List[Artifact]] =

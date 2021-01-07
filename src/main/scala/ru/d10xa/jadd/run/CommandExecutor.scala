@@ -13,12 +13,14 @@ import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.core.LiveSbtScalaVersionFinder
 import ru.d10xa.jadd.core.Loader
 import ru.d10xa.jadd.core.Utils
+import ru.d10xa.jadd.coursier_.CoursierVersions
 import ru.d10xa.jadd.fs.FileOps
 import ru.d10xa.jadd.pipelines._
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
 import ru.d10xa.jadd.shortcuts.RepositoryShortcutsImpl
 import ru.d10xa.jadd.show.SbtShowCommand
+import ru.d10xa.jadd.versions.VersionTools
 
 trait CommandExecutor[F[_]] {
   def execute(
@@ -30,6 +32,7 @@ trait CommandExecutor[F[_]] {
 }
 
 class LiveCommandExecutor[F[_]: Sync] private (
+  coursierVersions: CoursierVersions[F],
   buildToolLayoutSelector: BuildToolLayoutSelector[F]
 ) extends CommandExecutor[F] {
 
@@ -88,15 +91,16 @@ class LiveCommandExecutor[F[_]: Sync] private (
       case BuildToolLayout.Unknown =>
         new UnknownProjectPipeline(ctx, artifactInfoFinder)
     }
-
-    pipeline.flatMap(_.run(loader))
+    val versionTools = VersionTools.make[F](coursierVersions)
+    pipeline.flatMap(_.run(loader, versionTools))
   }
 
 }
 
 object LiveCommandExecutor {
   def make[F[_]: Sync](
+    coursierVersions: CoursierVersions[F],
     buildToolLayoutSelector: BuildToolLayoutSelector[F]
   ): CommandExecutor[F] =
-    new LiveCommandExecutor(buildToolLayoutSelector)
+    new LiveCommandExecutor(coursierVersions, buildToolLayoutSelector)
 }

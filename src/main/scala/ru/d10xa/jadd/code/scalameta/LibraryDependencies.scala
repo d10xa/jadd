@@ -3,7 +3,7 @@ package ru.d10xa.jadd.code.scalameta
 import scala.meta.Term
 
 /** Match:
-  * libraryDependencies += "org.scalameta" %% "scalameta" % "4.4.4"
+  * libraryDependencies += "org.scalameta" %% "scalameta" % "4.4.5"
   */
 object LibraryDependencies {
   object moduleIds {

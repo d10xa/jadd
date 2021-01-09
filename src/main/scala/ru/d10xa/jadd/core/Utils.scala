@@ -1,19 +1,19 @@
 package ru.d10xa.jadd.core
 
-import java.nio.file.Path
-import cats.syntax.all._
 import cats.ApplicativeError
+import cats.MonadThrow
 import cats.effect.Resource
 import cats.effect.Sync
+import cats.syntax.all._
 import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.core.troubles.ArtifactNotFoundByAlias
-import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
-import ru.d10xa.jadd.core.types.MonadThrowable
-import ru.d10xa.jadd.fs.FsItem.TextFile
 import ru.d10xa.jadd.fs.FileOps
 import ru.d10xa.jadd.fs.FsItem
+import ru.d10xa.jadd.fs.FsItem.TextFile
 import ru.d10xa.jadd.instances._
+import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 
+import java.nio.file.Path
 import scala.io.BufferedSource
 import scala.io.Source
 
@@ -67,7 +67,7 @@ object Utils extends StrictLogging {
         }
       )
 
-  def textFileFromString[F[_]: MonadThrowable](
+  def textFileFromString[F[_]: MonadThrow](
     fileOps: FileOps[F],
     path: Path
   ): F[TextFile] =

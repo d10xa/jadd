@@ -1,10 +1,10 @@
 package ru.d10xa.jadd.github
 
+import cats.MonadThrow
 import cats.syntax.all._
-import ru.d10xa.jadd.core.types.ApplicativeThrowable
-import ru.d10xa.jadd.core.types.MonadThrowable
-import ru.d10xa.jadd.github.GithubUrlParser.GithubUrlParts
 import io.lemonlabs.uri.Url
+import ru.d10xa.jadd.core.types.ApplicativeThrowable
+import ru.d10xa.jadd.github.GithubUrlParser.GithubUrlParts
 
 trait GithubUrlParser[F[_]] {
   def parse(url: String): F[GithubUrlParts]
@@ -19,7 +19,7 @@ object GithubUrlParser {
   )
 }
 
-class LiveGithubUrlParser[F[_]: MonadThrowable] private ()
+class LiveGithubUrlParser[F[_]: MonadThrow] private ()
     extends GithubUrlParser[F] {
 
   override def parse(url: String): F[GithubUrlParts] =
@@ -56,6 +56,6 @@ class LiveGithubUrlParser[F[_]: MonadThrowable] private ()
 }
 
 object LiveGithubUrlParser {
-  def make[F[_]: MonadThrowable](): GithubUrlParser[F] =
+  def make[F[_]: MonadThrow](): GithubUrlParser[F] =
     new LiveGithubUrlParser[F]()
 }

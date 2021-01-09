@@ -3,7 +3,6 @@ package ru.d10xa.jadd.core
 import java.nio.file.Path
 import cats.syntax.all._
 import cats.ApplicativeError
-import cats.MonadError
 import cats.Show
 import coursier.core.Version
 import eu.timepit.refined.api.RefType
@@ -32,15 +31,6 @@ object types {
       applicativeError: ApplicativeError[F, Throwable]
     ): ApplicativeThrowable[F] =
       applicativeError
-  }
-
-  type MonadThrowable[F[_]] = MonadError[F, Throwable]
-
-  object MonadThrowable {
-    def apply[F[_]](implicit
-      monadThrowable: MonadError[F, Throwable]
-    ): MonadThrowable[F] =
-      monadThrowable
   }
 
   @newtype case class GroupId(value: String) {

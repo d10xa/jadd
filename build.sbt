@@ -37,7 +37,6 @@ lazy val root = project
 addCompilerPlugin(
   ("org.typelevel" %% "kind-projector" % "0.11.2").cross(CrossVersion.full)
 )
-enablePlugins(JavaAppPackaging)
 
 libraryDependencies ++= Seq(
   "com.github.scopt" %% "scopt" % "4.0.0",

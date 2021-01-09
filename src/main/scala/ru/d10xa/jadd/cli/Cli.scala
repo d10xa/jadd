@@ -19,7 +19,7 @@ object Cli extends Cli {
 
   val parser: OptionParser[Config] = new scopt.OptionParser[Config]("jadd") {
 
-    override def showUsageOnError: Boolean = false
+    override def showUsageOnError: Option[Boolean] = Some(false)
 
     head("jadd", Ctx.version)
 

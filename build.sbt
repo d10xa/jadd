@@ -1,7 +1,7 @@
 name := "jadd"
 organization in ThisBuild := "ru.d10xa"
 
-scalaVersion in ThisBuild := "2.13.3"
+scalaVersion in ThisBuild := "2.13.4"
 mainClass in Compile := Some("ru.d10xa.jadd.Jadd")
 licenses := Seq(("MIT", url("https://opensource.org/licenses/MIT")))
 description := "Command-line tool for adding dependencies to gradle/maven/sbt build files"
@@ -37,9 +37,10 @@ lazy val root = project
 addCompilerPlugin(
   ("org.typelevel" %% "kind-projector" % "0.11.2").cross(CrossVersion.full)
 )
+enablePlugins(JavaAppPackaging)
 
 libraryDependencies ++= Seq(
-  "com.github.scopt" %% "scopt" % "3.7.1",
+  "com.github.scopt" %% "scopt" % "4.0.0",
   "ch.qos.logback" % "logback-classic" % "1.2.3",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
   "org.typelevel" %% "cats-core" % "2.3.1",

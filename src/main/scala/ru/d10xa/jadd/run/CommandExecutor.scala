@@ -12,13 +12,10 @@ import ru.d10xa.jadd.code.scalameta.SbtStringValFinder
 import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.core.LiveSbtScalaVersionFinder
 import ru.d10xa.jadd.core.Loader
-import ru.d10xa.jadd.core.Utils
 import ru.d10xa.jadd.coursier_.CoursierVersions
 import ru.d10xa.jadd.fs.FileOps
 import ru.d10xa.jadd.pipelines._
-import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
-import ru.d10xa.jadd.shortcuts.RepositoryShortcutsImpl
 import ru.d10xa.jadd.show.SbtShowCommand
 import ru.d10xa.jadd.versions.VersionTools
 
@@ -27,11 +24,12 @@ trait CommandExecutor[F[_]] {
     ctx: Ctx,
     loader: Loader[F],
     fileOps: FileOps[F],
-    showUsage: () => Unit
+    showUsage: () => Unit,
+    artifactShortcuts: ArtifactShortcuts
   ): F[Unit]
 }
 
-class LiveCommandExecutor[F[_]: Sync] private (
+class CommandExecutorImpl[F[_]: Sync] private (
   coursierVersions: CoursierVersions[F],
   buildToolLayoutSelector: BuildToolLayoutSelector[F]
 ) extends CommandExecutor[F] {
@@ -40,7 +38,8 @@ class LiveCommandExecutor[F[_]: Sync] private (
     ctx: Ctx,
     loader: Loader[F],
     fileOps: FileOps[F],
-    showUsage: () => Unit
+    showUsage: () => Unit,
+    artifactShortcuts: ArtifactShortcuts
   ): F[Unit] =
     ctx.config match {
       case c if c.command == Repl =>
@@ -48,31 +47,23 @@ class LiveCommandExecutor[F[_]: Sync] private (
       case c if c.command == Help =>
         Sync[F].delay(showUsage())
       case _ =>
-        val repositoryShortcuts = RepositoryShortcutsImpl
-        val artifactInfoFinder: ArtifactInfoFinder =
-          new ArtifactInfoFinder(
-            artifactShortcuts = new ArtifactShortcuts(
-              Utils.sourceFromSpringUri(ctx.config.shortcutsUri)
-            ),
-            repositoryShortcuts = repositoryShortcuts
-          )
-        executePipelines(ctx, loader, fileOps, artifactInfoFinder)
+        executePipelines(ctx, loader, fileOps, artifactShortcuts)
     }
 
   private def executePipelines(
     ctx: Ctx,
     loader: Loader[F],
     fileOps: FileOps[F],
-    artifactInfoFinder: ArtifactInfoFinder
+    artifactShortcuts: ArtifactShortcuts
   ): F[Unit] = {
 
     val pipeline: F[Pipeline[F]] = for {
       layout <- buildToolLayoutSelector.select(ctx)
     } yield layout match {
       case BuildToolLayout.Gradle =>
-        new GradlePipeline(ctx, artifactInfoFinder, fileOps)
+        new GradlePipeline(ctx, fileOps)
       case BuildToolLayout.Maven =>
-        new MavenPipeline(ctx, artifactInfoFinder, fileOps)
+        new MavenPipeline(ctx, fileOps)
       case BuildToolLayout.Sbt =>
         val scalaVersionFinder = LiveSbtScalaVersionFinder.make(ctx, fileOps)
         new SbtPipeline(
@@ -89,18 +80,21 @@ class LiveCommandExecutor[F[_]: Sync] private (
       case BuildToolLayout.Ammonite =>
         new AmmonitePipeline(ctx, fileOps)
       case BuildToolLayout.Unknown =>
-        new UnknownProjectPipeline(ctx, artifactInfoFinder)
+        new UnknownProjectPipeline(ctx)
     }
     val versionTools = VersionTools.make[F](coursierVersions)
-    pipeline.flatMap(_.run(loader, versionTools))
+    pipeline.flatMap(_.run(loader, versionTools, artifactShortcuts))
   }
 
 }
 
-object LiveCommandExecutor {
+object CommandExecutorImpl {
   def make[F[_]: Sync](
     coursierVersions: CoursierVersions[F],
     buildToolLayoutSelector: BuildToolLayoutSelector[F]
   ): CommandExecutor[F] =
-    new LiveCommandExecutor(coursierVersions, buildToolLayoutSelector)
+    new CommandExecutorImpl(
+      coursierVersions,
+      buildToolLayoutSelector
+    )
 }

@@ -10,28 +10,33 @@ import coursier.parse.RepositoryParser
 import ru.d10xa.jadd.core.troubles.ArtifactTrouble
 import ru.d10xa.jadd.pipelines.Pipeline
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
+import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
 import ru.d10xa.jadd.versions.ArtifactVersionsDownloader
 import ru.d10xa.jadd.versions.VersionTools
 
 trait Loader[F[_]] {
   def load(
     ctx: Ctx,
-    versionTools: VersionTools[F]
+    versionTools: VersionTools[F],
+    artifactShortcuts: ArtifactShortcuts
   ): F[IorNel[ArtifactTrouble, List[Artifact]]]
 }
 
 class LiveLoader[F[_]: Sync] private (
-  artifactInfoFinder: ArtifactInfoFinder
+  artifactInfoFinder: ArtifactInfoFinder[F]
 ) extends Loader[F]
     with StrictLogging {
 
   override def load(
     ctx: Ctx,
-    versionTools: VersionTools[F]
+    versionTools: VersionTools[F],
+    artifactShortcuts: ArtifactShortcuts
   ): F[IorNel[ArtifactTrouble, List[Artifact]]] =
     Pipeline
       .extractArtifacts(ctx)
-      .flatMap(artifacts => loadByString(ctx, artifacts.toList, versionTools))
+      .flatMap(artifacts =>
+        loadByString(ctx, artifacts.toList, versionTools, artifactShortcuts)
+      )
 
   def withScalaVersion[M[_]: Functor](
     ctx: Ctx,
@@ -48,11 +53,12 @@ class LiveLoader[F[_]: Sync] private (
   def loadByString(
     ctx: Ctx,
     artifacts: List[String],
-    versionTools: VersionTools[F]
+    versionTools: VersionTools[F],
+    artifactShortcuts: ArtifactShortcuts
   ): F[IorNel[ArtifactTrouble, List[Artifact]]] =
     for {
       unshorted <- Utils
-        .unshortAll(artifacts, artifactInfoFinder)
+        .unshortAll(artifacts, artifactInfoFinder, artifactShortcuts)
       repositoriesParsed <- RepositoryParser
         .repositories(ctx.config.repositories)
         .either match {
@@ -96,7 +102,7 @@ class LiveLoader[F[_]: Sync] private (
 object LiveLoader {
 
   def make[F[_]: Sync](
-    artifactInfoFinder: ArtifactInfoFinder
+    artifactInfoFinder: ArtifactInfoFinder[F]
   ): Loader[F] = new LiveLoader[F](artifactInfoFinder)
 
 }

@@ -1,28 +1,50 @@
 package ru.d10xa.jadd.shortcuts
 
-import java.io.FileNotFoundException
-
-import cats.syntax.all._
 import cats.effect.Sync
+import cats.syntax.all._
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.ArtifactInfo
 import ru.d10xa.jadd.core.Scope
 import ru.d10xa.jadd.core.Utils
 import ru.d10xa.jadd.core.troubles
+import ru.d10xa.jadd.core.troubles.ArtifactTrouble
 import ru.d10xa.jadd.core.types.GroupId
 
+import java.io.FileNotFoundException
 import scala.util.Try
 
-class ArtifactInfoFinder(
-  artifactShortcuts: ArtifactShortcuts,
+trait ArtifactInfoFinder[F[_]] {
+  def artifactFromString(
+    artifactShortcuts: ArtifactShortcuts,
+    artifactRaw: String
+  ): F[Either[ArtifactTrouble, Artifact]]
+}
+
+object ArtifactInfoFinder {
+  val DEFAULT_ARTIFACT_INFO_BASE_PATH: String = "classpath:artifacts/"
+
+  def make[F[_]: Sync](
+    repositoryShortcuts: RepositoryShortcuts,
+    artifactInfoBasePath: String =
+      ArtifactInfoFinder.DEFAULT_ARTIFACT_INFO_BASE_PATH
+  ): F[ArtifactInfoFinder[F]] =
+    Sync[F].delay(
+      new ArtifactInfoFinderImpl[F](
+        repositoryShortcuts,
+        artifactInfoBasePath
+      )
+    )
+
+}
+
+class ArtifactInfoFinderImpl[F[_]: Sync](
   repositoryShortcuts: RepositoryShortcuts,
-  artifactInfoBasePath: String =
-    ArtifactInfoFinder.DEFAULT_ARTIFACT_INFO_BASE_PATH
-) {
+  artifactInfoBasePath: String
+) extends ArtifactInfoFinder[F] {
 
   import troubles._
 
-  def findArtifactInfo[F[_]: Sync](
+  def findArtifactInfo(
     fullArtifact: String
   ): F[Option[ArtifactInfo]] = {
 
@@ -85,7 +107,8 @@ class ArtifactInfoFinder(
     }
   }
 
-  def artifactFromString[F[_]: Sync](
+  override def artifactFromString(
+    artifactShortcuts: ArtifactShortcuts,
     artifactRaw: String
   ): F[Either[ArtifactTrouble, Artifact]] = {
 
@@ -94,34 +117,37 @@ class ArtifactInfoFinder(
         .cond(!artifactRaw.contains("("), (), WrongArtifactRaw)
 
     valid
-      .flatMap(_ => full(artifactRaw))
+      .flatMap(_ => full(artifactShortcuts)(artifactRaw))
       .traverse((ar: Artifact) => addInfoToArtifact(ar))
   }
 
-  val shortcutToArtifact: String => Option[Artifact] =
-    artifactRaw =>
-      artifactShortcuts
-        .unshort(artifactRaw)
-        .map(_.split(':'))
-        .collect { case Array(a, b) =>
-          Artifact(
-            groupId = GroupId(a),
-            artifactId = b,
-            shortcut = Some(artifactRaw)
-          )
-        }
+  private def shortcutToArtifact(
+    artifactShortcuts: ArtifactShortcuts
+  )(artifactRaw: String): Option[Artifact] =
+    artifactShortcuts
+      .unshort(artifactRaw)
+      .map(_.split(':'))
+      .collect { case Array(a, b) =>
+        Artifact(
+          groupId = GroupId(a),
+          artifactId = b,
+          shortcut = Some(artifactRaw)
+        )
+      }
 
-  def full(str: String): Either[ArtifactTrouble, Artifact] =
+  private def full(
+    artifactShortcuts: ArtifactShortcuts
+  )(str: String): Either[ArtifactTrouble, Artifact] =
     if (str.contains(":")) {
       Artifact.fromString(str)
     } else {
-      shortcutToArtifact(str) match {
+      shortcutToArtifact(artifactShortcuts)(str) match {
         case None => Left(ArtifactNotFoundByAlias(str))
         case Some(a) => Right(a)
       }
     }
 
-  def addInfoToArtifact[F[_]: Sync](a: Artifact): F[Artifact] = {
+  private def addInfoToArtifact(a: Artifact): F[Artifact] = {
     val artifactString = s"${a.groupId.show}:${a.artifactId}"
     val maybeInfoF: F[Option[ArtifactInfo]] = findArtifactInfo(artifactString)
 
@@ -133,8 +159,4 @@ class ArtifactInfoFinder(
         .map(repositoryShortcuts.unshortRepository)
     } yield a.copy(scope = scope, repository = repositoryPath)
   }
-}
-
-object ArtifactInfoFinder {
-  val DEFAULT_ARTIFACT_INFO_BASE_PATH: String = "classpath:artifacts/"
 }

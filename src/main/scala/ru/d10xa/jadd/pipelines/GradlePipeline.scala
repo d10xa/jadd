@@ -14,13 +14,11 @@ import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.code.inserts.GradleFileInserts
 import ru.d10xa.jadd.fs.FsItem.TextFile
 import ru.d10xa.jadd.fs.FileOps
-import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.show.GradleShowCommand
 import ru.d10xa.jadd.versions.ScalaVersions
 
 class GradlePipeline[F[_]: Sync](
   override val ctx: Ctx,
-  artifactInfoFinder: ArtifactInfoFinder,
   fileOps: FileOps[F]
 ) extends Pipeline[F]
     with StrictLogging {

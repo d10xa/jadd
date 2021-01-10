@@ -7,12 +7,10 @@ import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.core.types.ScalaVersion
-import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.versions.ScalaVersions
 
 class UnknownProjectPipeline[F[_]: Sync](
-  override val ctx: Ctx,
-  artifactInfoFinder: ArtifactInfoFinder
+  override val ctx: Ctx
 ) extends Pipeline[F]
     with StrictLogging {
 

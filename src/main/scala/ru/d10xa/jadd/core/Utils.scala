@@ -12,6 +12,7 @@ import ru.d10xa.jadd.fs.FsItem
 import ru.d10xa.jadd.fs.FsItem.TextFile
 import ru.d10xa.jadd.instances._
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
+import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
 
 import java.nio.file.Path
 import scala.io.BufferedSource
@@ -21,16 +22,20 @@ object Utils extends StrictLogging {
 
   def unshortAll[F[_]: Sync](
     rawDependencies: List[String],
-    artifactInfoFinder: ArtifactInfoFinder
+    artifactInfoFinder: ArtifactInfoFinder[F],
+    artifactShortcuts: ArtifactShortcuts
   ): F[List[Artifact]] =
-    rawDependencies.flatTraverse(s => unshortOne(s, artifactInfoFinder))
+    rawDependencies.flatTraverse(s =>
+      unshortOne(s, artifactInfoFinder, artifactShortcuts)
+    )
 
   private def unshortOne[F[_]: Sync](
     raw: String,
-    artifactInfoFinder: ArtifactInfoFinder
+    artifactInfoFinder: ArtifactInfoFinder[F],
+    artifactShortcuts: ArtifactShortcuts
   ): F[List[Artifact]] =
     artifactInfoFinder
-      .artifactFromString[F](raw)
+      .artifactFromString(artifactShortcuts, raw)
       .map {
         case Right(artifact) => artifact :: Nil
         case Left(_: ArtifactNotFoundByAlias) =>

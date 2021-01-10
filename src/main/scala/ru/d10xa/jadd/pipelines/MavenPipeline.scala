@@ -16,14 +16,12 @@ import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.code.inserts.MavenFileInserts
 import ru.d10xa.jadd.fs.FsItem.TextFile
 import ru.d10xa.jadd.fs.FileOps
-import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.show.MavenFormatShowPrinter
 import ru.d10xa.jadd.show.MavenShowCommand
 import ru.d10xa.jadd.versions.ScalaVersions
 
 class MavenPipeline[F[_]: Sync](
   override val ctx: Ctx,
-  artifactInfoFinder: ArtifactInfoFinder,
   fileOps: FileOps[F]
 ) extends Pipeline[F]
     with StrictLogging {

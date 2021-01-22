@@ -10,8 +10,8 @@ import cats.effect.ContextShift
 import cats.effect.Resource
 import cats.effect.Sync
 import cats.effect.concurrent.Ref
-import com.typesafe.scalalogging.StrictLogging
 import github4s.Github
+import ru.d10xa.jadd.application.CliArgs
 import ru.d10xa.jadd.buildtools.BuildToolLayoutSelector
 import ru.d10xa.jadd.cli.Command.Repl
 import ru.d10xa.jadd.cli.Cli
@@ -27,66 +27,72 @@ import ru.d10xa.jadd.fs.LiveCachedFileOps
 import ru.d10xa.jadd.fs.LiveFileOps
 import ru.d10xa.jadd.github.GithubFileOps
 import ru.d10xa.jadd.github.GithubUrlParser
+import ru.d10xa.jadd.log.Logger
 import ru.d10xa.jadd.repl.ReplCommand
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
-import ru.d10xa.jadd.log.LoggingUtil
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts.ArtifactShortcutsClasspath
 import ru.d10xa.jadd.shortcuts.RepositoryShortcuts
 
 class JaddRunner[F[_]: Sync: ConcurrentEffect: Parallel: ContextShift](
   cli: Cli,
-  loggingUtil: LoggingUtil,
   githubUrlParser: GithubUrlParser[F],
   repositoryShortcuts: RepositoryShortcuts,
   githubResource: Resource[F, Github[F]]
 ) {
 
-  private def readAndEvalConfig(args: Vector[String]): Config = {
-    val config = cli.parse(args)
-    if (config.debug) loggingUtil.enableDebug()
-    if (config.quiet) loggingUtil.quiet()
-    config.proxy.foreach(initProxy)
-    config
-  }
+  private def readConfig(args: Vector[String]): Config = cli.parse(args)
 
-  private def initProxy(proxyStr: String): Unit = {
-    val proxyUri = new URI(proxyStr)
-    val proxySettings = ProxySettings.fromURI(proxyUri)
-    ProxySettings.set(proxySettings)
-    (proxySettings.httpProxyUser, proxySettings.httpProxyPassword) match {
-      case (Some(u), Some(p)) => ProxySettings.setupAuthenticator(u, p)
-      case _ => // do nothing
-    }
-  }
-
-  private def runParamsToCtx(runParams: RunParams[F]): F[Ctx] = {
-    val eval: F[Config] =
-      Sync[F]
-        .delay(readAndEvalConfig(runParams.args))
-    eval.flatMap { config =>
-      if (config.projectDir.startsWith("https://github.com")) {
-        githubUrlParser.parse(config.projectDir).map { urlParts =>
-          Ctx(
-            config,
-            ProjectMeta(
-              path = urlParts.file.orElse("".some),
-              githubUrlParts = urlParts.some
-            )
-          )
-        }
-      } else {
-        Ctx(
-          config,
-          ProjectMeta(path = config.projectDir.some)
-        ).pure[F]
+  private def readAndEvalConfig(config: Config): (Config, Logger[F]) = {
+    def initProxy(proxyStr: String): Unit = {
+      val proxyUri = new URI(proxyStr)
+      val proxySettings = ProxySettings.fromURI(proxyUri)
+      ProxySettings.set(proxySettings)
+      (proxySettings.httpProxyUser, proxySettings.httpProxyPassword) match {
+        case (Some(u), Some(p)) => ProxySettings.setupAuthenticator(u, p)
+        case _ => // do nothing
       }
     }
+    config.proxy.foreach(initProxy)
+    (
+      config,
+      Logger.make[F](
+        debug = config.debug,
+        quiet = config.quiet
+      )
+    )
   }
 
-  private def runOnce(runParams: RunParams[F]): F[Unit] =
+  private def dynamicContext(cliArgs: CliArgs): F[(Config, Logger[F])] =
+    Sync[F]
+      .delay(readConfig(cliArgs.args))
+      .map(readAndEvalConfig)
+
+  private def parseProjectMeta(config: Config): F[ProjectMeta] =
+    if (config.projectDir.startsWith("https://github.com")) {
+      githubUrlParser.parse(config.projectDir).map { urlParts =>
+        ProjectMeta(
+          path = urlParts.file.orElse("".some),
+          githubUrlParts = urlParts.some
+        )
+      }
+    } else {
+      ProjectMeta(path = config.projectDir.some).pure[F]
+    }
+
+  private def runParamsToCtx(cliArgs: CliArgs): F[(Ctx, Logger[F])] =
     for {
-      ctx <- runParamsToCtx(runParams)
+      cl <- dynamicContext(cliArgs)
+      config = cl._1
+      logger = cl._2
+      projectMeta <- parseProjectMeta(config)
+    } yield (Ctx(config, projectMeta), logger)
+
+  private def runOnce(cliArgs: CliArgs): F[Unit] =
+    for {
+      ctxAndLogger <- runParamsToCtx(cliArgs)
+      ctx = ctxAndLogger._1
+      logger = ctxAndLogger._2
       fileOps <- ctxToFileOps(ctx)
       layoutSelector <- BuildToolLayoutSelector.make[F](fileOps).pure[F]
       coursierVersions <- CoursierVersions.make[F]
@@ -101,7 +107,8 @@ class JaddRunner[F[_]: Sync: ConcurrentEffect: Parallel: ContextShift](
           fileOps,
           commandExecutor,
           artifactInfoFinder,
-          artifactShortcuts
+          artifactShortcuts,
+          logger
         )
     } yield ()
 
@@ -115,26 +122,29 @@ class JaddRunner[F[_]: Sync: ConcurrentEffect: Parallel: ContextShift](
       cachedOps <- LiveCachedFileOps.make(ops, cacheRef)
     } yield cachedOps
 
-  def run(runParams: RunParams[F]): F[Unit] =
+  def run(cliArgs: CliArgs): F[Unit] =
     for {
-      ctx <- runParamsToCtx(runParams)
+      ctxAndLogger <- runParamsToCtx(cliArgs)
+      ctx = ctxAndLogger._1
       _ <-
         if (ctx.config.command == Repl) {
-          new ReplCommand[F]().runRepl(runParams, runOnce)
+          implicit val logger: Logger[F] = ctxAndLogger._2
+          new ReplCommand[F]().runRepl(cliArgs, runOnce)
         } else {
-          runOnce(runParams)
+          runOnce(cliArgs)
         }
     } yield ()
 
 }
 
-object JaddRunner extends StrictLogging {
+object JaddRunner {
   def runOnce[F[_]: Sync](
     ctx: Ctx,
     fileOps: FileOps[F],
     commandExecutor: CommandExecutor[F],
     artifactInfoFinder: ArtifactInfoFinder[F],
-    artifactShortcuts: ArtifactShortcuts
+    artifactShortcuts: ArtifactShortcuts,
+    logger: Logger[F]
   ): F[Unit] =
     for {
       loader <- LiveLoader.make(artifactInfoFinder).pure[F]
@@ -144,7 +154,7 @@ object JaddRunner extends StrictLogging {
         fileOps,
         () => logger.info(ctx.config.usage),
         artifactShortcuts
-      )
+      )(logger)
     } yield ()
 
 }

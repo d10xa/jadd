@@ -2,7 +2,6 @@ package ru.d10xa.jadd.core
 
 import cats.syntax.all._
 import cats.Show
-import com.typesafe.scalalogging.StrictLogging
 import coursier.core.Version
 import ru.d10xa.jadd.core.types.GroupId
 import ru.d10xa.jadd.core.types.ScalaVersion
@@ -24,7 +23,7 @@ final case class Artifact(
   doubleQuotes: Boolean = true, // required for gradle update
   configuration: Option[String] = None, // required for gradle update
   inSequence: Boolean = false // required for ArtifactView
-) extends StrictLogging {
+) {
 
   def asPath: String =
     (needScalaVersionResolving, maybeScalaVersion) match {

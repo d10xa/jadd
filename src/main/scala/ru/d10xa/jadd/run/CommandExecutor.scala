@@ -14,6 +14,7 @@ import ru.d10xa.jadd.core.LiveSbtScalaVersionFinder
 import ru.d10xa.jadd.core.Loader
 import ru.d10xa.jadd.coursier_.CoursierVersions
 import ru.d10xa.jadd.fs.FileOps
+import ru.d10xa.jadd.log.Logger
 import ru.d10xa.jadd.pipelines._
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
 import ru.d10xa.jadd.show.SbtShowCommand
@@ -26,7 +27,7 @@ trait CommandExecutor[F[_]] {
     fileOps: FileOps[F],
     showUsage: () => Unit,
     artifactShortcuts: ArtifactShortcuts
-  ): F[Unit]
+  )(implicit logger: Logger[F]): F[Unit]
 }
 
 class CommandExecutorImpl[F[_]: Sync] private (
@@ -40,7 +41,7 @@ class CommandExecutorImpl[F[_]: Sync] private (
     fileOps: FileOps[F],
     showUsage: () => Unit,
     artifactShortcuts: ArtifactShortcuts
-  ): F[Unit] =
+  )(implicit logger: Logger[F]): F[Unit] =
     ctx.config match {
       case c if c.command == Repl =>
         Applicative[F].unit // already in repl
@@ -55,7 +56,7 @@ class CommandExecutorImpl[F[_]: Sync] private (
     loader: Loader[F],
     fileOps: FileOps[F],
     artifactShortcuts: ArtifactShortcuts
-  ): F[Unit] = {
+  )(implicit logger: Logger[F]): F[Unit] = {
 
     val pipeline: F[Pipeline[F]] = for {
       layout <- buildToolLayoutSelector.select(ctx)

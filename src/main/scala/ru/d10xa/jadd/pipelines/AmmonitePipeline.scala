@@ -2,25 +2,23 @@ package ru.d10xa.jadd.pipelines
 
 import java.nio.file.Path
 import java.nio.file.Paths
-
 import cats.data.Chain
 import cats.syntax.all._
 import cats.effect._
-import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.core.Utils
 import ru.d10xa.jadd.fs.FsItem.TextFile
 import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.fs.FileOps
+import ru.d10xa.jadd.log.Logger
 import ru.d10xa.jadd.show.AmmoniteFormatShowPrinter
 import ru.d10xa.jadd.versions.ScalaVersions
 
 class AmmonitePipeline[F[_]: Sync](
   override val ctx: Ctx,
   fileOps: FileOps[F]
-) extends Pipeline[F]
-    with StrictLogging {
+) extends Pipeline[F] {
 
   val buildFile: Path = Paths.get(ctx.projectPath)
 
@@ -33,7 +31,7 @@ class AmmonitePipeline[F[_]: Sync](
       source = textFile
     } yield source
 
-  def install(artifacts: List[Artifact]): F[Unit] =
+  def install(artifacts: List[Artifact])(implicit logger: Logger[F]): F[Unit] =
     for {
       newDependencies <- Sync[F].delay(
         AmmoniteFormatShowPrinter.mkString(artifacts)
@@ -44,7 +42,7 @@ class AmmonitePipeline[F[_]: Sync](
     } yield ()
 
   // TODO implement
-  override def show(): F[Chain[Artifact]] =
+  override def show()(implicit logger: Logger[F]): F[Chain[Artifact]] =
     Sync[F].delay(???)
 
   override def findScalaVersion(): F[Option[ScalaVersion]] =

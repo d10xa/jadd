@@ -1,6 +1,5 @@
 package ru.d10xa.jadd.code.inserts
 
-import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.code.Indent
 import ru.d10xa.jadd.code.Indentation
 import ru.d10xa.jadd.core.Artifact
@@ -8,7 +7,7 @@ import ru.d10xa.jadd.core.CodeBlock
 import ru.d10xa.jadd.show.GradleFormatShowPrinter
 import ru.d10xa.jadd.show.GradleLang.Groovy
 
-class GradleFileInserts extends StrictLogging {
+class GradleFileInserts {
 
   import ru.d10xa.jadd.view.ArtifactView._
 

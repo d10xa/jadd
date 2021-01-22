@@ -5,7 +5,6 @@ import cats.data.Chain
 import cats.data.Ior
 import cats.data.IorNel
 import cats.effect.Sync
-import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.cli.Command.Install
 import ru.d10xa.jadd.cli.Command.Search
 import ru.d10xa.jadd.cli.Command.Show
@@ -19,19 +18,20 @@ import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.core.Utils
 import ru.d10xa.jadd.core.troubles
 import ru.d10xa.jadd.core.troubles.ArtifactTrouble
-import ru.d10xa.jadd.core.troubles.handleTroubles
+import ru.d10xa.jadd.core.troubles.logTroubles
+import ru.d10xa.jadd.log.Logger
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
 import ru.d10xa.jadd.versions.ScalaVersions
 import ru.d10xa.jadd.versions.VersionTools
 
-abstract class Pipeline[F[_]: Sync] extends StrictLogging {
+abstract class Pipeline[F[_]: Sync] {
 
   def invokeCommand(
     ior: IorNel[ArtifactTrouble, List[Artifact]],
     action: List[Artifact] => F[Unit]
-  ): F[Unit] = {
+  )(implicit logger: Logger[F]): F[Unit] = {
     val handle: List[ArtifactTrouble] => F[Unit] =
-      troubles => Sync[F].delay(handleTroubles(troubles, s => logger.info(s)))
+      troubles => logTroubles(troubles)
 
     ior match {
       case Ior.Right(artifacts) =>
@@ -47,13 +47,13 @@ abstract class Pipeline[F[_]: Sync] extends StrictLogging {
 
   def handleInstall(
     ior: IorNel[ArtifactTrouble, List[Artifact]]
-  ): F[Unit] =
+  )(implicit logger: Logger[F]): F[Unit] =
     invokeCommand(ior, artifacts => install(artifacts))
 
   def handleSearch(
     ior: IorNel[ArtifactTrouble, List[Artifact]]
-  ): F[Unit] =
-    invokeCommand(ior, artifacts => Sync[F].delay(search(artifacts)))
+  )(implicit logger: Logger[F]): F[Unit] =
+    invokeCommand(ior, artifacts => search(artifacts))
 
   def readScalaVersion(): F[ScalaVersion] =
     for {
@@ -67,7 +67,7 @@ abstract class Pipeline[F[_]: Sync] extends StrictLogging {
     loader: Loader[F],
     versionTools: VersionTools[F],
     artifactShortcuts: ArtifactShortcuts
-  ): F[Unit] = {
+  )(implicit logger: Logger[F]): F[Unit] = {
     def loaded: F[IorNel[troubles.ArtifactTrouble, List[Artifact]]] =
       for {
         scalaVersion <- readScalaVersion()
@@ -83,29 +83,30 @@ abstract class Pipeline[F[_]: Sync] extends StrictLogging {
         show()
           .map(_.toList)
           .map(ctx.config.showPrinter.mkString(_))
-          .map(s => logger.info(s))
+          .flatMap(s => logger.info(s))
       case Search =>
         loaded.flatMap(handleSearch)
       case Install =>
         loaded.flatMap(handleInstall)
       case command =>
-        Sync[F].delay(logger.info(s"command $command not implemented"))
+        logger.info(s"command $command not implemented")
     }
   }
 
-  def search(artifacts: List[Artifact]): Unit = {
-    val artifactsWithVersions = artifacts.map(_.inlineScalaVersion)
-    logger.info(ctx.config.showPrinter.mkString(artifactsWithVersions))
-    val stringsForPrint = artifactsWithVersions
-      .map(artifact =>
-        JaddFormatShowPrinter.withVersions
-          .single(artifact) + " // " + artifact.versionsForPrint
-      )
-    logger.debug(stringsForPrint.mkString("\n"))
-  }
+  def search(artifacts: List[Artifact])(implicit logger: Logger[F]): F[Unit] =
+    for {
+      artifactsWithVersions <- artifacts.map(_.inlineScalaVersion).pure[F]
+      _ <- logger.info(ctx.config.showPrinter.mkString(artifactsWithVersions))
+      stringsForPrint = artifactsWithVersions
+        .map(artifact =>
+          JaddFormatShowPrinter.withVersions
+            .single(artifact) + " // " + artifact.versionsForPrint
+        )
+      _ <- logger.debug(stringsForPrint.mkString("\n"))
+    } yield ()
 
-  def install(artifacts: List[Artifact]): F[Unit]
-  def show(): F[Chain[Artifact]]
+  def install(artifacts: List[Artifact])(implicit logger: Logger[F]): F[Unit]
+  def show()(implicit logger: Logger[F]): F[Chain[Artifact]]
   def ctx: Ctx
 
 }

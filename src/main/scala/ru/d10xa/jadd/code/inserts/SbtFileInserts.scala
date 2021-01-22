@@ -1,16 +1,19 @@
 package ru.d10xa.jadd.code.inserts
 
+import cats.Monad
 import cats.syntax.all._
-import com.typesafe.scalalogging.LazyLogging
 import ru.d10xa.jadd.show.SbtFormatShowPrinter
 import ru.d10xa.jadd.view.ArtifactView
 import ru.d10xa.jadd.core.Artifact
+import ru.d10xa.jadd.log.Logger
 
-class SbtFileInserts extends LazyLogging {
+class SbtFileInserts[F[_]: Monad]()(implicit
+  logger: Logger[F]
+) {
 
   import ArtifactView._
 
-  def debugMatches(artifact: Artifact, matches: Seq[Match]): Unit = {
+  def debugMatches(artifact: Artifact, matches: Seq[Match]): F[Unit] = {
     def matchesCount = s"matches count: ${matches.size.show}"
     def matchesView =
       matches.map(m => s"${m.start.show} ${m.value.show}")
@@ -19,16 +22,16 @@ class SbtFileInserts extends LazyLogging {
     )
   }
 
-  def appendAll(source: String, artifacts: Seq[Artifact]): String =
-    artifacts.foldLeft(source) { case (s, artifact) => append(s, artifact) }
+  def appendAll(source: String, artifacts: Seq[Artifact]): F[String] =
+    artifacts.foldLeftM[F, String](source) { case (s, artifact) =>
+      append(s, artifact)
+    }
 
   /** @return updated source
     */
-  def append[T](buildFileSource: String, artifact: Artifact): String = {
+  def append(buildFileSource: String, artifact: Artifact): F[String] = {
     val matches: Seq[Match] =
       new SbtArtifactMatcher(buildFileSource).find(artifact)
-
-    debugMatches(artifact, matches)
 
     val artifactMatches: Seq[(Artifact, Seq[Match])] =
       matches
@@ -40,19 +43,20 @@ class SbtFileInserts extends LazyLogging {
         .sortBy(_._2.minBy(_.start).start)
         .find(_._2.nonEmpty)
 
-    def ins(a: Artifact = artifact): String = {
-      val insertStrings = SbtFormatShowPrinter.single(a)
+    def ins: String = {
+      val insertStrings = SbtFormatShowPrinter.single(artifact)
       appendLines(buildFileSource.split('\n'), insertStrings :: Nil)
         .mkString("\n") + "\n"
     }
 
-    maybeFirstMatch match {
+    debugMatches(artifact, matches) *> (maybeFirstMatch match {
       case None =>
-        ins()
+        ins.pure[F]
       case Some((a, ms)) =>
         ms.minBy(_.start)
           .replace(buildFileSource, SbtFormatShowPrinter.single(a))
-    }
+          .pure[F]
+    })
   }
 
   def appendLines(

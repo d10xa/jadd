@@ -1,9 +1,7 @@
 package ru.d10xa.jadd.repl
 
 import java.util
-
 import cats.effect.IO
-import com.typesafe.scalalogging.StrictLogging
 import org.jline.reader.Candidate
 import org.jline.reader.LineReader
 import org.jline.reader.ParsedLine
@@ -14,7 +12,7 @@ import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.util.control.NonFatal
 
-class JaddJlineCompleter extends org.jline.reader.Completer with StrictLogging {
+class JaddJlineCompleter[F[_]] extends org.jline.reader.Completer {
 
   private val commandsNeedCompletion = Set("install", "search", "i", "s")
   private val replCommands = Seq("install", "search", "show", "help", "exit")
@@ -55,8 +53,10 @@ class JaddJlineCompleter extends org.jline.reader.Completer with StrictLogging {
                     if e.getStatusCode == 404 =>
                   IO.pure(Vector.empty)
                 case NonFatal(e) =>
-                  logger.warn(e.getMessage)
-                  IO.pure(Vector.empty)
+                  IO(
+                    reader.getTerminal.writer
+                      .println(s"autocomplete error: ${e.toString}")
+                  ) *> IO.pure(Vector.empty)
               }
               .unsafeRunSync()
           } else Vector.empty

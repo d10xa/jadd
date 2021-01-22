@@ -5,12 +5,12 @@ import cats.MonadThrow
 import cats.effect.Resource
 import cats.effect.Sync
 import cats.syntax.all._
-import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.core.troubles.ArtifactNotFoundByAlias
 import ru.d10xa.jadd.fs.FileOps
 import ru.d10xa.jadd.fs.FsItem
 import ru.d10xa.jadd.fs.FsItem.TextFile
 import ru.d10xa.jadd.instances._
+import ru.d10xa.jadd.log.Logger
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
 
@@ -18,13 +18,13 @@ import java.nio.file.Path
 import scala.io.BufferedSource
 import scala.io.Source
 
-object Utils extends StrictLogging {
+object Utils {
 
   def unshortAll[F[_]: Sync](
     rawDependencies: List[String],
     artifactInfoFinder: ArtifactInfoFinder[F],
     artifactShortcuts: ArtifactShortcuts
-  ): F[List[Artifact]] =
+  )(implicit logger: Logger[F]): F[List[Artifact]] =
     rawDependencies.flatTraverse(s =>
       unshortOne(s, artifactInfoFinder, artifactShortcuts)
     )
@@ -33,17 +33,17 @@ object Utils extends StrictLogging {
     raw: String,
     artifactInfoFinder: ArtifactInfoFinder[F],
     artifactShortcuts: ArtifactShortcuts
-  ): F[List[Artifact]] =
+  )(implicit logger: Logger[F]): F[List[Artifact]] =
     artifactInfoFinder
       .artifactFromString(artifactShortcuts, raw)
-      .map {
-        case Right(artifact) => artifact :: Nil
+      .flatMap {
+        case Right(artifact) => (artifact :: Nil).pure[F]
         case Left(_: ArtifactNotFoundByAlias) =>
-          logger.info(s"$raw - artifact not found by shortcut")
-          Nil
+          logger.info(s"$raw - artifact not found by shortcut") *>
+            List[Artifact]().pure[F]
         case Left(trouble) =>
-          logger.info(s"some error occurred $trouble")
-          Nil
+          logger.info(s"some error occurred $trouble") *>
+            List[Artifact]().pure[F]
       }
 
   def sourceFromSpringUri(string: String): BufferedSource =

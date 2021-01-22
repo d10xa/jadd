@@ -3,13 +3,13 @@ package ru.d10xa.jadd.repl
 import cats.Applicative
 import cats.effect.Sync
 import cats.syntax.all._
-import com.typesafe.scalalogging.StrictLogging
 import org.jline.reader._
 import org.jline.terminal.Terminal
 import org.jline.terminal.TerminalBuilder
-import ru.d10xa.jadd.run.RunParams
+import ru.d10xa.jadd.application.CliArgs
+import ru.d10xa.jadd.log.Logger
 
-class ReplCommand[F[_]: Sync] extends StrictLogging {
+class ReplCommand[F[_]: Sync]()(implicit logger: Logger[F]) {
 
   @SuppressWarnings(Array("org.wartremover.warts.Null"))
   val nullMaskingCallback: MaskingCallback = null
@@ -39,10 +39,10 @@ class ReplCommand[F[_]: Sync] extends StrictLogging {
   }
 
   def runRepl(
-    runParams: RunParams[F],
-    action: RunParams[F] => F[Unit]
+    cliArgs: CliArgs,
+    action: CliArgs => F[Unit]
   ): F[Unit] = {
-    logger.info("Welcome to jadd REPL!")
+
     val replContext = new ReplContext
 
     def loop(): F[Unit] =
@@ -50,13 +50,13 @@ class ReplCommand[F[_]: Sync] extends StrictLogging {
         .flatMap { line =>
           val continue = needContinue(line)
           if (continue) {
-            action(runParams.copy(args = line.split("\\s+").toVector)) *> loop()
+            action(cliArgs.copy(args = line.split("\\s+").toVector)) *> loop()
           } else {
             Applicative[F].pure(())
           }
         }
 
-    loop()
+    logger.info("Welcome to jadd REPL!") >> loop()
   }
 
   def needContinue(line: String): Boolean =

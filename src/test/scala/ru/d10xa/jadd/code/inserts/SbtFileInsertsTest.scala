@@ -1,15 +1,22 @@
 package ru.d10xa.jadd.code.inserts
 
+import cats.effect._
 import coursier.core.Version
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.types.GroupId
 import ru.d10xa.jadd.core.types.ScalaVersion
+import ru.d10xa.jadd.log.Logger
 import ru.d10xa.jadd.testkit.TestBase
 
 class SbtFileInsertsTest extends TestBase {
 
+  implicit val logger: Logger[IO] = Logger.make[IO](
+    debug = false,
+    quiet = true
+  )
+
   def add(content: String, artifacts: Artifact*): String =
-    new SbtFileInserts().appendAll(content, artifacts)
+    new SbtFileInserts[IO]().appendAll(content, artifacts).unsafeRunSync()
 
   test("sbt insert dependency successfully") {
     val content =

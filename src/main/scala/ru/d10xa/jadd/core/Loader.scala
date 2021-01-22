@@ -5,9 +5,9 @@ import cats.Functor
 import cats.data.Ior
 import cats.data.IorNel
 import cats.effect.Sync
-import com.typesafe.scalalogging.StrictLogging
 import coursier.parse.RepositoryParser
 import ru.d10xa.jadd.core.troubles.ArtifactTrouble
+import ru.d10xa.jadd.log.Logger
 import ru.d10xa.jadd.pipelines.Pipeline
 import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
@@ -19,19 +19,18 @@ trait Loader[F[_]] {
     ctx: Ctx,
     versionTools: VersionTools[F],
     artifactShortcuts: ArtifactShortcuts
-  ): F[IorNel[ArtifactTrouble, List[Artifact]]]
+  )(implicit logger: Logger[F]): F[IorNel[ArtifactTrouble, List[Artifact]]]
 }
 
 class LiveLoader[F[_]: Sync] private (
   artifactInfoFinder: ArtifactInfoFinder[F]
-) extends Loader[F]
-    with StrictLogging {
+) extends Loader[F] {
 
   override def load(
     ctx: Ctx,
     versionTools: VersionTools[F],
     artifactShortcuts: ArtifactShortcuts
-  ): F[IorNel[ArtifactTrouble, List[Artifact]]] =
+  )(implicit logger: Logger[F]): F[IorNel[ArtifactTrouble, List[Artifact]]] =
     Pipeline
       .extractArtifacts(ctx)
       .flatMap(artifacts =>
@@ -55,7 +54,7 @@ class LiveLoader[F[_]: Sync] private (
     artifacts: List[String],
     versionTools: VersionTools[F],
     artifactShortcuts: ArtifactShortcuts
-  ): F[IorNel[ArtifactTrouble, List[Artifact]]] =
+  )(implicit logger: Logger[F]): F[IorNel[ArtifactTrouble, List[Artifact]]] =
     for {
       unshorted <- Utils
         .unshortAll(artifacts, artifactInfoFinder, artifactShortcuts)

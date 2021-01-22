@@ -5,7 +5,6 @@ import java.nio.file.Paths
 import cats.syntax.all._
 import cats.data.Chain
 import cats.effect._
-import com.typesafe.scalalogging.StrictLogging
 import ru.d10xa.jadd.code.inserts.SbtFileInserts
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.Ctx
@@ -14,6 +13,7 @@ import ru.d10xa.jadd.core.Utils
 import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.fs.FileOps
 import ru.d10xa.jadd.fs.FsItem.TextFile
+import ru.d10xa.jadd.log.Logger
 import ru.d10xa.jadd.show.SbtShowCommand
 
 class SbtPipeline[F[_]: Sync](
@@ -21,8 +21,7 @@ class SbtPipeline[F[_]: Sync](
   scalaVersionFinder: ScalaVersionFinder[F],
   showCommand: SbtShowCommand[F],
   fileOps: FileOps[F]
-) extends Pipeline[F]
-    with StrictLogging {
+) extends Pipeline[F] {
 
   val buildFile: Path = Paths.get("build.sbt")
 
@@ -32,10 +31,10 @@ class SbtPipeline[F[_]: Sync](
       source = textFile
     } yield source
 
-  def install(artifacts: List[Artifact]): F[Unit] =
+  def install(artifacts: List[Artifact])(implicit logger: Logger[F]): F[Unit] =
     for {
       source <- buildFileSource
-      newSource: String = new SbtFileInserts()
+      newSource <- new SbtFileInserts[F]()
         .appendAll(source.content.value, artifacts)
       _ <- fileUpdate(newSource)
     } yield ()
@@ -43,7 +42,7 @@ class SbtPipeline[F[_]: Sync](
   def fileUpdate(str: String): F[Unit] =
     fileOps.write(buildFile, str)
 
-  override def show(): F[Chain[Artifact]] =
+  override def show()(implicit logger: Logger[F]): F[Chain[Artifact]] =
     for {
       artifacts <- showCommand.show()
     } yield artifacts

@@ -2,6 +2,7 @@ package ru.d10xa.jadd.show
 
 import cats.effect.SyncIO
 import ru.d10xa.jadd.cli.Config
+import ru.d10xa.jadd.code.scalameta.SbtArtifactsParser
 import ru.d10xa.jadd.code.scalameta.SbtModuleIdFinder
 import ru.d10xa.jadd.code.scalameta.SbtStringValFinder
 import ru.d10xa.jadd.core.Artifact
@@ -12,6 +13,11 @@ import ru.d10xa.jadd.testkit.TestBase
 
 class SbtShowCommandTest extends TestBase {
 
+  private val sbtArtifactsParser: SbtArtifactsParser[SyncIO] =
+    SbtArtifactsParser
+      .make[SyncIO](SbtModuleIdFinder, SbtStringValFinder)
+      .unsafeRunSync()
+
   def showArtifacts(files: (String, String)*): List[Artifact] =
     createFileOpsWithFilesF[SyncIO](files.toList)
       .use { case (_, fileOps) =>
@@ -21,8 +27,7 @@ class SbtShowCommandTest extends TestBase {
         new SbtShowCommand[SyncIO](
           fileOps,
           scalaVersions,
-          SbtModuleIdFinder,
-          SbtStringValFinder
+          sbtArtifactsParser
         )
           .show()
           .map(_.toList)

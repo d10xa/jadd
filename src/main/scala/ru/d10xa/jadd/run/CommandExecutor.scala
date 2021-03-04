@@ -7,6 +7,7 @@ import ru.d10xa.jadd.buildtools.BuildToolLayout
 import ru.d10xa.jadd.buildtools.BuildToolLayoutSelector
 import ru.d10xa.jadd.cli.Command.Help
 import ru.d10xa.jadd.cli.Command.Repl
+import ru.d10xa.jadd.code.scalameta.SbtArtifactsParser
 import ru.d10xa.jadd.code.scalameta.SbtModuleIdFinder
 import ru.d10xa.jadd.code.scalameta.SbtStringValFinder
 import ru.d10xa.jadd.core.Ctx
@@ -51,38 +52,48 @@ class CommandExecutorImpl[F[_]: Sync] private (
         executePipelines(ctx, loader, fileOps, artifactShortcuts)
     }
 
+  def layoutToPipeline(
+    layout: BuildToolLayout,
+    ctx: Ctx,
+    fileOps: FileOps[F]
+  ): F[Pipeline[F]] =
+    layout match {
+      case BuildToolLayout.Gradle =>
+        Sync[F].delay(new GradlePipeline(ctx, fileOps))
+      case BuildToolLayout.Maven =>
+        Sync[F].delay(new MavenPipeline(ctx, fileOps))
+      case BuildToolLayout.Sbt =>
+        for {
+          sbtArtifactsParser <- SbtArtifactsParser
+            .make[F](SbtModuleIdFinder, SbtStringValFinder)
+          scalaVersionFinder = LiveSbtScalaVersionFinder.make(ctx, fileOps)
+          sbtPipeline = new SbtPipeline(
+            ctx,
+            scalaVersionFinder,
+            new SbtShowCommand(
+              fileOps,
+              scalaVersionFinder,
+              sbtArtifactsParser
+            ),
+            fileOps
+          )
+        } yield sbtPipeline
+      case BuildToolLayout.Ammonite =>
+        Sync[F].delay(new AmmonitePipeline(ctx, fileOps))
+      case BuildToolLayout.Unknown =>
+        Sync[F].delay(new UnknownProjectPipeline(ctx))
+    }
+
   private def executePipelines(
     ctx: Ctx,
     loader: Loader[F],
     fileOps: FileOps[F],
     artifactShortcuts: ArtifactShortcuts
   )(implicit logger: Logger[F]): F[Unit] = {
-
     val pipeline: F[Pipeline[F]] = for {
       layout <- buildToolLayoutSelector.select(ctx)
-    } yield layout match {
-      case BuildToolLayout.Gradle =>
-        new GradlePipeline(ctx, fileOps)
-      case BuildToolLayout.Maven =>
-        new MavenPipeline(ctx, fileOps)
-      case BuildToolLayout.Sbt =>
-        val scalaVersionFinder = LiveSbtScalaVersionFinder.make(ctx, fileOps)
-        new SbtPipeline(
-          ctx,
-          scalaVersionFinder,
-          new SbtShowCommand(
-            fileOps,
-            scalaVersionFinder,
-            SbtModuleIdFinder,
-            SbtStringValFinder
-          ),
-          fileOps
-        )
-      case BuildToolLayout.Ammonite =>
-        new AmmonitePipeline(ctx, fileOps)
-      case BuildToolLayout.Unknown =>
-        new UnknownProjectPipeline(ctx)
-    }
+      p <- layoutToPipeline(layout, ctx, fileOps)
+    } yield p
     val versionTools = VersionTools.make[F](coursierVersions)
     pipeline.flatMap(_.run(loader, versionTools, artifactShortcuts))
   }

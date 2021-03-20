@@ -43,7 +43,7 @@ libraryDependencies ++= Seq(
   "org.typelevel" %% "cats-core" % "2.4.2",
   "org.jline" % "jline" % "3.19.0",
   "com.lihaoyi" %% "ujson" % "1.3.7",
-  "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.6",
+  "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.8",
   "org.scalatest" %% "scalatest" % "3.2.6" % "it,test",
   "com.github.tomakehurst" % "wiremock" % "2.27.2" % "it,test"
 )

@@ -1,45 +1,65 @@
 package ru.d10xa.jadd.code.scalameta
 
+import cats.effect.SyncIO
 import ru.d10xa.jadd.testkit.TestBase
 
+import scala.meta.Source
 import scala.meta.Term
+import scala.meta.dialects
+import org.scalatest.EitherValues._
+import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.LitString
+import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.Module
+import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.UnapplyPercentChars
+import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.SString
+import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.TermNameCompound
 
 class ScalametaTest extends TestBase {
 
-  val sbtModuleIdFinder: SbtModuleIdFinder = SbtModuleIdFinder
-  val sbtStringValFinder: SbtStringValFinder = SbtStringValFinder
+  private val sbtArtifactsParser =
+    SbtArtifactsParser.make[SyncIO]().unsafeRunSync()
 
-  def findModules(str: String): List[ModuleId] =
-    sbtModuleIdFinder.find(parseSource(str))
+  def findModules(str: String): Vector[Module] =
+    sbtArtifactsParser
+      .parse(
+        Vector(dialects.Sbt1(str).parse[Source].toEither.value)
+      )
+      .unsafeRunSync()
 
-  def findStringVals(str: String): List[StringVal] =
-    sbtStringValFinder.find(parseSource(str))
+  implicit class SStringOps(s: SString) {
+    def value: String = s match {
+      case LitString(value) => value
+      case ScalaMetaPatternMatching.TermNameCompound(values) =>
+        throw new IllegalArgumentException(
+          s"SString is TermNameCompound $values"
+        )
+    }
+  }
 
   test("PercentCharsMatch.unapply") {
-    PercentCharsMatch.unapply("%") shouldEqual Some(1)
-    PercentCharsMatch.unapply("%%") shouldEqual Some(2)
-    PercentCharsMatch.unapply("%%%") shouldEqual Some(3)
-    PercentCharsMatch.unapply("$") shouldEqual None
-    PercentCharsMatch.unapply("%$") shouldEqual None
+    UnapplyPercentChars.unapply("%") shouldEqual Some(1)
+    UnapplyPercentChars.unapply("%%") shouldEqual Some(2)
+    UnapplyPercentChars.unapply("%%%") shouldEqual Some(3)
+    UnapplyPercentChars.unapply("$") shouldEqual None
+    UnapplyPercentChars.unapply("%$") shouldEqual None
   }
 
   test("ModuleIdMatch g %% a % v") {
-    val List(moduleId) =
+    val Vector(moduleId) =
       findModules("\"org.something\" %% \"something-name\" % \"0.0.1\"")
-    moduleId.groupId shouldBe "org.something"
+    moduleId.groupId.value shouldBe "org.something"
     moduleId.percentsCount shouldBe 2
-    moduleId.artifactId shouldBe "something-name"
-    moduleId.version shouldBe VersionString("0.0.1")
+    moduleId.artifactId.value shouldBe "something-name"
+    moduleId.version.value shouldBe "0.0.1"
   }
 
   test("ModuleIdMatch g %% a % v % Test") {
-    val List(moduleId) = findModules(
+    val Vector(moduleId) = findModules(
       "\"org.something\" %% \"something-name\" % \"0.0.1\" % Test"
     )
-    moduleId.groupId shouldBe "org.something"
+    moduleId.groupId.value shouldBe "org.something"
     moduleId.percentsCount shouldBe 2
-    moduleId.artifactId shouldBe "something-name"
-    moduleId.version shouldBe VersionString("0.0.1")
+    moduleId.artifactId.value shouldBe "something-name"
+    moduleId.version.value shouldBe "0.0.1"
     (moduleId.terms should have).size(1)
     moduleId.terms match {
       case List(name: Term.Name) => name.value shouldBe "Test"
@@ -47,49 +67,38 @@ class ScalametaTest extends TestBase {
   }
 
   test("ModuleIdMatch VersionVal") {
-    val List(moduleId) = findModules(
+    val Vector(moduleId) = findModules(
       "\"org.something\" %% \"something-name\" % somethingVersion % Test"
     )
-    moduleId.version shouldBe VersionVal("somethingVersion")
+    moduleId.version shouldBe TermNameCompound(Vector("somethingVersion"))
     moduleId.terms match {
       case List(name: Term.Name) => name.value shouldBe "Test"
     }
   }
 
   test("libraryDependencies +=") {
-    val List(moduleId): List[ModuleId] = findModules(
+    val Vector(moduleId) = findModules(
       "libraryDependencies += \"org.something\" %% \"something-name\" % \"0.0.1\""
     )
-    moduleId.groupId shouldBe "org.something"
+    moduleId.groupId.value shouldBe "org.something"
     moduleId.percentsCount shouldBe 2
-    moduleId.artifactId shouldBe "something-name"
-    moduleId.version shouldBe VersionString("0.0.1")
+    moduleId.artifactId.value shouldBe "something-name"
+    moduleId.version.value shouldBe "0.0.1"
   }
 
   test("libraryDependencies ++=") {
-    val moduleIds: List[ModuleId] =
+    val moduleIds: Vector[Module] =
       findModules("""libraryDependencies ++= Seq(
         |  "com.github.scopt" %% "scopt" % "3.7.1",
         |  "ch.qos.logback" % "logback-classic" % "1.2.3"
         |)""".stripMargin)
 
-    val List(m1, m2) = moduleIds
+    val Vector(m1, m2) = moduleIds
 
-    m1.groupId shouldBe "com.github.scopt"
+    m1.groupId.value shouldBe "com.github.scopt"
     m1.percentsCount shouldBe 2
-    m2.groupId shouldBe "ch.qos.logback"
+    m2.groupId.value shouldBe "ch.qos.logback"
     m2.percentsCount shouldBe 1
-  }
-
-  test("find val string in sbt file") {
-    val vals = findStringVals("""
-        |val catsVersion = "1.0.0"
-        |def x = "???"
-        |""".stripMargin)
-
-    val List(v) = vals
-    v.name shouldBe "catsVersion"
-    v.value shouldBe "1.0.0"
   }
 
 }

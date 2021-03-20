@@ -8,8 +8,6 @@ import ru.d10xa.jadd.buildtools.BuildToolLayoutSelector
 import ru.d10xa.jadd.cli.Command.Help
 import ru.d10xa.jadd.cli.Command.Repl
 import ru.d10xa.jadd.code.scalameta.SbtArtifactsParser
-import ru.d10xa.jadd.code.scalameta.SbtModuleIdFinder
-import ru.d10xa.jadd.code.scalameta.SbtStringValFinder
 import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.core.LiveSbtScalaVersionFinder
 import ru.d10xa.jadd.core.Loader
@@ -64,8 +62,7 @@ class CommandExecutorImpl[F[_]: Sync] private (
         Sync[F].delay(new MavenPipeline(ctx, fileOps))
       case BuildToolLayout.Sbt =>
         for {
-          sbtArtifactsParser <- SbtArtifactsParser
-            .make[F](SbtModuleIdFinder, SbtStringValFinder)
+          sbtArtifactsParser <- SbtArtifactsParser.make[F]()
           scalaVersionFinder = LiveSbtScalaVersionFinder.make(ctx, fileOps)
           sbtPipeline = new SbtPipeline(
             ctx,

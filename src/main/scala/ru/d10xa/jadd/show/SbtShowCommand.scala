@@ -70,7 +70,10 @@ class SbtShowCommand[F[_]: Sync](
           dialects.Sbt1(str).parse[Source].toEither
         }
         .collect { case Right(value) => value }
-      c <- sbtArtifactsParser.parse(scalaVersion, parsedSources.toVector)
+      c <- sbtArtifactsParser.parseArtifacts(
+        scalaVersion,
+        parsedSources.toVector
+      )
     } yield Chain.fromSeq(c)
 
   }

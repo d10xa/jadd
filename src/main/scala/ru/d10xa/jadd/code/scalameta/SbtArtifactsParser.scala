@@ -117,27 +117,20 @@ object SbtArtifactsParser {
       .sumCounter
       .map(appendTree)
 
-  def extractModules(items: Vector[SbtTree]): WithCounter[Vector[SbtTree]] = {
-    val res = items.map {
-      case Scope(Some(innerName), innerItems) =>
-        val (modules, others) = innerItems.partition(_.isInstanceOf[Module])
-        (
-          modules.foldLeft(0, Vector.empty[Module])((acc, module) =>
-            module match {
-              case m: Module =>
-                (acc._1 + 1, acc._2 :+ m)
-            }
-          ),
-          Scope(Some(innerName), others)
-        )
-      case x => ((0, Vector.empty[Module]), x)
-    }
-    res
-      .foldLeft(0, Vector.empty[(Vector[Module], SbtTree)]) { (acc, cur) =>
-        (acc._1 + cur._1._1, acc._2 :+ (cur._1._2, cur._2))
+  def extractModules(items: Vector[SbtTree]): WithCounter[Vector[SbtTree]] =
+    items
+      .map {
+        case Scope(Some(innerName), innerItems) =>
+          val (modules, others) = innerItems.partition(_.isInstanceOf[Module])
+          val extractedModules = modules.collect { case m: Module => m }
+          (
+            extractedModules.size,
+            (extractedModules, Scope(Some(innerName), others))
+          )
+        case x => (0, (Vector.empty[Module], x))
       }
+      .sumCounter
       .map(appendTree)
-  }
 
   def substituteNearModuleWithLocalValue(
     items: Vector[SbtTree]

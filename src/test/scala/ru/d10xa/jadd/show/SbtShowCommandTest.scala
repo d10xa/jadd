@@ -3,8 +3,6 @@ package ru.d10xa.jadd.show
 import cats.effect.SyncIO
 import ru.d10xa.jadd.cli.Config
 import ru.d10xa.jadd.code.scalameta.SbtArtifactsParser
-import ru.d10xa.jadd.code.scalameta.SbtModuleIdFinder
-import ru.d10xa.jadd.code.scalameta.SbtStringValFinder
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.core.LiveSbtScalaVersionFinder
@@ -15,7 +13,7 @@ class SbtShowCommandTest extends TestBase {
 
   private val sbtArtifactsParser: SbtArtifactsParser[SyncIO] =
     SbtArtifactsParser
-      .make[SyncIO](SbtModuleIdFinder, SbtStringValFinder)
+      .make[SyncIO]()
       .unsafeRunSync()
 
   def showArtifacts(files: (String, String)*): List[Artifact] =
@@ -117,6 +115,7 @@ class SbtShowCommandTest extends TestBase {
   }
 
   test("Dependencies import") {
+
     val source =
       s"""
          |import Dependencies._
@@ -176,6 +175,22 @@ class SbtShowCommandTest extends TestBase {
     val expected = Seq(
       art("a:b:3.9.0")
     )
+    (result should contain).theSameElementsAs(expected)
+  }
+
+  test("inner object") {
+    val source =
+      s"""
+         |val versions = new {
+         |  val x = new {
+         |    val v = "1"
+         |  }
+         |}
+         |libraryDependencies += "a" % "b" % versions.x.v
+       """.stripMargin
+
+    val result = showArtifacts("build.sbt" -> source)
+    val expected = Seq(art("a:b:1"))
     (result should contain).theSameElementsAs(expected)
   }
 

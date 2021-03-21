@@ -221,14 +221,24 @@ object SbtArtifactsParser {
       case _ => None
     }
 
-  def parse(sources: Vector[Source]): Vector[Module] =
-    loopReduce(Scope(name = None, items = sources.flatMap(eval)))
-      .map(t => substituteVersionTree(Map.empty, t))
-      .collect {
-        case Scope(_, items) =>
-          items.collect { case m: Module => m }
+  def findAllModules(t: SbtTree): Vector[Module] = t match {
+    case Scope(_, items) =>
+      items.flatMap {
         case m: Module => Vector(m)
+        case Scope(_, items) => items.flatMap(findAllModules)
+        case Value(_, _) =>
+          throw new IllegalStateException(
+            s"This branch is not reachable. findAllModules" +
+              s" must be executed after substituteVersionTree"
+          )
       }
+    case m: Module => Vector(m)
+  }
+
+  def parse(trees: Vector[scala.meta.Tree]): Vector[Module] =
+    loopReduce(Scope(name = None, items = trees.flatMap(eval)))
+      .map(t => substituteVersionTree(Map.empty, t))
+      .map(findAllModules)
       .getOrElse(Vector.empty[Module])
 
   def moduleToArtifact(scalaVersion: ScalaVersion, m: Module): Artifact =
@@ -256,6 +266,11 @@ object SbtArtifactsParser {
               case _ => false
             }
             .map(_ => ru.d10xa.jadd.core.Scope.Test)
+        )
+      case _ =>
+        throw new IllegalStateException(
+          s"This branch is not reachable. LitString is only possible" +
+            s" case for groupId and artifactId(at least now)"
         )
     }
 

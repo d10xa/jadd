@@ -31,7 +31,7 @@ abstract class TestBase extends AnyFunSuiteLike with Matchers {
   def tempFileOpsResource[F[_]: Sync]: Resource[F, (Path, FileOps[F])] =
     for {
       path <- tempPathResource[F]
-      ops <- Resource.liftF(LiveFileOps.make[F](path))
+      ops <- Resource.eval(LiveFileOps.make[F](path))
     } yield (path, ops)
   def createFileOpsWithFilesF[F[_]: Sync](
     files: List[(String, String)]
@@ -46,7 +46,7 @@ abstract class TestBase extends AnyFunSuiteLike with Matchers {
               .write(content)
           )
         }
-      Resource.liftF(createFiles.map(_ => t))
+      Resource.eval(createFiles.map(_ => t))
     }
 
   def createLayoutSelectorWithFilesF[F[_]: Sync](

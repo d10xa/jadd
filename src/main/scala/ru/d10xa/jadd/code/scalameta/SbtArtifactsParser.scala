@@ -218,6 +218,8 @@ object SbtArtifactsParser {
         evalTrees(terms)
       case Defn.Object(_, Term.Name(name), Template(_, _, _, xs)) =>
         evalTreesNamed(name, xs)
+      case Term.Block(stats) =>
+        evalTrees(stats)
       case _ => None
     }
 

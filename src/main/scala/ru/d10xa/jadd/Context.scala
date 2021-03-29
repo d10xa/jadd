@@ -3,7 +3,6 @@ package ru.d10xa.jadd
 import cats.MonadThrow
 import cats.Parallel
 import cats.effect.ConcurrentEffect
-import cats.effect.ContextShift
 import cats.effect.ExitCode
 import cats.effect.Resource
 import cats.syntax.all._

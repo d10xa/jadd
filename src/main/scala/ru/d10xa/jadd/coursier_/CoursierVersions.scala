@@ -1,7 +1,6 @@
 package ru.d10xa.jadd.coursier_
 
 import cats.Parallel
-import cats.effect.ContextShift
 import cats.effect.Sync
 import coursier.Repository
 import coursier.Versions

@@ -40,7 +40,7 @@ addCompilerPlugin(
 
 libraryDependencies ++= Seq(
   "com.github.scopt" %% "scopt" % "4.0.1",
-  "org.typelevel" %% "cats-core" % "2.4.2",
+  "org.typelevel" %% "cats-core" % "2.5.0",
   "org.jline" % "jline" % "3.19.0",
   "com.lihaoyi" %% "ujson" % "1.3.9",
   "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.8",

@@ -6,10 +6,8 @@ import java.net.URI
 import java.nio.file.Paths
 import cats.syntax.all._
 import cats.effect.ConcurrentEffect
-import cats.effect.ContextShift
 import cats.effect.Resource
 import cats.effect.Sync
-import cats.effect.concurrent.Ref
 import github4s.Github
 import ru.d10xa.jadd.application.CliArgs
 import ru.d10xa.jadd.buildtools.BuildToolLayoutSelector
@@ -33,6 +31,7 @@ import ru.d10xa.jadd.shortcuts.ArtifactInfoFinder
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts.ArtifactShortcutsClasspath
 import ru.d10xa.jadd.shortcuts.RepositoryShortcuts
+import cats.effect.Ref
 
 class JaddRunner[F[_]: Sync: ConcurrentEffect: Parallel: ContextShift](
   cli: Cli,

@@ -3,7 +3,6 @@ package ru.d10xa.jadd.github
 import java.nio.file.Path
 import cats.ApplicativeError
 import cats.data.NonEmptyList
-import cats.effect.Bracket
 import cats.MonadThrow
 import cats.effect.Resource
 import cats.effect.Sync

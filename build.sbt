@@ -40,7 +40,7 @@ addCompilerPlugin(
 
 libraryDependencies ++= Seq(
   "com.github.scopt" %% "scopt" % "4.0.1",
-  "org.typelevel" %% "cats-core" % "2.5.0",
+  "org.typelevel" %% "cats-core" % "2.6.0",
   "org.jline" % "jline" % "3.19.0",
   "com.lihaoyi" %% "ujson" % "1.3.11",
   "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.8",
@@ -48,7 +48,7 @@ libraryDependencies ++= Seq(
   "com.github.tomakehurst" % "wiremock" % "2.27.2" % "it,test"
 )
 libraryDependencies += "org.jsoup" % "jsoup" % "1.13.1"
-libraryDependencies += "org.typelevel" %% "cats-effect" % "3.0.2"
+libraryDependencies += "org.typelevel" %% "cats-effect" % "2.5.0"
 libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.9.1"
 libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.16"
 libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.9.2"

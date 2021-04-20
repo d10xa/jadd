@@ -144,7 +144,7 @@ object SbtArtifactsParser {
       case m @ Module(_, _, _, TermNameCompound(values), _) =>
         localValues.get(values) match {
           case Some(value) =>
-            1 -> m.copy(version = LitString(value))
+            0 -> m.copy(version = LitString(value))
           case None => (0, m)
         }
       case x => (0, x)

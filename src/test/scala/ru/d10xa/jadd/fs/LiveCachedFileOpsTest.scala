@@ -3,11 +3,11 @@ package ru.d10xa.jadd.fs
 import java.nio.file.Path
 
 import cats.effect.SyncIO
-import cats.effect.concurrent.Ref
 import ru.d10xa.jadd.core.types.FileCache
 import ru.d10xa.jadd.core.types.FileContent
 import ru.d10xa.jadd.fs.FsItem.TextFile
 import ru.d10xa.jadd.testkit.TestBase
+import cats.effect.Ref
 
 class LiveCachedFileOpsTest extends TestBase {
   test("cache") {

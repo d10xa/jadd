@@ -12,6 +12,7 @@ import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.Module
 import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.UnapplyPercentChars
 import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.SString
 import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.TermNameCompound
+import ru.d10xa.jadd.code.scalameta.ScalametaUtils.replacePositions
 
 class ScalametaTest extends TestBase {
 
@@ -104,6 +105,50 @@ class ScalametaTest extends TestBase {
     m2.percentsCount shouldBe 1
     m3.groupId.value shouldBe "org.jsoup"
     m3.percentsCount shouldBe 1
+  }
+
+  test("replace positions") {
+    val originalSource =
+      """
+        |libraryDependencies ++= Seq(
+        |  "a" %% "b" % "1.1",
+        |  "c" % "d" % "2.2"
+        |)
+        |libraryDependencies += "e" % "f" % "3.3"
+        |""".stripMargin
+    val moduleIds: Vector[Module] =
+      findModules(originalSource)
+
+    val Vector(m1, m2, m3) = moduleIds
+
+    m1.groupId.value shouldBe "a"
+    m1.version.value shouldBe "1.1"
+    m2.groupId.value shouldBe "c"
+    m2.version.value shouldBe "2.2"
+    m3.groupId.value shouldBe "e"
+    m3.version.value shouldBe "3.3"
+
+    val replacementsSource =
+      replacePositions(
+        originalSource,
+        List(
+          m1.version.asInstanceOf[LitString].pos -> "\"1.1.1\"",
+          m2.version.asInstanceOf[LitString].pos -> "\"3\"",
+          m3.version.asInstanceOf[LitString].pos -> "\"3.3.3\""
+        )
+      )
+
+    val updatedModuleIds: Vector[Module] =
+      findModules(replacementsSource)
+
+    val Vector(n1, n2, n3) = updatedModuleIds
+
+    n1.groupId.value shouldBe "a"
+    n1.version.value shouldBe "1.1.1"
+    n2.groupId.value shouldBe "c"
+    n2.version.value shouldBe "3"
+    n3.groupId.value shouldBe "e"
+    n3.version.value shouldBe "3.3.3"
   }
 
 }

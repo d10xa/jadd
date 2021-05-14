@@ -27,7 +27,7 @@ class ScalametaTest extends TestBase {
 
   implicit class SStringOps(s: SString) {
     def value: String = s match {
-      case LitString(value) => value
+      case LitString(value, _) => value
       case ScalaMetaPatternMatching.TermNameCompound(values) =>
         throw new IllegalArgumentException(
           s"SString is TermNameCompound $values"

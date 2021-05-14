@@ -23,6 +23,7 @@ import scala.annotation.tailrec
 import scala.meta.Defn
 import scala.meta.Pat
 import scala.meta.Template
+import scala.meta.inputs.Position
 
 trait SbtArtifactsParser[F[_]] {
   def parse(
@@ -45,10 +46,7 @@ object SbtArtifactsParser {
           scalaVersion: ScalaVersion,
           sources: Vector[Source]
         ): F[Vector[Artifact]] =
-          SbtArtifactsParser
-            .parse(sources)
-            .map(r => moduleToArtifact(scalaVersion, r))
-            .pure[F]
+          parse(sources).map(_.map(r => moduleToArtifact(scalaVersion, r)))
       }
     }
 
@@ -59,19 +57,19 @@ object SbtArtifactsParser {
     module.version match {
       case TermNameCompound(termNames) =>
         valuesMap.get(termNames) match {
-          case Some(value) =>
-            Some(module.copy(version = LitString(value)))
+          case Some((value, pos)) =>
+            Some(module.copy(version = LitString(value, pos)))
           case None => None
         }
       case _ => None
     }
 
   def createValuesMap(values: Vector[Value]): ValuesMap =
-    values.map { case Value(path, value) => (path, value) }.toMap
+    values.map { case Value(path, value, pos) => (path, (value, pos)) }.toMap
 
   def separateValues(trees: Vector[SbtTree]): (Vector[Value], Vector[SbtTree]) =
     trees.foldRight((Vector.empty[Value], Vector.empty[SbtTree])) {
-      case (v @ Value(_, _), (values, trees)) => (v +: values, trees)
+      case (v @ Value(_, _, _), (values, trees)) => (v +: values, trees)
       case (t: SbtTree, (values, trees)) => (values, t +: trees)
     }
 
@@ -86,7 +84,7 @@ object SbtArtifactsParser {
         val newItems = others.map {
           case m @ Module(_, _, _, TermNameCompound(values), _) =>
             newValuesMap.get(values) match {
-              case Some(value) => m.copy(version = LitString(value))
+              case Some((value, pos)) => m.copy(version = LitString(value, pos))
               case None => m
             }
           case s @ Scope(_, items) =>
@@ -136,15 +134,15 @@ object SbtArtifactsParser {
     items: Vector[SbtTree]
   ): WithCounter[Vector[SbtTree]] = {
     val localValues = items
-      .collect { case v @ Value(_, _) => v }
-      .foldLeft(Map.empty[Vector[String], String])((acc, cur) =>
-        acc + ((cur.path, cur.value))
+      .collect { case v @ Value(_, _, _) => v }
+      .foldLeft(Map.empty[Vector[String], (String, Position)])((acc, cur) =>
+        acc + ((cur.path, (cur.value, cur.pos)))
       )
     items.map {
       case m @ Module(_, _, _, TermNameCompound(values), _) =>
         localValues.get(values) match {
-          case Some(value) =>
-            0 -> m.copy(version = LitString(value))
+          case Some((value, pos)) =>
+            0 -> m.copy(version = LitString(value, pos))
           case None => (0, m)
         }
       case x => (0, x)
@@ -228,7 +226,7 @@ object SbtArtifactsParser {
       items.flatMap {
         case m: Module => Vector(m)
         case Scope(_, items) => items.flatMap(findAllModules)
-        case Value(_, _) =>
+        case Value(_, _, _) =>
           throw new IllegalStateException(
             s"This branch is not reachable. findAllModules" +
               s" must be executed after substituteVersionTree"
@@ -246,9 +244,9 @@ object SbtArtifactsParser {
   def moduleToArtifact(scalaVersion: ScalaVersion, m: Module): Artifact =
     m match {
       case Module(
-            LitString(groupId),
+            LitString(groupId, _),
             percentsCount,
-            LitString(artifactId),
+            LitString(artifactId, _),
             version,
             terms
           ) =>
@@ -256,7 +254,7 @@ object SbtArtifactsParser {
           groupId = GroupId(groupId),
           artifactId = if (percentsCount > 1) s"$artifactId%%" else artifactId,
           maybeVersion = version match {
-            case LitString(value) => Version(value).some
+            case LitString(value, _) => Version(value).some
             case TermNameCompound(_) => None // TODO think what to do
           },
           maybeScalaVersion = if (percentsCount > 1) {
@@ -278,7 +276,7 @@ object SbtArtifactsParser {
 
   type WithCounter[A] = (Int, A)
 
-  type ValuesMap = Map[Vector[String], String]
+  type ValuesMap = Map[Vector[String], (String, Position)]
 
   implicit class WithCounterOps[A](wc: Vector[WithCounter[A]]) {
     def sumCounter: WithCounter[Vector[A]] = wc.separate.leftMap(_.sum)

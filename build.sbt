@@ -35,7 +35,7 @@ lazy val root = project
   )
 
 addCompilerPlugin(
-  ("org.typelevel" %% "kind-projector" % "0.11.3").cross(CrossVersion.full)
+  ("org.typelevel" %% "kind-projector" % "0.13.0").cross(CrossVersion.full)
 )
 
 libraryDependencies ++= Seq(

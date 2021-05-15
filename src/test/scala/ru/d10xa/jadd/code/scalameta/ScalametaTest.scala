@@ -14,6 +14,9 @@ import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.SString
 import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.TermNameCompound
 import ru.d10xa.jadd.code.scalameta.ScalametaUtils.replacePositions
 
+import scala.meta.inputs.Input
+import scala.meta.inputs.Position
+
 class ScalametaTest extends TestBase {
 
   private val sbtArtifactsParser =
@@ -107,48 +110,17 @@ class ScalametaTest extends TestBase {
     m3.percentsCount shouldBe 1
   }
 
-  test("replace positions") {
-    val originalSource =
-      """
-        |libraryDependencies ++= Seq(
-        |  "a" %% "b" % "1.1",
-        |  "c" % "d" % "2.2"
-        |)
-        |libraryDependencies += "e" % "f" % "3.3"
-        |""".stripMargin
-    val moduleIds: Vector[Module] =
-      findModules(originalSource)
-
-    val Vector(m1, m2, m3) = moduleIds
-
-    m1.groupId.value shouldBe "a"
-    m1.version.value shouldBe "1.1"
-    m2.groupId.value shouldBe "c"
-    m2.version.value shouldBe "2.2"
-    m3.groupId.value shouldBe "e"
-    m3.version.value shouldBe "3.3"
-
-    val replacementsSource =
+  test("replacePositions") {
+    val newStr =
       replacePositions(
-        originalSource,
+        "12 34 56",
         List(
-          m1.version.asInstanceOf[LitString].pos -> "\"1.1.1\"",
-          m2.version.asInstanceOf[LitString].pos -> "\"3\"",
-          m3.version.asInstanceOf[LitString].pos -> "\"3.3.3\""
+          (Position.Range(Input.String(""), 0, 2), "1"),
+          (Position.Range(Input.String(""), 3, 5), "222"),
+          (Position.Range(Input.String(""), 6, 8), "333")
         )
       )
-
-    val updatedModuleIds: Vector[Module] =
-      findModules(replacementsSource)
-
-    val Vector(n1, n2, n3) = updatedModuleIds
-
-    n1.groupId.value shouldBe "a"
-    n1.version.value shouldBe "1.1.1"
-    n2.groupId.value shouldBe "c"
-    n2.version.value shouldBe "3"
-    n3.groupId.value shouldBe "e"
-    n3.version.value shouldBe "3.3.3"
+    newStr shouldBe "1 222 333"
   }
 
 }

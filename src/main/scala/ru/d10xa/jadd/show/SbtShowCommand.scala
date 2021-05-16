@@ -44,17 +44,16 @@ class SbtShowCommand[F[_]: Sync](
     n.endsWith(".sbt") || n.endsWith(".scala")
   }
 
-  def showFromSource(fileContent: FileContent): F[Chain[Artifact]] = {
-    val scalaVersionF: F[ScalaVersion] =
-      scalaVersionFinder
-        .findScalaVersion()
-        .map(_.getOrElse(ScalaVersions.defaultScalaVersion))
+  val scalaVersionF: F[ScalaVersion] = scalaVersionFinder
+    .findScalaVersion()
+    .map(_.getOrElse(ScalaVersions.defaultScalaVersion))
 
-    val otherSbtFilesF = fileOps.read(Paths.get("project")).map {
-      case Dir(_, names) => names
-      case _ => List.empty[Path]
-    }
+  val otherSbtFilesF: F[List[Path]] = fileOps.read(Paths.get("project")).map {
+    case Dir(_, names) => names
+    case _ => List.empty[Path]
+  }
 
+  def showFromSource(fileContent: FileContent): F[Chain[Artifact]] =
     for {
       scalaVersion <- scalaVersionF
       otherSbtFiles <- otherSbtFilesF
@@ -76,5 +75,4 @@ class SbtShowCommand[F[_]: Sync](
       )
     } yield Chain.fromSeq(c)
 
-  }
 }

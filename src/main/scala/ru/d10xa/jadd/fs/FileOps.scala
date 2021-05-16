@@ -26,7 +26,7 @@ class LiveFileOps[F[_]: Sync] private (path: Path) extends FileOps[F] {
           Sync[F]
             .delay(
               FsItem
-                .TextFile(FileContent(file.contentAsString))
+                .TextFile(FileContent(file.contentAsString), path)
             )
             .widen[FsItem]
         } else if (isDirectory) {
@@ -71,7 +71,7 @@ class LiveCachedFileOps[F[_]: Sync] private (
   override def write(path: Path, value: String): F[Unit] = {
     val write = fileOps.write(path, value)
     val updateCache = cacheRef.update(cache =>
-      FileCache(cache.value + (path -> TextFile(FileContent(value))))
+      FileCache(cache.value + (path -> TextFile(FileContent(value), path)))
     )
     write *> updateCache
   }

@@ -26,12 +26,14 @@ class SbtShowCommand[F[_]: Sync](
 ) {
 
   def show(): F[Chain[Artifact]] =
-    Paths
-      .get("build.sbt")
-      .pure[F]
-      .flatMap(fileOps.read)
-      .flatMap(TextFile.make[F])
-      .flatMap(showFromSource)
+    for {
+      sbtFiles <- sbtFilesF
+      sbtSources <- sbtFiles
+        .filter(scalaFilePredicate)
+        .traverse(fileOps.read)
+        .map(_.collect { case t: TextFile => t })
+      res <- showFromTextFiles(sbtSources)
+    } yield res
 
   def parseSource(s: String): Parsed[Source] =
     dialects
@@ -52,6 +54,11 @@ class SbtShowCommand[F[_]: Sync](
     case _ => List.empty[Path]
   }
 
+  val sbtFilesF: F[List[Path]] = for {
+    buildSbt <- Paths.get("build.sbt").pure[F]
+    other <- otherSbtFilesF
+  } yield buildSbt :: other
+
   def showFromTextFiles(files: List[TextFile]): F[Chain[Artifact]] =
     for {
       scalaVersion <- scalaVersionF
@@ -66,15 +73,5 @@ class SbtShowCommand[F[_]: Sync](
         parsedSources.toVector
       )
     } yield Chain.fromSeq(c)
-
-  def showFromSource(textFile: TextFile): F[Chain[Artifact]] =
-    for {
-      otherSbtFiles <- otherSbtFilesF
-      otherSbtSources <- otherSbtFiles
-        .filter(scalaFilePredicate)
-        .traverse(fileOps.read)
-        .map(_.collect { case t: TextFile => t })
-      res <- showFromTextFiles(textFile :: otherSbtSources)
-    } yield res
 
 }

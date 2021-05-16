@@ -34,7 +34,8 @@ class SbtPipeline[F[_]: Sync](
   def install(artifacts: List[Artifact])(implicit logger: Logger[F]): F[Unit] =
     for {
       source <- buildFileSource
-      newSource <- new SbtFileInserts[F]()
+      sbtFileInserts <- SbtFileInserts.make[F]
+      newSource <- sbtFileInserts
         .appendAll(source.content.value, artifacts)
       _ <- fileUpdate(newSource)
     } yield ()

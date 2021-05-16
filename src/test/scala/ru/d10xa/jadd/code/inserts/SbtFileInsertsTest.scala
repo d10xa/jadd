@@ -16,7 +16,11 @@ class SbtFileInsertsTest extends TestBase {
   )
 
   def add(content: String, artifacts: Artifact*): String =
-    new SbtFileInserts[IO]().appendAll(content, artifacts).unsafeRunSync()
+    SbtFileInserts
+      .make[IO]
+      .unsafeRunSync()
+      .appendAll(content, artifacts)
+      .unsafeRunSync()
 
   test("sbt insert dependency successfully") {
     val content =

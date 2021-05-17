@@ -1,7 +1,7 @@
 name := "jadd"
 organization in ThisBuild := "ru.d10xa"
 
-scalaVersion in ThisBuild := "2.13.4"
+scalaVersion in ThisBuild := "2.13.6"
 mainClass in Compile := Some("ru.d10xa.jadd.Jadd")
 licenses := Seq(("MIT", url("https://opensource.org/licenses/MIT")))
 description := "Command-line tool for adding dependencies to gradle/maven/sbt build files"

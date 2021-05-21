@@ -3,6 +3,7 @@ package ru.d10xa.jadd.code.scalameta
 import monocle.Lens
 import monocle.macros.GenLens
 
+import java.nio.file.Path
 import scala.meta.Defn
 import scala.meta.Lit
 import scala.meta.Pat
@@ -97,7 +98,18 @@ object ScalaMetaPatternMatching {
     }
   }
 
-  sealed trait SbtTree
+  sealed trait SbtTree {
+    def withFilePath(path: Path): SbtTree = this match {
+      case scope: Scope => scope.copy(filePath = Some(path))
+      case x => x
+    }
+    def withFilePathOpt(optPath: Option[Path]): SbtTree = this match {
+      case scope: Scope if scope.filePath.isEmpty && optPath.isDefined =>
+        scope.copy(filePath = optPath)
+      case x => x
+    }
+  }
+
   final case class Value(path: Vector[String], value: String, pos: Position)
       extends SbtTree {
     def prependPath(scopeName: String): Value =
@@ -116,8 +128,11 @@ object ScalaMetaPatternMatching {
     terms: List[Term]
   ) extends SbtTree
 
-  final case class Scope(name: Option[String], items: Vector[SbtTree])
-      extends SbtTree
+  final case class Scope(
+    name: Option[String],
+    items: Vector[SbtTree],
+    filePath: Option[Path]
+  ) extends SbtTree
 
   object Scope {
     def makeNonEmpty(
@@ -126,7 +141,7 @@ object ScalaMetaPatternMatching {
     ): Option[Scope] =
       trees match {
         case vec if vec.isEmpty => None
-        case vec => Some(Scope(name, vec))
+        case vec => Some(Scope(name, vec, None))
       }
   }
 

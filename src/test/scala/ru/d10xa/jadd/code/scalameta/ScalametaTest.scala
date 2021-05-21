@@ -14,6 +14,7 @@ import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.SString
 import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.TermNameCompound
 import ru.d10xa.jadd.code.scalameta.ScalametaUtils.replacePositions
 
+import java.nio.file.Paths
 import scala.meta.inputs.Input
 import scala.meta.inputs.Position
 
@@ -25,7 +26,9 @@ class ScalametaTest extends TestBase {
   def findModules(str: String): Vector[Module] =
     sbtArtifactsParser
       .parse(
-        Vector(dialects.Sbt1(str).parse[Source].toEither.value)
+        Vector(
+          Paths.get(".") -> dialects.Sbt1(str).parse[Source].toEither.value
+        )
       )
       .unsafeRunSync()
 

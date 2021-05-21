@@ -19,6 +19,7 @@ import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.SbtTree
 import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.UnapplyVal
 import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.Value
 
+import java.nio.file.Path
 import scala.annotation.tailrec
 import scala.meta.Defn
 import scala.meta.Pat
@@ -27,11 +28,11 @@ import scala.meta.inputs.Position
 
 trait SbtArtifactsParser[F[_]] {
   def parse(
-    sources: Vector[Source]
+    sources: Vector[(Path, Source)]
   ): F[Vector[Module]]
   def parseArtifacts(
     scalaVersion: ScalaVersion,
-    sources: Vector[Source]
+    sources: Vector[(Path, Source)]
   ): F[Vector[Artifact]]
 }
 
@@ -40,11 +41,14 @@ object SbtArtifactsParser {
   def make[F[_]: Applicative](): F[SbtArtifactsParser[F]] =
     Applicative[F].pure {
       new SbtArtifactsParser[F] {
-        override def parse(sources: Vector[Source]): F[Vector[Module]] =
-          SbtArtifactsParser.parse(sources).pure[F]
+        override def parse(sources: Vector[(Path, Source)]): F[Vector[Module]] =
+          SbtArtifactsParser
+            .parse(SbtArtifactsParser.makeRootScope(sources))
+            .pure[F]
+
         override def parseArtifacts(
           scalaVersion: ScalaVersion,
-          sources: Vector[Source]
+          sources: Vector[(Path, Source)]
         ): F[Vector[Artifact]] =
           parse(sources).map(_.map(r => moduleToArtifact(scalaVersion, r)))
       }
@@ -78,8 +82,8 @@ object SbtArtifactsParser {
     tree: SbtTree
   ): SbtTree =
     tree match {
-      case scope @ Scope(_, items) =>
-        val (values, others) = separateValues(items)
+      case scope: Scope =>
+        val (values, others) = separateValues(scope.items)
         val newValuesMap = valuesMap ++ createValuesMap(values)
         val newItems = others.map {
           case m @ Module(_, _, _, TermNameCompound(values), _) =>
@@ -87,9 +91,9 @@ object SbtArtifactsParser {
               case Some((value, pos)) => m.copy(version = LitString(value, pos))
               case None => m
             }
-          case s @ Scope(_, items) =>
-            s.copy(items =
-              items.map(i => substituteVersionTree(newValuesMap, i))
+          case scope: Scope =>
+            scope.copy(items =
+              scope.items.map(i => substituteVersionTree(newValuesMap, i))
             )
           case x => x
         }
@@ -104,11 +108,11 @@ object SbtArtifactsParser {
   ): WithCounter[Vector[SbtTree]] =
     items
       .map {
-        case Scope(Some(innerName), innerItems) =>
+        case scope @ Scope(Some(innerName), innerItems, _) =>
           val (values, others) = innerItems.partition(_.isInstanceOf[Value])
           val extractedValues =
             values.collect { case v: Value => v.prependPath(innerName) }
-          val scopeWithoutValues = Scope(Some(innerName), others)
+          val scopeWithoutValues = scope.copy(items = others)
           (extractedValues.size, (extractedValues, scopeWithoutValues))
         case x => (0, (Vector.empty[Value], x))
       }
@@ -118,12 +122,14 @@ object SbtArtifactsParser {
   def extractModules(items: Vector[SbtTree]): WithCounter[Vector[SbtTree]] =
     items
       .map {
-        case Scope(Some(innerName), innerItems) =>
-          val (modules, others) = innerItems.partition(_.isInstanceOf[Module])
+        case scope: Scope if scope.name.isDefined =>
+          val (modules, others) =
+            scope.items.partition(_.isInstanceOf[Module])
           val extractedModules = modules.collect { case m: Module => m }
+          val newScope = scope.copy(items = others)
           (
             extractedModules.size,
-            (extractedModules, Scope(Some(innerName), others))
+            (extractedModules, newScope)
           )
         case x => (0, (Vector.empty[Module], x))
       }
@@ -174,24 +180,28 @@ object SbtArtifactsParser {
   def reduceTree(node: SbtTree): WithCounter[Option[SbtTree]] = node match {
     case v: Value => 0 -> Some(v)
     case m: Module => 0 -> Some(m)
-    case Scope(_, items) if items.isEmpty => 1 -> None
-    case Scope(None, Vector(item)) => 1 -> Some(item)
-    case scope @ Scope(_, items) =>
-      innerEval(items) match {
+    case scope: Scope if scope.items.isEmpty => 1 -> None
+    case Scope(None, Vector(item), path) =>
+      1 -> Some(item.withFilePathOpt(path))
+    case scope: Scope =>
+      innerEval(scope.items) match {
         case (i, value) => i -> Some(scope.copy(items = value))
       }
   }
 
   def evalTrees(trees: List[scala.meta.Tree]): Option[SbtTree] =
-    Scope.makeNonEmpty(name = none, trees = trees.flatMap(eval).toVector)
+    Scope.makeNonEmpty(
+      name = none,
+      trees = trees.flatMap(metaTreeToSbtTree).toVector
+    )
 
   def evalTreesNamed(
     name: String,
     trees: List[scala.meta.Tree]
   ): Option[SbtTree] =
-    Scope.makeNonEmpty(name.some, trees.flatMap(eval).toVector)
+    Scope.makeNonEmpty(name.some, trees.flatMap(metaTreeToSbtTree).toVector)
 
-  def eval(tree: scala.meta.Tree): Option[SbtTree] =
+  def metaTreeToSbtTree(tree: scala.meta.Tree): Option[SbtTree] =
     tree match {
       case scala.meta.Source(terms) =>
         evalTrees(terms)
@@ -222,10 +232,10 @@ object SbtArtifactsParser {
     }
 
   def findAllModules(t: SbtTree): Vector[Module] = t match {
-    case Scope(_, items) =>
-      items.flatMap {
+    case scope: Scope =>
+      scope.items.flatMap {
         case m: Module => Vector(m)
-        case Scope(_, items) => items.flatMap(findAllModules)
+        case scope: Scope => scope.items.flatMap(findAllModules)
         case Value(_, _, _) =>
           throw new IllegalStateException(
             s"This branch is not reachable. findAllModules" +
@@ -235,8 +245,19 @@ object SbtArtifactsParser {
     case m: Module => Vector(m)
   }
 
-  def parse(trees: Vector[scala.meta.Tree]): Vector[Module] =
-    loopReduce(Scope(name = None, items = trees.flatMap(eval)))
+  def fileTreesToItems(
+    trees: Vector[(Path, scala.meta.Tree)]
+  ): Vector[SbtTree] =
+    trees.flatMap { case (path, tree) =>
+      metaTreeToSbtTree(tree)
+        .map(_.withFilePath(path))
+    }
+
+  def makeRootScope(trees: Vector[(Path, scala.meta.Tree)]): Scope =
+    Scope(name = None, items = fileTreesToItems(trees), filePath = None)
+
+  def parse(rootScope: Scope): Vector[Module] =
+    loopReduce(rootScope)
       .map(t => substituteVersionTree(Map.empty, t))
       .map(findAllModules)
       .getOrElse(Vector.empty[Module])

@@ -11,13 +11,14 @@ class SbtArtifactsParserTest extends TestBase {
     val scope = Scope(
       name = Some(value = "x"),
       items =
-        Vector(Value(path = Vector("v"), value = "1", pos = Position.None))
+        Vector(Value(path = Vector("v"), value = "1", pos = Position.None)),
+      filePath = None
     )
     val (changes, vector) = SbtArtifactsParser.extractValues(Vector(scope))
     changes shouldBe 1
     vector shouldBe Vector(
       Value(path = Vector("x", "v"), value = "1", Position.None),
-      Scope(name = Some(value = "x"), items = Vector())
+      Scope(name = Some(value = "x"), items = Vector(), filePath = None)
     )
   }
   test("extractModules") {
@@ -32,7 +33,8 @@ class SbtArtifactsParserTest extends TestBase {
             version = LitString(value = "4.12", Position.None),
             terms = List()
           )
-        )
+        ),
+        filePath = None
       )
     val (changes, vector) = SbtArtifactsParser.extractModules(Vector(scope))
     changes shouldBe 1
@@ -44,7 +46,7 @@ class SbtArtifactsParserTest extends TestBase {
         version = LitString(value = "4.12", Position.None),
         terms = List()
       ),
-      Scope(name = Some(value = "junit"), items = Vector())
+      Scope(name = Some(value = "junit"), items = Vector(), filePath = None)
     )
 
   }

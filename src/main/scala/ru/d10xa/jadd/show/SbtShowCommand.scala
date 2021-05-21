@@ -62,15 +62,20 @@ class SbtShowCommand[F[_]: Sync](
   def showFromTextFiles(files: List[TextFile]): F[Chain[Artifact]] =
     for {
       scalaVersion <- scalaVersionF
-      listOfScalaSourceStrs = files.map(_.content.value)
-      parsedSources = listOfScalaSourceStrs
-        .map { str =>
-          dialects.Sbt1(str).parse[Source].toEither
+      parsedSources = files
+        .map { textFile =>
+          dialects
+            .Sbt1(textFile.content.value)
+            .parse[Source]
+            .toEither
+            .map(source => textFile -> source)
         }
-        .collect { case Right(value) => value }
+        .collect { case Right((textFile, source)) => (textFile, source) }
       c <- sbtArtifactsParser.parseArtifacts(
         scalaVersion,
-        parsedSources.toVector
+        parsedSources.map { case (textFile, source) =>
+          textFile.path -> source
+        }.toVector
       )
     } yield Chain.fromSeq(c)
 

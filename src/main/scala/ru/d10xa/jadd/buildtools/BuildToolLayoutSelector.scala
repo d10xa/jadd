@@ -50,7 +50,7 @@ object BuildToolLayoutSelector {
         for {
           fsItem <- fileOps.read(path)
           layout = fsItem match {
-            case TextFile(_) =>
+            case TextFile(_, _) =>
               fromPath(path)
             case Dir(_, fileNames) =>
               fromDir(fileNames.toSet)

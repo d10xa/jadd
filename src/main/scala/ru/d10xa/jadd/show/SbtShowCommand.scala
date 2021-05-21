@@ -26,13 +26,14 @@ class SbtShowCommand[F[_]: Sync](
 ) {
 
   def show(): F[Chain[Artifact]] =
-    Paths
-      .get("build.sbt")
-      .pure[F]
-      .flatMap(fileOps.read)
-      .flatMap(TextFile.make[F])
-      .map(_.content)
-      .flatMap(showFromSource)
+    for {
+      sbtFiles <- sbtFilesF
+      sbtSources <- sbtFiles
+        .filter(scalaFilePredicate)
+        .traverse(fileOps.read)
+        .map(_.collect { case t: TextFile => t })
+      res <- showFromTextFiles(sbtSources)
+    } yield res
 
   def parseSource(s: String): Parsed[Source] =
     dialects
@@ -44,37 +45,38 @@ class SbtShowCommand[F[_]: Sync](
     n.endsWith(".sbt") || n.endsWith(".scala")
   }
 
-  def showFromSource(fileContent: FileContent): F[Chain[Artifact]] = {
-    val scalaVersionF: F[ScalaVersion] =
-      scalaVersionFinder
-        .findScalaVersion()
-        .map(_.getOrElse(ScalaVersions.defaultScalaVersion))
+  val scalaVersionF: F[ScalaVersion] = scalaVersionFinder
+    .findScalaVersion()
+    .map(_.getOrElse(ScalaVersions.defaultScalaVersion))
 
-    val otherSbtFilesF = fileOps.read(Paths.get("project")).map {
-      case Dir(_, names) => names
-      case _ => List.empty[Path]
-    }
+  val otherSbtFilesF: F[List[Path]] = fileOps.read(Paths.get("project")).map {
+    case Dir(_, names) => names
+    case _ => List.empty[Path]
+  }
 
+  val sbtFilesF: F[List[Path]] = for {
+    buildSbt <- Paths.get("build.sbt").pure[F]
+    other <- otherSbtFilesF
+  } yield buildSbt :: other
+
+  def showFromTextFiles(files: List[TextFile]): F[Chain[Artifact]] =
     for {
       scalaVersion <- scalaVersionF
-      otherSbtFiles <- otherSbtFilesF
-      otherSbtSources <- otherSbtFiles
-        .filter(scalaFilePredicate)
-        .traverse(fileOps.read)
-        .map(_.collect { case t: TextFile => t })
-      listOfScalaSourceStrs = fileContent.value :: otherSbtSources.map(
-        _.content.value
-      )
-      parsedSources = listOfScalaSourceStrs
-        .map { str =>
-          dialects.Sbt1(str).parse[Source].toEither
+      parsedSources = files
+        .map { textFile =>
+          dialects
+            .Sbt1(textFile.content.value)
+            .parse[Source]
+            .toEither
+            .map(source => textFile -> source)
         }
-        .collect { case Right(value) => value }
+        .collect { case Right((textFile, source)) => (textFile, source) }
       c <- sbtArtifactsParser.parseArtifacts(
         scalaVersion,
-        parsedSources.toVector
+        parsedSources.map { case (textFile, source) =>
+          textFile.path -> source
+        }.toVector
       )
     } yield Chain.fromSeq(c)
 
-  }
 }

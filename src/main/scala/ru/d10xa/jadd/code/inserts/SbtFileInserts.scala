@@ -3,33 +3,42 @@ package ru.d10xa.jadd.code.inserts
 import cats.Monad
 import cats.syntax.all._
 import ru.d10xa.jadd.show.SbtFormatShowPrinter
-import ru.d10xa.jadd.view.ArtifactView
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.log.Logger
+import ru.d10xa.jadd.view.ArtifactView.Match
 
-class SbtFileInserts[F[_]: Monad]()(implicit
-  logger: Logger[F]
-) {
+trait SbtFileInserts[F[_]] {
+  def appendAll(source: String, artifacts: Seq[Artifact]): F[String]
+}
 
-  import ArtifactView._
+object SbtFileInserts {
 
-  def debugMatches(artifact: Artifact, matches: Seq[Match]): F[Unit] = {
+  def make[F[_]: Monad: Logger]: F[SbtFileInserts[F]] = new SbtFileInserts[F] {
+    override def appendAll(
+      source: String,
+      artifacts: Seq[Artifact]
+    ): F[String] =
+      artifacts.foldLeftM[F, String](source) { case (s, artifact) =>
+        append(s, artifact)
+      }
+  }.pure[F]
+
+  def debugMatches[F[_]: Logger](
+    artifact: Artifact,
+    matches: Seq[Match]
+  ): F[Unit] = {
     def matchesCount = s"matches count: ${matches.size.show}"
-    def matchesView =
+    def matchesView: Seq[String] =
       matches.map(m => s"${m.start.show} ${m.value.show}")
-    logger.debug(
+    Logger[F].debug(
       s"""${artifact.groupId.show}:${artifact.artifactId} $matchesCount ($matchesView)"""
     )
   }
 
-  def appendAll(source: String, artifacts: Seq[Artifact]): F[String] =
-    artifacts.foldLeftM[F, String](source) { case (s, artifact) =>
-      append(s, artifact)
-    }
-
-  /** @return updated source
-    */
-  def append(buildFileSource: String, artifact: Artifact): F[String] = {
+  def append[F[_]: Monad: Logger](
+    buildFileSource: String,
+    artifact: Artifact
+  ): F[String] = {
     val matches: Seq[Match] =
       new SbtArtifactMatcher(buildFileSource).find(artifact)
 
@@ -58,7 +67,6 @@ class SbtFileInserts[F[_]: Monad]()(implicit
           .pure[F]
     })
   }
-
   def appendLines(
     buildFileLines: Array[String],
     dependencies: Seq[String]

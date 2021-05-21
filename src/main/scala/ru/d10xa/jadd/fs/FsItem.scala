@@ -10,7 +10,7 @@ import ru.d10xa.jadd.core.types.FileContent
 sealed trait FsItem
 
 object FsItem {
-  final case class TextFile(content: FileContent) extends FsItem
+  final case class TextFile(content: FileContent, path: Path) extends FsItem
 
   object TextFile {
     def make[F[_]](

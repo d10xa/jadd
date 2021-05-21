@@ -3,11 +3,13 @@ package ru.d10xa.jadd.code.scalameta
 import monocle.Lens
 import monocle.macros.GenLens
 
+import java.nio.file.Path
 import scala.meta.Defn
 import scala.meta.Lit
 import scala.meta.Pat
 import scala.meta.Term
 import scala.meta.Tree
+import scala.meta.inputs.Position
 
 object ScalaMetaPatternMatching {
 
@@ -84,22 +86,34 @@ object ScalaMetaPatternMatching {
   }
 
   sealed trait SString
-  final case class LitString(value: String) extends SString
+  final case class LitString(value: String, pos: Position) extends SString
   final case class TermNameCompound(values: Vector[String]) extends SString
 
   object SString {
     def unapply(t: Tree): Option[SString] = t match {
-      case Lit.String(value) => Some(LitString(value))
+      case lit @ Lit.String(value) => Some(LitString(value, lit.pos))
       case Term.Name(value) => Some(TermNameCompound(Vector(value)))
       case UnapplySelect(strings) => Some(TermNameCompound(strings))
       case _ => None
     }
   }
 
-  sealed trait SbtTree
-  final case class Value(path: Vector[String], value: String) extends SbtTree {
+  sealed trait SbtTree {
+    def withFilePath(path: Path): SbtTree = this match {
+      case scope: Scope => scope.copy(filePath = Some(path))
+      case x => x
+    }
+    def withFilePathOpt(optPath: Option[Path]): SbtTree = this match {
+      case scope: Scope if scope.filePath.isEmpty && optPath.isDefined =>
+        scope.copy(filePath = optPath)
+      case x => x
+    }
+  }
+
+  final case class Value(path: Vector[String], value: String, pos: Position)
+      extends SbtTree {
     def prependPath(scopeName: String): Value =
-      Value(scopeName +: path, value)
+      Value(scopeName +: path, value, pos)
   }
 
   /** ModuleID in terms of SBT
@@ -114,8 +128,11 @@ object ScalaMetaPatternMatching {
     terms: List[Term]
   ) extends SbtTree
 
-  final case class Scope(name: Option[String], items: Vector[SbtTree])
-      extends SbtTree
+  final case class Scope(
+    name: Option[String],
+    items: Vector[SbtTree],
+    filePath: Option[Path]
+  ) extends SbtTree
 
   object Scope {
     def makeNonEmpty(
@@ -124,7 +141,7 @@ object ScalaMetaPatternMatching {
     ): Option[Scope] =
       trees match {
         case vec if vec.isEmpty => None
-        case vec => Some(Scope(name, vec))
+        case vec => Some(Scope(name, vec, None))
       }
   }
 
@@ -155,8 +172,13 @@ object ScalaMetaPatternMatching {
 
   object UnapplyVal {
     def unapply(t: Defn.Val): Option[Value] = t match {
-      case Defn.Val(_, List(Pat.Var(Term.Name(k))), None, Lit.String(v)) =>
-        Some(Value(Vector(k), v))
+      case Defn.Val(
+            _,
+            List(Pat.Var(Term.Name(k))),
+            None,
+            lit @ Lit.String(v)
+          ) =>
+        Some(Value(Vector(k), v, lit.pos))
       case _ => None
     }
   }

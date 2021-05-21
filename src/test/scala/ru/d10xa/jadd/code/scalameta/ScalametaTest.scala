@@ -12,6 +12,11 @@ import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.Module
 import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.UnapplyPercentChars
 import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.SString
 import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.TermNameCompound
+import ru.d10xa.jadd.code.scalameta.ScalametaUtils.replacePositions
+
+import java.nio.file.Paths
+import scala.meta.inputs.Input
+import scala.meta.inputs.Position
 
 class ScalametaTest extends TestBase {
 
@@ -21,13 +26,15 @@ class ScalametaTest extends TestBase {
   def findModules(str: String): Vector[Module] =
     sbtArtifactsParser
       .parse(
-        Vector(dialects.Sbt1(str).parse[Source].toEither.value)
+        Vector(
+          Paths.get(".") -> dialects.Sbt1(str).parse[Source].toEither.value
+        )
       )
       .unsafeRunSync()
 
   implicit class SStringOps(s: SString) {
     def value: String = s match {
-      case LitString(value) => value
+      case LitString(value, _) => value
       case ScalaMetaPatternMatching.TermNameCompound(values) =>
         throw new IllegalArgumentException(
           s"SString is TermNameCompound $values"
@@ -104,6 +111,19 @@ class ScalametaTest extends TestBase {
     m2.percentsCount shouldBe 1
     m3.groupId.value shouldBe "org.jsoup"
     m3.percentsCount shouldBe 1
+  }
+
+  test("replacePositions") {
+    val newStr =
+      replacePositions(
+        "12 34 56",
+        List(
+          (Position.Range(Input.String(""), 0, 2), "1"),
+          (Position.Range(Input.String(""), 3, 5), "222"),
+          (Position.Range(Input.String(""), 6, 8), "333")
+        )
+      )
+    newStr shouldBe "1 222 333"
   }
 
 }

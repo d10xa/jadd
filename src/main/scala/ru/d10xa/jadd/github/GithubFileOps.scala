@@ -45,7 +45,8 @@ class GithubFileOps[F[_]: MonadThrow: Bracket[*[_], Throwable]](
             head.content
               .map(s => new String(java.util.Base64.getMimeDecoder.decode(s)))
               .getOrElse("")
-          )
+          ),
+          path
         )
       case nel =>
         val files = nel

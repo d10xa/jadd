@@ -7,11 +7,8 @@ import scala.meta.Source
 import scala.meta.Term
 import scala.meta.dialects
 import org.scalatest.EitherValues._
-import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.LitString
 import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.Module
 import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.UnapplyPercentChars
-import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.SString
-import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.TermNameCompound
 import ru.d10xa.jadd.code.scalameta.ScalametaUtils.replacePositions
 
 import java.nio.file.Paths
@@ -20,11 +17,11 @@ import scala.meta.inputs.Position
 
 class ScalametaTest extends TestBase {
 
-  private val sbtArtifactsParser =
-    SbtArtifactsParser.make[SyncIO]().unsafeRunSync()
+  private val sbtModuleParser =
+    SbtModuleParser.make[SyncIO]().unsafeRunSync()
 
   def findModules(str: String): Vector[Module] =
-    sbtArtifactsParser
+    sbtModuleParser
       .parse(
         Vector(
           Paths.get(".") -> dialects.Sbt1(str).parse[Source].toEither.value
@@ -32,10 +29,11 @@ class ScalametaTest extends TestBase {
       )
       .unsafeRunSync()
 
-  implicit class SStringOps(s: SString) {
+  implicit class VariableValueOps(s: VariableValue) {
     def value: String = s match {
-      case LitString(value, _) => value
-      case ScalaMetaPatternMatching.TermNameCompound(values) =>
+      case VariableLit(value, _) => value
+      case v: VariableLitP => v.lit.value
+      case VariableTerms(values) =>
         throw new IllegalArgumentException(
           s"SString is TermNameCompound $values"
         )
@@ -77,7 +75,7 @@ class ScalametaTest extends TestBase {
     val Vector(moduleId) = findModules(
       "\"org.something\" %% \"something-name\" % somethingVersion % Test"
     )
-    moduleId.version shouldBe TermNameCompound(Vector("somethingVersion"))
+    moduleId.version shouldBe VariableTerms(Vector("somethingVersion"))
     moduleId.terms match {
       case List(name: Term.Name) => name.value shouldBe "Test"
     }

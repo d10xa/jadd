@@ -9,7 +9,8 @@ import ru.d10xa.jadd.testkit.TestBase
 class FileOpsTest extends TestBase {
   test("check state") {
 
-    tempPathResource[SyncIO]
+    filesF[SyncIO]
+      .tempDirectoryResource()
       .use { tempDir =>
         for {
           ops <- LiveFileOps.make[SyncIO](tempDir)

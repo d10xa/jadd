@@ -37,6 +37,7 @@ lazy val root = project
 addCompilerPlugin(
   ("org.typelevel" %% "kind-projector" % "0.11.3").cross(CrossVersion.full)
 )
+addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
 
 libraryDependencies ++= Seq(
   "com.github.scopt" %% "scopt" % "4.0.1",
@@ -47,7 +48,7 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.2.8" % "it,test",
   "com.github.tomakehurst" % "wiremock" % "2.27.2" % "it,test"
 )
-libraryDependencies += "org.jsoup" % "jsoup" % "1.13.1"
+libraryDependencies += "org.jsoup" % "jsoup" % "1.14.2"
 libraryDependencies += "org.typelevel" %% "cats-effect" % "2.5.0"
 libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.9.1"
 libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.16"
@@ -62,3 +63,4 @@ libraryDependencies += "org.http4s" %% "http4s-blaze-client" % "0.21.22"
 libraryDependencies += "org.scalameta" %% "scalameta" % "4.4.16"
 libraryDependencies += "io.get-coursier" %% "coursier" % "2.0.16"
 libraryDependencies += "io.get-coursier" %% "coursier-cats-interop" % "2.0.16"
+libraryDependencies += "com.lihaoyi" %% "pprint" % "0.6.6"

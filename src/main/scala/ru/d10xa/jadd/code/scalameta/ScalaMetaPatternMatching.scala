@@ -8,7 +8,6 @@ import scala.meta.Defn
 import scala.meta.Lit
 import scala.meta.Pat
 import scala.meta.Term
-import scala.meta.Tree
 import scala.meta.inputs.Position
 
 object ScalaMetaPatternMatching {
@@ -65,8 +64,8 @@ object ScalaMetaPatternMatching {
     * @param percents %%
     */
   final case class GroupIdPercentArtifactId(
-    groupId: SString,
-    artifactId: SString,
+    groupId: VariableValue,
+    artifactId: VariableValue,
     percents: PercentChars
   )
 
@@ -75,45 +74,45 @@ object ScalaMetaPatternMatching {
       t match {
         case Term
               .ApplyInfix(
-                SString(groupId),
+                VariableValue(groupId),
                 Term.Name(UnapplyPercentChars(p)),
                 Nil,
-                List(SString(artifactId))
+                List(VariableValue(artifactId))
               ) =>
           Some(GroupIdPercentArtifactId(groupId, artifactId, PercentChars(p)))
         case _ => None
       }
   }
 
-  sealed trait SString
-  final case class LitString(value: String, pos: Position) extends SString
-  final case class TermNameCompound(values: Vector[String]) extends SString
-
-  object SString {
-    def unapply(t: Tree): Option[SString] = t match {
-      case lit @ Lit.String(value) => Some(LitString(value, lit.pos))
-      case Term.Name(value) => Some(TermNameCompound(Vector(value)))
-      case UnapplySelect(strings) => Some(TermNameCompound(strings))
-      case _ => None
-    }
-  }
-
   sealed trait SbtTree {
-    def withFilePath(path: Path): SbtTree = this match {
-      case scope: Scope => scope.copy(filePath = Some(path))
-      case x => x
+
+    private def initScopePath(path: Path, tree: SbtTree): SbtTree = tree match {
+      case v: Value => v
+      case m: Module =>
+        m.copy(
+          groupId = m.groupId.withPath(path),
+          artifactId = m.artifactId.withPath(path),
+          version = m.version.withPath(path)
+        )
+      case scope: Scope =>
+        scope.copy(
+          filePath = Some(path),
+          items = scope.items.map(item => initScopePath(path, item))
+        )
     }
-    def withFilePathOpt(optPath: Option[Path]): SbtTree = this match {
-      case scope: Scope if scope.filePath.isEmpty && optPath.isDefined =>
-        scope.copy(filePath = optPath)
-      case x => x
-    }
+
+    def withFilePath(path: Path): SbtTree = initScopePath(path, this)
+
   }
 
-  final case class Value(path: Vector[String], value: String, pos: Position)
-      extends SbtTree {
+  final case class Value(
+    path: Vector[String],
+    value: String,
+    pos: Position,
+    filePath: Path
+  ) extends SbtTree {
     def prependPath(scopeName: String): Value =
-      Value(scopeName +: path, value, pos)
+      this.copy(path = scopeName +: path)
   }
 
   /** ModuleID in terms of SBT
@@ -121,10 +120,10 @@ object ScalaMetaPatternMatching {
     * "org.something" %% "something-name" % "0.0.1"
     */
   final case class Module(
-    groupId: SString,
+    groupId: VariableValue,
     percentsCount: Int,
-    artifactId: SString,
-    version: SString,
+    artifactId: VariableValue,
+    version: VariableValue,
     terms: List[Term]
   ) extends SbtTree
 
@@ -137,11 +136,12 @@ object ScalaMetaPatternMatching {
   object Scope {
     def makeNonEmpty(
       name: Option[String],
-      trees: Vector[SbtTree]
+      trees: Vector[SbtTree],
+      path: Path
     ): Option[Scope] =
       trees match {
         case vec if vec.isEmpty => None
-        case vec => Some(Scope(name, vec, None))
+        case vec => Some(Scope(name, vec, Some(path)))
       }
   }
 
@@ -153,7 +153,7 @@ object ScalaMetaPatternMatching {
         case UnapplyApplyInfixPercent(
               UnapplyGroupIdPercentArtifactId(ga),
               1,
-              SString(moduleVersion)
+              VariableValue(moduleVersion)
             ) =>
           Some(
             Module(
@@ -170,15 +170,24 @@ object ScalaMetaPatternMatching {
       }
   }
 
+  final case class ValueNoFilePath(
+    path: Vector[String],
+    value: String,
+    pos: Position
+  ) {
+    def withFilePath(filePath: Path): Value =
+      Value(path = path, value = value, pos = pos, filePath = filePath)
+  }
+
   object UnapplyVal {
-    def unapply(t: Defn.Val): Option[Value] = t match {
+    def unapply(t: Defn.Val): Option[ValueNoFilePath] = t match {
       case Defn.Val(
             _,
             List(Pat.Var(Term.Name(k))),
             None,
             lit @ Lit.String(v)
           ) =>
-        Some(Value(Vector(k), v, lit.pos))
+        Some(ValueNoFilePath(Vector(k), v, lit.pos))
       case _ => None
     }
   }

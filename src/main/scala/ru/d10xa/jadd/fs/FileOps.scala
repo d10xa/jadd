@@ -18,7 +18,8 @@ trait FileOps[F[_]] {
 class LiveFileOps[F[_]: Sync] private (path: Path) extends FileOps[F] {
   override def read(localPath: Path): F[FsItem] =
     for {
-      file <- Sync[F].delay(better.files.File(path.resolve(localPath)))
+      resolvedPath <- path.resolve(localPath).pure[F]
+      file <- Sync[F].delay(better.files.File(resolvedPath))
       isFile <- Sync[F].delay(file.isRegularFile)
       isDirectory <- Sync[F].delay(file.isDirectory)
       fsItem <-
@@ -26,7 +27,7 @@ class LiveFileOps[F[_]: Sync] private (path: Path) extends FileOps[F] {
           Sync[F]
             .delay(
               FsItem
-                .TextFile(FileContent(file.contentAsString), path)
+                .TextFile(FileContent(file.contentAsString), resolvedPath)
             )
             .widen[FsItem]
         } else if (isDirectory) {

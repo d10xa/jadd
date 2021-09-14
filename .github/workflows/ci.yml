@@ -17,11 +17,12 @@ jobs:
         uses: coursier/cache-action@v6
       - name: Build and Test
         run: |
-          sbt -v coverage test
-      - name: Coveralls
-        run: |
-          sbt coverageReport coveralls
-      - name: Cleanup before cache
+          sbt -v coverage test coverageReport
+      - name: Publish to coveralls.io
+        uses: coverallsapp/github-action@v1.1.2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Cleanup
         run: |
           rm -rf "$HOME/.ivy2/local" || true
           find $HOME/Library/Caches/Coursier/v1        -name "ivydata-*.properties" -delete || true

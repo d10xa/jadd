@@ -2,7 +2,8 @@ pull_request_rules:
   - name: automatically merge scala-steward's PRs
     conditions:
       - author=scala-steward
-      - status-success=CI / build (pull_request)
+      - check-success=CI / build (pull_request)
+      - check-success=codecov/patch
     actions:
       merge:
         method: squash

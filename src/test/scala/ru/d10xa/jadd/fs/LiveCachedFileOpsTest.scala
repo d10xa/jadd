@@ -1,6 +1,7 @@
 package ru.d10xa.jadd.fs
 
 import java.nio.file.Path
+import java.nio.file.Paths
 
 import cats.effect.SyncIO
 import cats.effect.concurrent.Ref
@@ -25,9 +26,9 @@ class LiveCachedFileOpsTest extends TestBase {
         },
         cache
       )
-      pA = Path.of("a")
-      pB = Path.of("b")
-      pC = Path.of("c")
+      pA = Paths.get("a")
+      pB = Paths.get("b")
+      pC = Paths.get("c")
       _ <- fileOpsMock.read(pA)
       _ <- readCounter.get.map((c: Int) => assert(c == 1))
       _ <- fileOpsMock.read(pA)

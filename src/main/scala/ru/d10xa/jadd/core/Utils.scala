@@ -72,7 +72,7 @@ object Utils {
         }
       )
 
-  def textFileFromString[F[_]: MonadThrow](
+  def textFileFromPath[F[_]: MonadThrow](
     fileOps: FileOps[F],
     path: Path
   ): F[TextFile] =

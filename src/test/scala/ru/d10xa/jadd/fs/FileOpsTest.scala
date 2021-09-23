@@ -9,7 +9,8 @@ import ru.d10xa.jadd.testkit.TestBase
 class FileOpsTest extends TestBase {
   test("check state") {
 
-    tempPathResource[SyncIO]
+    filesF[SyncIO]
+      .tempDirectoryResource()
       .use { tempDir =>
         for {
           ops <- LiveFileOps.make[SyncIO](tempDir)
@@ -17,10 +18,14 @@ class FileOpsTest extends TestBase {
           _ = a should be(FsItem.FileNotFound)
           _ <- ops.write(Paths.get("hello.txt"), "world")
           b <- ops.read(Paths.get("hello.txt"))
-          _ = b should be(FsItem.TextFile(FileContent("world")))
+          _ = b.asInstanceOf[FsItem.TextFile].content should be(
+            FileContent("world")
+          )
           _ <- ops.write(Paths.get("hello.txt"), "world2")
           c <- ops.read(Paths.get("hello.txt"))
-          _ = c should be(FsItem.TextFile(FileContent("world2")))
+          _ = c.asInstanceOf[FsItem.TextFile].content should be(
+            FileContent("world2")
+          )
         } yield ()
       }
       .unsafeRunSync()

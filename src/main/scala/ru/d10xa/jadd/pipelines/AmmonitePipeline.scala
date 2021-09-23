@@ -23,7 +23,7 @@ class AmmonitePipeline[F[_]: Sync](
   val buildFile: Path = Paths.get(ctx.projectPath)
 
   val buildFileF: F[TextFile] =
-    Utils.textFileFromString(fileOps, buildFile)
+    Utils.textFileFromPath(fileOps, buildFile)
 
   def buildFileSource: F[TextFile] =
     for {

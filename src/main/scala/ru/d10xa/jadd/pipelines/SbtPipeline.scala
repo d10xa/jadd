@@ -6,10 +6,9 @@ import cats.syntax.all._
 import coursier.core.Version
 import ru.d10xa.jadd.code.inserts.SbtFileUpserts
 import ru.d10xa.jadd.code.inserts.SbtFileUpserts.SbtUpsertQuery
-import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.Module
 import ru.d10xa.jadd.code.scalameta.ScalametaUtils
+import ru.d10xa.jadd.code.scalameta.VariableLit
 import ru.d10xa.jadd.code.scalameta.VariableLitP
-import ru.d10xa.jadd.code.scalameta.VariableValue
 import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.core.ScalaVersionFinder
@@ -68,7 +67,7 @@ class SbtPipeline[F[_]: Sync](
   ): SbtUpsertQuery =
     extractVersionPositions(vector).partitionEither(identity) match {
       case (toInsert, toUpdate) =>
-        SbtUpsertQuery(toInsert, toUpdate)
+        SbtUpsertQuery.make(toInsert, toUpdate)
     }
 
   def quote(s: String): String = "\"" + s + "\""
@@ -76,51 +75,38 @@ class SbtPipeline[F[_]: Sync](
   def update(
     q: SbtUpsertQuery
   ): F[SbtUpsertChanges] = {
-    val m0 = Map(
-      Paths.get(ctx.config.projectDir, "build.sbt") -> Vector.empty
-    )
-    val m: Map[Path, Vector[(VariableLitP, Version)]] =
-      q.toUpdate.groupBy { case (varLitP, _) =>
-        varLitP.path
-      } // Перенести groupBy выше. В SbtUpsertQuery пусть будет Map[Path, Vector[...]]
+    val buildSbtPath = Paths.get(ctx.config.projectDir, "build.sbt")
 
-    val n: F[List[(TextFile, Vector[(Position, String)])]] =
-      (m0 ++ m).toList.traverse {
-        case (path: Path, vector: Vector[(VariableLitP, Version)]) =>
-          fun01(path, vector)
+    def readFile(
+      path: Path,
+      vector: Vector[(VariableLit, Version)]
+    ): F[(TextFile, Vector[(Position, String)])] = for {
+      a <- Utils.textFileFromPath(fileOps, path)
+      b = vector.map { case (varLit: VariableLit, version: Version) =>
+        (varLit.pos, quote(version.repr))
       }
+    } yield (a, b)
 
-    val n2 = n.map(list =>
-      list.map { case (tf, vector) =>
-        (
-          tf.path,
-          ScalametaUtils.replacePositions(tf.content.value, vector.toList)
-        )
-      }
-    )
-    n2.map(x => SbtUpsertChanges(filesToUpdate = x.toVector))
+    def evalReplaces(
+      tf: TextFile,
+      replaces: Vector[(Position, String)]
+    ): String =
+      ScalametaUtils.replacePositions(tf.content.value, replaces.toList)
+
+    def readFiles(
+      q: SbtUpsertQuery
+    ): F[List[(TextFile, Vector[(Position, String)])]] =
+      q.ensureBuildSbt(buildSbtPath)
+        .toUpdate
+        .toList
+        .traverse((readFile _).tupled)
+
+    readFiles(q)
+      .map(list =>
+        list.map { case (tf, vector) => (tf.path, evalReplaces(tf, vector)) }
+      )
+      .map(x => SbtUpsertChanges(filesToUpdate = x.toVector))
   }
-
-  def fun0(path: Path): F[TextFile] =
-    Utils
-      .textFileFromPath(fileOps, path)
-
-  def fun1(
-    vector: Vector[(VariableLitP, Version)]
-  ): F[Vector[(Position, String)]] =
-    vector
-      .map { case (varLitP: VariableLitP, version: Version) =>
-        (varLitP.lit.pos, quote(version.repr))
-      }
-      .pure[F]
-
-  def fun01(
-    path: Path,
-    vector: Vector[(VariableLitP, Version)]
-  ): F[(TextFile, Vector[(Position, String)])] = for {
-    a <- fun0(path)
-    b <- fun1(vector)
-  } yield (a, b)
 
   def appendLines(
     buildFileLines: Array[String],

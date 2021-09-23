@@ -13,6 +13,8 @@ import ru.d10xa.jadd.core.Artifact
 import ru.d10xa.jadd.fs.FileOps
 import ru.d10xa.jadd.log.Logger
 
+import java.nio.file.Path
+
 trait SbtFileUpserts[F[_]] {
   def upsert(artifacts: Seq[Artifact]): F[SbtUpsertQuery]
 }
@@ -21,8 +23,29 @@ object SbtFileUpserts {
 
   final case class SbtUpsertQuery(
     toInsert: Vector[Artifact],
-    toUpdate: Vector[(VariableLitP, Version)]
-  )
+    toUpdate: Map[Path, Vector[(VariableLit, Version)]]
+  ) {
+    def ensureBuildSbt(buildSbtPath: Path): SbtUpsertQuery =
+      this.copy(toUpdate = Map(buildSbtPath -> Vector.empty) ++ this.toUpdate)
+  }
+
+  object SbtUpsertQuery {
+    def make(
+      toInsert: Vector[Artifact],
+      toUpdate: Vector[(VariableLitP, Version)]
+    ): SbtUpsertQuery =
+      SbtUpsertQuery(toInsert, groupByPath(toUpdate))
+    private def groupByPath(
+      updates: Vector[(VariableLitP, Version)]
+    ): Map[Path, Vector[(VariableLit, Version)]] =
+      updates
+        .groupBy { case (varLitP, _) => varLitP.path }
+        .view
+        .map { case (path, v) =>
+          path -> v.map { case (varLitP, version) => (varLitP.lit, version) }
+        }
+        .toMap
+  }
 
   def make[F[_]: Monad: Logger](
     sbtParser: SbtParser[F],
@@ -62,7 +85,7 @@ object SbtFileUpserts {
             case None => Vector.empty
           }
       }
-      upsertQuery = SbtUpsertQuery(
+      upsertQuery = SbtUpsertQuery.make(
         toInsert = artifactsToInsert.toVector,
         toUpdate = toUpdate
       )

@@ -34,10 +34,8 @@ class SbtFileInsertsTest extends TestBase {
       }
       .flatTap { upsertQuery =>
         Sync[F].delay(
-          upsertQuery.toUpdate
-            .map(
-              _._2.repr
-            ) should contain theSameElementsAs expectUpdateVersions
+          upsertQuery.toUpdate.view.toVector.flatMap(_._2).map(_._2.repr)
+            should contain theSameElementsAs expectUpdateVersions
         )
       }
       .void
@@ -52,7 +50,7 @@ class SbtFileInsertsTest extends TestBase {
       artifactId = "logback-classic",
       maybeVersion = Some(Version("1.2.3"))
     )
-    assertUpserts[IO](
+    assertUpserts[SyncIO](
       files = Seq("build.sbt" -> buildSbtContent),
       upsert = Seq(a1),
       expectInsert = Seq(a1),
@@ -78,7 +76,7 @@ class SbtFileInsertsTest extends TestBase {
       artifactId = "java_lib",
       maybeVersion = Some(Version("2.4"))
     )
-    assertUpserts[IO](
+    assertUpserts[SyncIO](
       files = Seq("build.sbt" -> buildSbtContent),
       upsert = Seq(scalaLib, javaLib),
       expectInsert = Seq(),
@@ -104,7 +102,7 @@ class SbtFileInsertsTest extends TestBase {
       maybeVersion = Some(Version("1.1")),
       maybeScalaVersion = Some(ScalaVersion.fromString("2.12"))
     )
-    assertUpserts[IO](
+    assertUpserts[SyncIO](
       files = Seq(
         "build.sbt" -> buildSbtContent,
         "project/Dependencies.sbt" -> dependenciesContent

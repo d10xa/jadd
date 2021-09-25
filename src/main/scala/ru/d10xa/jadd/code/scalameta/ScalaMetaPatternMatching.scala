@@ -16,8 +16,8 @@ object ScalaMetaPatternMatching {
 
   object UnapplyPercentChars {
 
-    /** Calculate the number of percent characters,
-      * but only if there are no other characters in the string
+    /** Calculate the number of percent characters, but only if there are no
+      * other characters in the string
       */
     def unapply(s: String): Option[Int] =
       if (s.nonEmpty && s.forall(_ == '%')) {
@@ -27,8 +27,7 @@ object ScalaMetaPatternMatching {
       }
   }
 
-  /** Match
-    * leftTerm % rightTerm
+  /** Match leftTerm % rightTerm
     */
   object UnapplyApplyInfixPercent {
     def unapply(t: Term.ApplyInfix): Option[(Term, Int, Term)] =
@@ -59,9 +58,12 @@ object ScalaMetaPatternMatching {
     *
     * "org.something" %% "something-name"
     *
-    * @param groupId org.something
-    * @param artifactId something-name
-    * @param percents %%
+    * @param groupId
+    *   org.something
+    * @param artifactId
+    *   something-name
+    * @param percents
+    *   %%
     */
   final case class GroupIdPercentArtifactId(
     groupId: VariableValue,

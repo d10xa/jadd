@@ -56,7 +56,8 @@ object ReplAutocomplete {
       .split("[:.]")
       .mkString("/")
 
-  /** @param completeModulePart groupId or groupId:artifactId
+  /** @param completeModulePart
+    *   groupId or groupId:artifactId
     * @return
     */
   def fetchCandidates(

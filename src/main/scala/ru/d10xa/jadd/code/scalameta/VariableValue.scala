@@ -27,8 +27,7 @@ sealed trait VariableValue {
   }
 }
 
-/** Example:
-  *   "org.typelevel" %% "cats-effect" % "2.5.0"
+/** Example: "org.typelevel" %% "cats-effect" % "2.5.0"
   *
   * There are three VariableLit found. 1) org.typelevel 2) cats-effect 3) 2.5.0
   */
@@ -39,9 +38,8 @@ final case class VariableLit(value: String, pos: Position) extends VariableValue
 final case class VariableLitP(lit: VariableLit, path: Path)
     extends VariableValue
 
-/** Example:
-  *   "org.scalatest" %% "scalatest" % dependencies.test.scalatest
-  * There are only one VariableTerms found
+/** Example: "org.scalatest" %% "scalatest" % dependencies.test.scalatest There
+  * are only one VariableTerms found
   *   - Vector("dependencies", "test", "scalatest")
   */
 final case class VariableTerms(values: Vector[String]) extends VariableValue

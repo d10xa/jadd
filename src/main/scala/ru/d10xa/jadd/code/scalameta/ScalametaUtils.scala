@@ -6,7 +6,8 @@ import scala.meta.transversers.SimpleTraverser
 
 object ScalametaUtils {
 
-  /** Modified version of scala.meta.transversers.Api.XtensionCollectionLikeUI#collect(scala.PartialFunction)
+  /** Modified version of
+    * scala.meta.transversers.Api.XtensionCollectionLikeUI#collect(scala.PartialFunction)
     */
   def collectNoDuplicate[T](
     tree: Tree,

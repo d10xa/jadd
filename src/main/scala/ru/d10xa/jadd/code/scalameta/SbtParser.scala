@@ -15,7 +15,8 @@ import scala.meta.dialects
 trait SbtParser[F[_]] {
 
   /** It is possible for a module to be in multiple files. For example groupId
-    * and artifactId defined at build.sbt but version defined at Dependencies.sbt
+    * and artifactId defined at build.sbt but version defined at
+    * Dependencies.sbt
     */
   def parse(fileOps: FileOps[F]): F[SbtParseResult]
 }

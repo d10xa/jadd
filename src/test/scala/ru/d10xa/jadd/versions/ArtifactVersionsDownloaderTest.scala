@@ -22,8 +22,10 @@ class ArtifactVersionsDownloaderTest extends TestBase {
             artifact
               .copy(
                 availableVersions = Seq(Version("42")),
-                maybeVersion = Some(Version("42")))
-              .asRight)
+                maybeVersion = Some(Version("42"))
+              )
+              .asRight
+          )
       )
       .unsafeRunSync()
       .right
@@ -44,13 +46,14 @@ class ArtifactVersionsDownloaderTest extends TestBase {
         new VersionTools[IO] {
           override def loadVersionAndInitLatest(
             artifact: Artifact,
-            repositories: Seq[Repository])
-            : IO[EitherNel[troubles.ArtifactTrouble, Artifact]] =
+            repositories: Seq[Repository]
+          ): IO[EitherNel[troubles.ArtifactTrouble, Artifact]] =
             IO(
               artifact
                 .copy(
                   availableVersions = Seq(Version("42")),
-                  maybeVersion = Some(Version("42")))
+                  maybeVersion = Some(Version("42"))
+                )
                 .asRight
             )
         }

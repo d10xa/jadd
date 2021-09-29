@@ -11,21 +11,25 @@ jobs:
         uses: olafurpg/setup-scala@v10
         with:
           java-version: "adopt@1.8"
-      - name: Build
-        run: sbt compile
       - name: Import GPG
         env:
           GPG_PRIVATE_KEY: "${{ secrets.GPG_PRIVATE_KEY }}"
         run: |
           echo $GPG_PRIVATE_KEY | base64 -d | gpg --batch --import
+      - name: Create sonatype credentials file
+        env:
+          SONATYPE_SBT_FILE_CONTENT: "${{ secrets.SONATYPE_SBT_FILE_CONTENT }}"
+        run: |
+          echo "$SONATYPE_SBT_FILE_CONTENT" | base64 -d > "$HOME/.sbt/1.0/sonatype.sbt"
       - name: Publish
         env:
           GPG_KEYID: "${{ secrets.GPG_KEYID }}"
           PGP_PASSPHRASE: "${{ secrets.PGP_PASSPHRASE }}"
         run: sbt publishSigned sonatypeRelease
-      - name: Delete keys
+      - name: Delete keys and credentials
         env:
           GPG_KEYID: "${{ secrets.GPG_KEYID }}"
         run: |
+          rm "$HOME/.sbt/1.0/sonatype.sbt"
           gpg --batch --yes --delete-secret-keys $GPG_KEYID
           gpg --batch --yes --delete-keys $GPG_KEYID

@@ -20,6 +20,7 @@ jobs:
         env:
           SONATYPE_SBT_FILE_CONTENT: "${{ secrets.SONATYPE_SBT_FILE_CONTENT }}"
         run: |
+          mkdir -p "$HOME/.sbt/1.0"
           echo "$SONATYPE_SBT_FILE_CONTENT" | base64 -d > "$HOME/.sbt/1.0/sonatype.sbt"
       - name: Publish
         env:

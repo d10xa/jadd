@@ -20,7 +20,7 @@ class LiveCachedFileOpsTest extends TestBase {
           override def read(path: Path): SyncIO[FsItem] =
             for {
               _ <- readCounter.update(_ + 1)
-            } yield TextFile(FileContent(""))
+            } yield TextFile(FileContent(""), path)
           override def write(path: Path, value: String): SyncIO[Unit] =
             SyncIO.unit
         },

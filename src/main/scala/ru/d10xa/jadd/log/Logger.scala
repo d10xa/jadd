@@ -10,6 +10,8 @@ trait Logger[F[_]] {
 
 object Logger {
 
+  def apply[F[_]](implicit logger: Logger[F]): Logger[F] = logger
+
   def make[F[_]: Sync](debug: Boolean, quiet: Boolean): Logger[F] =
     if (quiet) new DisabledLogger[F]
     else if (debug) new DebugLogger[F]

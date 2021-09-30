@@ -26,12 +26,12 @@ object CoursierVersions {
 
       override def versions(
         repositories: Seq[Repository],
-        module: Module): F[core.Versions] = {
+        module: Module
+      ): F[core.Versions] =
         Versions(cache)
           .withRepositories(repositories)
           .withModule(module)
           .versions()
-      }
 
     })
 }

@@ -83,7 +83,8 @@ object Artifact {
       )
   }
 
-  /** Example: Split artifact id cats-core_2.12 to tuple (cats-core%%, Some(2.12))
+  /** Example: Split artifact id cats-core_2.12 to tuple (cats-core%%,
+    * Some(2.12))
     */
   def scalaVersionAsPlaceholders(
     artifactId: String

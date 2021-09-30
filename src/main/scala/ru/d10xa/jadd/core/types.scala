@@ -38,7 +38,7 @@ object types {
       value.replace('.', '/')
   }
   object GroupId {
-    implicit val showGroupId: Show[GroupId] = Show[GroupId](_.value.toString)
+    implicit val showGroupId: Show[GroupId] = Show[GroupId](_.value)
   }
 
   @newtype case class ScalaVersion(version: Version)

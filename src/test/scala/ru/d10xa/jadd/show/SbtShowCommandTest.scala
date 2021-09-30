@@ -43,10 +43,10 @@ class SbtShowCommandTest extends TestBase {
   test("single java dependency") {
     val source =
       s"""
-         |libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"
+         |libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.6"
        """.stripMargin
     val result = showArtifacts("build.sbt" -> source)
-    result.head shouldBe art("ch.qos.logback:logback-classic:1.2.3")
+    result.head shouldBe art("ch.qos.logback:logback-classic:1.2.6")
   }
 
   test("single scala dependency") {
@@ -62,7 +62,7 @@ class SbtShowCommandTest extends TestBase {
     val source =
       s"""
          |libraryDependencies ++= Seq(
-         |  "ch.qos.logback" % "logback-classic" % "1.2.3",
+         |  "ch.qos.logback" % "logback-classic" % "1.2.6",
          |  "com.typesafe.scala-logging" %% "scala-logging" % "3.9.0",
          |  "io.circe" %% "circe-parser" % "0.9.3",
          |  "io.circe" %% "circe-generic" % "0.9.3",
@@ -73,7 +73,7 @@ class SbtShowCommandTest extends TestBase {
     val result = showArtifacts("build.sbt" -> source)
 
     val expected = Seq(
-      art("ch.qos.logback:logback-classic:1.2.3"),
+      art("ch.qos.logback:logback-classic:1.2.6"),
       art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_12,
       art("io.circe:circe-parser%%:0.9.3").scala2_12,
       art("io.circe:circe-generic%%:0.9.3").scala2_12,

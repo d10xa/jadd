@@ -30,7 +30,7 @@ class MavenShowCommandTest extends TestBase {
         |</project>""".stripMargin
     val artifacts = new MavenShowCommand(pom).show().toList
     val expected = Seq(
-      art("ch.qos.logback:logback-classic:1.2.3"),
+      art("ch.qos.logback:logback-classic:1.2.6"),
       art("junit:junit:4.12")
     ).toList
     artifacts shouldEqual expected

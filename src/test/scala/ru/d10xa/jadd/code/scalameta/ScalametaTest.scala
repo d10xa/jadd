@@ -96,7 +96,7 @@ class ScalametaTest extends TestBase {
       findModules("""
         |libraryDependencies ++= Seq(
         |  "com.github.scopt" %% "scopt" % "3.7.1",
-        |  "ch.qos.logback" % "logback-classic" % "1.2.3"
+        |  "ch.qos.logback" % "logback-classic" % "1.2.6"
         |)
         |libraryDependencies += "org.jsoup" % "jsoup" % "1.14.3"
         |""".stripMargin)

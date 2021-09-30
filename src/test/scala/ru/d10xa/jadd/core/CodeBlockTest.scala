@@ -61,7 +61,7 @@ class CodeBlockTest extends TestBase {
       """
         |// some code here
         |libraryDependencies ++= Seq(
-        |  "ch.qos.logback" % "logback-classic" % "1.2.3"
+        |  "ch.qos.logback" % "logback-classic" % "1.2.6"
         |)
         |// some code here
         |""".stripMargin
@@ -70,7 +70,7 @@ class CodeBlockTest extends TestBase {
       "libraryDependencies ++= Seq("
     ).head.innerContent shouldEqual
       """
-        |  "ch.qos.logback" % "logback-classic" % "1.2.3"
+        |  "ch.qos.logback" % "logback-classic" % "1.2.6"
         |""".stripMargin
   }
 

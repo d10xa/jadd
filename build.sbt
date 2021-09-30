@@ -48,7 +48,7 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.2.10" % "it,test",
   "com.github.tomakehurst" % "wiremock" % "2.27.2" % "it,test"
 )
-libraryDependencies += "org.jsoup" % "jsoup" % "1.14.2"
+libraryDependencies += "org.jsoup" % "jsoup" % "1.14.3"
 libraryDependencies += "org.typelevel" %% "cats-effect" % "2.5.4"
 libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.9.1"
 libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.16"

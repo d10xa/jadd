@@ -49,7 +49,7 @@ libraryDependencies ++= Seq(
   "com.github.tomakehurst" % "wiremock" % "2.27.2" % "it,test"
 )
 libraryDependencies += "org.jsoup" % "jsoup" % "1.14.3"
-libraryDependencies += "org.typelevel" %% "cats-effect" % "2.5.4"
+libraryDependencies += "org.typelevel" %% "cats-effect" % "3.2.9"
 libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.9.1"
 libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.16"
 libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.9.2"

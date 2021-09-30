@@ -98,7 +98,7 @@ class ScalametaTest extends TestBase {
         |  "com.github.scopt" %% "scopt" % "3.7.1",
         |  "ch.qos.logback" % "logback-classic" % "1.2.3"
         |)
-        |libraryDependencies += "org.jsoup" % "jsoup" % "1.14.2"
+        |libraryDependencies += "org.jsoup" % "jsoup" % "1.14.3"
         |""".stripMargin)
 
     val Vector(m1, m2, m3) = moduleIds

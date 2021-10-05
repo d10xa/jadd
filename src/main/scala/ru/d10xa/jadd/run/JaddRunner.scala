@@ -1,26 +1,22 @@
 package ru.d10xa.jadd.run
 
 import cats.Parallel
-
-import java.net.URI
-import java.nio.file.Paths
-import cats.syntax.all._
-import cats.effect.ConcurrentEffect
-import cats.effect.ContextShift
+import cats.effect.Async
+import cats.effect.Ref
 import cats.effect.Resource
 import cats.effect.Sync
-import cats.effect.concurrent.Ref
+import cats.syntax.all._
 import github4s.Github
 import ru.d10xa.jadd.application.CliArgs
 import ru.d10xa.jadd.buildtools.BuildToolLayoutSelector
-import ru.d10xa.jadd.cli.Command.Repl
 import ru.d10xa.jadd.cli.Cli
+import ru.d10xa.jadd.cli.Command.Repl
 import ru.d10xa.jadd.cli.Config
-import ru.d10xa.jadd.core.types.FileCache
 import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.core.LiveLoader
 import ru.d10xa.jadd.core.ProjectMeta
 import ru.d10xa.jadd.core.ProxySettings
+import ru.d10xa.jadd.core.types.FileCache
 import ru.d10xa.jadd.coursier_.CoursierVersions
 import ru.d10xa.jadd.fs.FileOps
 import ru.d10xa.jadd.fs.LiveCachedFileOps
@@ -34,7 +30,10 @@ import ru.d10xa.jadd.shortcuts.ArtifactShortcuts
 import ru.d10xa.jadd.shortcuts.ArtifactShortcuts.ArtifactShortcutsClasspath
 import ru.d10xa.jadd.shortcuts.RepositoryShortcuts
 
-class JaddRunner[F[_]: Sync: ConcurrentEffect: Parallel: ContextShift](
+import java.net.URI
+import java.nio.file.Paths
+
+class JaddRunner[F[_]: Sync: Async: Parallel](
   cli: Cli,
   githubUrlParser: GithubUrlParser[F],
   repositoryShortcuts: RepositoryShortcuts,

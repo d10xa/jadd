@@ -2,13 +2,12 @@ package ru.d10xa.jadd
 
 import cats.MonadThrow
 import cats.Parallel
-import cats.effect.ConcurrentEffect
-import cats.effect.ContextShift
+import cats.effect.Async
 import cats.effect.ExitCode
 import cats.effect.Resource
 import cats.syntax.all._
 import github4s.Github
-import org.http4s.client.blaze.BlazeClientBuilder
+import org.http4s.blaze.client.BlazeClientBuilder
 import ru.d10xa.jadd.application.CliArgs
 import ru.d10xa.jadd.cli.Cli
 import ru.d10xa.jadd.github.LiveGithubUrlParser
@@ -23,8 +22,7 @@ trait Context[F[_]] {
 
 object Context {
 
-  def make[F[_]: MonadThrow: ConcurrentEffect: Parallel: ContextShift]()
-    : Context[F] = new Context[F] {
+  def make[F[_]: MonadThrow: Async: Parallel](): Context[F] = new Context[F] {
 
     private def githubResource: Resource[F, Github[F]] =
       for {

@@ -38,7 +38,7 @@ class GithubFileOpsTest extends ItTestBase {
       read(Paths.get(".gitignore"))
         .unsafeRunSync()
     gitignore match {
-      case TextFile(content) =>
+      case TextFile(content, _) =>
         assert(content.value.contains("target/"))
       case _ => assert(false)
     }

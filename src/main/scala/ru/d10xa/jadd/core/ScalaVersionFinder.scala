@@ -28,7 +28,7 @@ class LiveSbtScalaVersionFinder[F[_]: Sync] private (
     for {
       fsItem <- fileOps.read(buildFilePath)
       optScalaVersion <- fsItem match {
-        case TextFile(content) =>
+        case TextFile(content, _) =>
           Applicative[F]
             .pure(
               LiveSbtScalaVersionFinder.extractScalaVersionFromBuildSbt(content)

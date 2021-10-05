@@ -3,11 +3,12 @@ package ru.d10xa.jadd.code.scalameta
 import monocle.Lens
 import monocle.macros.GenLens
 
+import java.nio.file.Path
 import scala.meta.Defn
 import scala.meta.Lit
 import scala.meta.Pat
 import scala.meta.Term
-import scala.meta.Tree
+import scala.meta.inputs.Position
 
 object ScalaMetaPatternMatching {
 
@@ -15,8 +16,8 @@ object ScalaMetaPatternMatching {
 
   object UnapplyPercentChars {
 
-    /** Calculate the number of percent characters,
-      * but only if there are no other characters in the string
+    /** Calculate the number of percent characters, but only if there are no
+      * other characters in the string
       */
     def unapply(s: String): Option[Int] =
       if (s.nonEmpty && s.forall(_ == '%')) {
@@ -26,8 +27,7 @@ object ScalaMetaPatternMatching {
       }
   }
 
-  /** Match
-    * leftTerm % rightTerm
+  /** Match leftTerm % rightTerm
     */
   object UnapplyApplyInfixPercent {
     def unapply(t: Term.ApplyInfix): Option[(Term, Int, Term)] =
@@ -58,13 +58,16 @@ object ScalaMetaPatternMatching {
     *
     * "org.something" %% "something-name"
     *
-    * @param groupId org.something
-    * @param artifactId something-name
-    * @param percents %%
+    * @param groupId
+    *   org.something
+    * @param artifactId
+    *   something-name
+    * @param percents
+    *   %%
     */
   final case class GroupIdPercentArtifactId(
-    groupId: SString,
-    artifactId: SString,
+    groupId: VariableValue,
+    artifactId: VariableValue,
     percents: PercentChars
   )
 
@@ -73,33 +76,45 @@ object ScalaMetaPatternMatching {
       t match {
         case Term
               .ApplyInfix(
-                SString(groupId),
+                VariableValue(groupId),
                 Term.Name(UnapplyPercentChars(p)),
                 Nil,
-                List(SString(artifactId))
+                List(VariableValue(artifactId))
               ) =>
           Some(GroupIdPercentArtifactId(groupId, artifactId, PercentChars(p)))
         case _ => None
       }
   }
 
-  sealed trait SString
-  final case class LitString(value: String) extends SString
-  final case class TermNameCompound(values: Vector[String]) extends SString
+  sealed trait SbtTree {
 
-  object SString {
-    def unapply(t: Tree): Option[SString] = t match {
-      case Lit.String(value) => Some(LitString(value))
-      case Term.Name(value) => Some(TermNameCompound(Vector(value)))
-      case UnapplySelect(strings) => Some(TermNameCompound(strings))
-      case _ => None
+    private def initScopePath(path: Path, tree: SbtTree): SbtTree = tree match {
+      case v: Value => v
+      case m: Module =>
+        m.copy(
+          groupId = m.groupId.withPath(path),
+          artifactId = m.artifactId.withPath(path),
+          version = m.version.withPath(path)
+        )
+      case scope: Scope =>
+        scope.copy(
+          filePath = Some(path),
+          items = scope.items.map(item => initScopePath(path, item))
+        )
     }
+
+    def withFilePath(path: Path): SbtTree = initScopePath(path, this)
+
   }
 
-  sealed trait SbtTree
-  final case class Value(path: Vector[String], value: String) extends SbtTree {
+  final case class Value(
+    path: Vector[String],
+    value: String,
+    pos: Position,
+    filePath: Path
+  ) extends SbtTree {
     def prependPath(scopeName: String): Value =
-      Value(scopeName +: path, value)
+      this.copy(path = scopeName +: path)
   }
 
   /** ModuleID in terms of SBT
@@ -107,24 +122,28 @@ object ScalaMetaPatternMatching {
     * "org.something" %% "something-name" % "0.0.1"
     */
   final case class Module(
-    groupId: SString,
+    groupId: VariableValue,
     percentsCount: Int,
-    artifactId: SString,
-    version: SString,
+    artifactId: VariableValue,
+    version: VariableValue,
     terms: List[Term]
   ) extends SbtTree
 
-  final case class Scope(name: Option[String], items: Vector[SbtTree])
-      extends SbtTree
+  final case class Scope(
+    name: Option[String],
+    items: Vector[SbtTree],
+    filePath: Option[Path]
+  ) extends SbtTree
 
   object Scope {
     def makeNonEmpty(
       name: Option[String],
-      trees: Vector[SbtTree]
+      trees: Vector[SbtTree],
+      path: Path
     ): Option[Scope] =
       trees match {
         case vec if vec.isEmpty => None
-        case vec => Some(Scope(name, vec))
+        case vec => Some(Scope(name, vec, Some(path)))
       }
   }
 
@@ -136,7 +155,7 @@ object ScalaMetaPatternMatching {
         case UnapplyApplyInfixPercent(
               UnapplyGroupIdPercentArtifactId(ga),
               1,
-              SString(moduleVersion)
+              VariableValue(moduleVersion)
             ) =>
           Some(
             Module(
@@ -153,10 +172,24 @@ object ScalaMetaPatternMatching {
       }
   }
 
+  final case class ValueNoFilePath(
+    path: Vector[String],
+    value: String,
+    pos: Position
+  ) {
+    def withFilePath(filePath: Path): Value =
+      Value(path = path, value = value, pos = pos, filePath = filePath)
+  }
+
   object UnapplyVal {
-    def unapply(t: Defn.Val): Option[Value] = t match {
-      case Defn.Val(_, List(Pat.Var(Term.Name(k))), None, Lit.String(v)) =>
-        Some(Value(Vector(k), v))
+    def unapply(t: Defn.Val): Option[ValueNoFilePath] = t match {
+      case Defn.Val(
+            _,
+            List(Pat.Var(Term.Name(k))),
+            None,
+            lit @ Lit.String(v)
+          ) =>
+        Some(ValueNoFilePath(Vector(k), v, lit.pos))
       case _ => None
     }
   }

@@ -7,28 +7,33 @@ import scala.meta.Source
 import scala.meta.Term
 import scala.meta.dialects
 import org.scalatest.EitherValues._
-import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.LitString
 import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.Module
 import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.UnapplyPercentChars
-import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.SString
-import ru.d10xa.jadd.code.scalameta.ScalaMetaPatternMatching.TermNameCompound
+import ru.d10xa.jadd.code.scalameta.ScalametaUtils.replacePositions
+
+import java.nio.file.Paths
+import scala.meta.inputs.Input
+import scala.meta.inputs.Position
 
 class ScalametaTest extends TestBase {
 
-  private val sbtArtifactsParser =
-    SbtArtifactsParser.make[SyncIO]().unsafeRunSync()
+  private val sbtModuleParser =
+    SbtModuleParser.make[SyncIO]().unsafeRunSync()
 
   def findModules(str: String): Vector[Module] =
-    sbtArtifactsParser
+    sbtModuleParser
       .parse(
-        Vector(dialects.Sbt1(str).parse[Source].toEither.value)
+        Vector(
+          Paths.get(".") -> dialects.Sbt1(str).parse[Source].toEither.value
+        )
       )
       .unsafeRunSync()
 
-  implicit class SStringOps(s: SString) {
+  implicit class VariableValueOps(s: VariableValue) {
     def value: String = s match {
-      case LitString(value) => value
-      case ScalaMetaPatternMatching.TermNameCompound(values) =>
+      case VariableLit(value, _) => value
+      case v: VariableLitP => v.lit.value
+      case VariableTerms(values) =>
         throw new IllegalArgumentException(
           s"SString is TermNameCompound $values"
         )
@@ -70,7 +75,7 @@ class ScalametaTest extends TestBase {
     val Vector(moduleId) = findModules(
       "\"org.something\" %% \"something-name\" % somethingVersion % Test"
     )
-    moduleId.version shouldBe TermNameCompound(Vector("somethingVersion"))
+    moduleId.version shouldBe VariableTerms(Vector("somethingVersion"))
     moduleId.terms match {
       case List(name: Term.Name) => name.value shouldBe "Test"
     }
@@ -93,7 +98,7 @@ class ScalametaTest extends TestBase {
         |  "com.github.scopt" %% "scopt" % "3.7.1",
         |  "ch.qos.logback" % "logback-classic" % "1.2.3"
         |)
-        |libraryDependencies += "org.jsoup" % "jsoup" % "1.14.2"
+        |libraryDependencies += "org.jsoup" % "jsoup" % "1.14.3"
         |""".stripMargin)
 
     val Vector(m1, m2, m3) = moduleIds
@@ -104,6 +109,19 @@ class ScalametaTest extends TestBase {
     m2.percentsCount shouldBe 1
     m3.groupId.value shouldBe "org.jsoup"
     m3.percentsCount shouldBe 1
+  }
+
+  test("replacePositions") {
+    val newStr =
+      replacePositions(
+        "12 34 56",
+        List(
+          (Position.Range(Input.String(""), 0, 2), "1"),
+          (Position.Range(Input.String(""), 3, 5), "222"),
+          (Position.Range(Input.String(""), 6, 8), "333")
+        )
+      )
+    newStr shouldBe "1 222 333"
   }
 
 }

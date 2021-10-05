@@ -25,7 +25,7 @@ class GradlePipeline[F[_]: Sync](
 
   def buildFileSource: F[TextFile] =
     for {
-      textFile <- Utils.textFileFromString(fileOps, buildFile)
+      textFile <- Utils.textFileFromPath(fileOps, buildFile)
       source = textFile
     } yield source
 

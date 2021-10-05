@@ -34,7 +34,9 @@ class ArtifactTest extends TestBase {
   }
 
   test("needScalaVersionResolving") {
-    art("org.scala-lang.modules:scala-async%%").needScalaVersionResolving shouldEqual true
+    art(
+      "org.scala-lang.modules:scala-async%%"
+    ).needScalaVersionResolving shouldEqual true
     art("org.jline:jline").needScalaVersionResolving shouldEqual false
   }
 

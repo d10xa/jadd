@@ -7,7 +7,11 @@ import ru.d10xa.jadd.buildtools.BuildToolLayout
 import ru.d10xa.jadd.buildtools.BuildToolLayoutSelector
 import ru.d10xa.jadd.cli.Command.Help
 import ru.d10xa.jadd.cli.Command.Repl
+import ru.d10xa.jadd.code.SbtFileUtils
+import ru.d10xa.jadd.code.inserts.SbtFileUpserts
 import ru.d10xa.jadd.code.scalameta.SbtArtifactsParser
+import ru.d10xa.jadd.code.scalameta.SbtModuleParser
+import ru.d10xa.jadd.code.scalameta.SbtParser
 import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.core.LiveSbtScalaVersionFinder
 import ru.d10xa.jadd.core.Loader
@@ -54,7 +58,7 @@ class CommandExecutorImpl[F[_]: Sync] private (
     layout: BuildToolLayout,
     ctx: Ctx,
     fileOps: FileOps[F]
-  ): F[Pipeline[F]] =
+  )(implicit logger: Logger[F]): F[Pipeline[F]] =
     layout match {
       case BuildToolLayout.Gradle =>
         Sync[F].delay(new GradlePipeline(ctx, fileOps))
@@ -62,17 +66,23 @@ class CommandExecutorImpl[F[_]: Sync] private (
         Sync[F].delay(new MavenPipeline(ctx, fileOps))
       case BuildToolLayout.Sbt =>
         for {
-          sbtArtifactsParser <- SbtArtifactsParser.make[F]()
+          sbtModuleParser <- SbtModuleParser.make[F]()
+          sbtArtifactsParser <- SbtArtifactsParser.make[F](sbtModuleParser)
+          sbtFileUtils <- SbtFileUtils.make[F](fileOps)
           scalaVersionFinder = LiveSbtScalaVersionFinder.make(ctx, fileOps)
+          sbtParser <- SbtParser.make[F](sbtFileUtils, sbtModuleParser)
+          sbtFileUpserts <- SbtFileUpserts.make[F](sbtParser, fileOps)
           sbtPipeline = new SbtPipeline(
-            ctx,
-            scalaVersionFinder,
-            new SbtShowCommand(
+            ctx = ctx,
+            scalaVersionFinder = scalaVersionFinder,
+            showCommand = new SbtShowCommand(
+              sbtFileUtils,
               fileOps,
               scalaVersionFinder,
               sbtArtifactsParser
             ),
-            fileOps
+            fileOps = fileOps,
+            sbtFileUpserts = sbtFileUpserts
           )
         } yield sbtPipeline
       case BuildToolLayout.Ammonite =>

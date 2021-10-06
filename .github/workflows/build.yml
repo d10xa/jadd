@@ -20,7 +20,7 @@ jobs:
       - name: Coverage report
         run: sbt coverageReport
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@260aa3b4b2f265b8578bc0e721e33ebf8ff53313
         with:
           fail_ci_if_error: true
       - name: Cleanup

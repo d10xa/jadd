@@ -2,12 +2,10 @@ package ru.d10xa.jadd.fs
 
 import java.nio.file.Path
 import java.nio.file.Paths
-
-import cats.effect.ContextShift
 import cats.effect.IO
 import cats.effect.Resource
 import cats.implicits._
-import org.http4s.client.blaze.BlazeClientBuilder
+import org.http4s.blaze.client.BlazeClientBuilder
 import ru.d10xa.jadd.fs.FsItem.Dir
 import ru.d10xa.jadd.fs.FsItem.TextFile
 import ru.d10xa.jadd.fs.testkit.ItTestBase
@@ -19,10 +17,6 @@ import scala.concurrent.ExecutionContext
 
 class GithubFileOpsTest extends ItTestBase {
   import github4s.Github
-
-  import scala.concurrent.ExecutionContext.Implicits.global
-
-  implicit val cs: ContextShift[IO] = IO.contextShift(global)
 
   val githubResourceIO: Resource[IO, Github[IO]] =
     BlazeClientBuilder[IO](ExecutionContext.global).resource

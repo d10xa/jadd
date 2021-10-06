@@ -3,8 +3,8 @@ package ru.d10xa.jadd.github
 import java.nio.file.Path
 import cats.ApplicativeError
 import cats.data.NonEmptyList
-import cats.effect.Bracket
 import cats.MonadThrow
+import cats.effect.MonadCancelThrow
 import cats.effect.Resource
 import cats.effect.Sync
 import cats.syntax.all._
@@ -18,7 +18,7 @@ import ru.d10xa.jadd.fs.FsItem.TextFile
 import ru.d10xa.jadd.github.GithubUrlParser.GithubUrlParts
 import ru.d10xa.jadd.instances._
 
-class GithubFileOps[F[_]: MonadThrow: Bracket[*[_], Throwable]](
+class GithubFileOps[F[_]: MonadThrow: MonadCancelThrow](
   githubResource: Resource[F, Github[F]],
   owner: String,
   repo: String,

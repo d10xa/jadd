@@ -41,6 +41,7 @@ class JaddJlineCompleter[F[_]] extends org.jline.reader.Completer {
     } else if (line.wordIndex == 0) {
       replCommands.foreach(c => candidates.add(new Candidate(c)))
     } else {
+      implicit val runtime = cats.effect.unsafe.IORuntime.global
       candidates.clear()
       val word = line.word()
       words.headOption.toList

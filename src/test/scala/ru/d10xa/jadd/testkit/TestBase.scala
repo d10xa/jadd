@@ -3,6 +3,7 @@ package ru.d10xa.jadd.testkit
 import java.nio.file.Path
 import cats.effect.Resource
 import cats.effect.Sync
+import cats.effect.unsafe.IORuntime
 import org.scalatest.funsuite.AnyFunSuiteLike
 import org.scalatest.matchers.should.Matchers
 import ru.d10xa.jadd.buildtools.BuildToolLayoutSelector
@@ -13,6 +14,8 @@ abstract class TestBase
     extends AnyFunSuiteLike
     with Matchers
     with TempSbtFileUpsertsTestSuite {
+
+  implicit val ioRuntime: IORuntime = cats.effect.unsafe.implicits.global
 
   implicit class ArtifactImplicits(private val artifact: Artifact) {
     def scala2_12: Artifact =

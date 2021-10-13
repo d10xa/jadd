@@ -6,11 +6,11 @@ class AmmoniteFormatShowPrinterTest extends TestBase {
   test("testMkString") {
     val str = AmmoniteFormatShowPrinter.mkString(
       List(
-        art("ch.qos.logback:logback-classic:1.2.3"),
-        art("com.typesafe.scala-logging:scala-logging%%:3.9.0").scala2_12
+        art("a.b.c:d-e:1.2.3"),
+        art("x.y:z%%:4.5.6").scala2_12
       )
     )
-    str shouldEqual """import $ivy.`ch.qos.logback:logback-classic:1.2.3`
-                      |import $ivy.`com.typesafe.scala-logging::scala-logging:3.9.0`""".stripMargin
+    str shouldEqual """import $ivy.`a.b.c:d-e:1.2.3`
+                      |import $ivy.`x.y::z:4.5.6`""".stripMargin
   }
 }

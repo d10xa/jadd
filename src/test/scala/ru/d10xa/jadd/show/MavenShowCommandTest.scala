@@ -16,8 +16,8 @@ class MavenShowCommandTest extends TestBase {
         |  <url>http://maven.apache.org</url>
         |  <dependencies>
         |    <dependency>
-        |      <groupId>ch.qos.logback</groupId>
-        |      <artifactId>logback-classic</artifactId>
+        |      <groupId>a.b.c</groupId>
+        |      <artifactId>d-e</artifactId>
         |      <version>1.2.3</version>
         |    </dependency>
         |    <dependency>
@@ -30,7 +30,7 @@ class MavenShowCommandTest extends TestBase {
         |</project>""".stripMargin
     val artifacts = new MavenShowCommand(pom).show().toList
     val expected = Seq(
-      art("ch.qos.logback:logback-classic:1.2.3"),
+      art("a.b.c:d-e:1.2.3"),
       art("junit:junit:4.12")
     ).toList
     artifacts shouldEqual expected

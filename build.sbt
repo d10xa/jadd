@@ -43,18 +43,18 @@ libraryDependencies ++= Seq(
   "com.github.scopt" %% "scopt" % "4.0.1",
   "org.typelevel" %% "cats-core" % "2.6.1",
   "org.jline" % "jline" % "3.20.0",
-  "com.lihaoyi" %% "ujson" % "1.3.12",
+  "com.lihaoyi" %% "ujson" % "1.4.2",
   "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.8",
   "org.scalatest" %% "scalatest" % "3.2.10" % "it,test",
   "com.github.tomakehurst" % "wiremock" % "2.27.2" % "it,test"
 )
-libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"
+libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.6"
 libraryDependencies += "org.jsoup" % "jsoup" % "1.14.3"
 libraryDependencies += "org.typelevel" %% "cats-effect" % "3.2.9"
 libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.9.1"
 libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.9.2"
 libraryDependencies += "io.estatico" %% "newtype" % "0.4.4"
-libraryDependencies += "eu.timepit" %% "refined" % "0.9.23"
+libraryDependencies += "eu.timepit" %% "refined" % "0.9.27"
 libraryDependencies += "com.github.julien-truffaut" %% "monocle-core" % "2.1.0"
 libraryDependencies += "com.github.julien-truffaut" %% "monocle-macro" % "2.1.0"
 libraryDependencies += "com.47deg" %% "github4s" % "0.30.0"

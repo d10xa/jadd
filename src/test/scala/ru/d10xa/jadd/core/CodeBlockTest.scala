@@ -56,22 +56,4 @@ class CodeBlockTest extends TestBase {
     find(buildFileSource, "dependencies {").size shouldEqual 0
   }
 
-  test("sbt dependencies seq") {
-    def buildFileSource =
-      """
-        |// some code here
-        |libraryDependencies ++= Seq(
-        |  "ch.qos.logback" % "logback-classic" % "1.2.3"
-        |)
-        |// some code here
-        |""".stripMargin
-    find(
-      buildFileSource,
-      "libraryDependencies ++= Seq("
-    ).head.innerContent shouldEqual
-      """
-        |  "ch.qos.logback" % "logback-classic" % "1.2.3"
-        |""".stripMargin
-  }
-
 }

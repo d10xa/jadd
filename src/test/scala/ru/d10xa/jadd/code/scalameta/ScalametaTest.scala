@@ -95,19 +95,19 @@ class ScalametaTest extends TestBase {
     val moduleIds: Vector[Module] =
       findModules("""
         |libraryDependencies ++= Seq(
-        |  "com.github.scopt" %% "scopt" % "3.7.1",
-        |  "ch.qos.logback" % "logback-classic" % "1.2.3"
+        |  "x.y" %% "z" % "1",
+        |  "a.b.c" % "d-e" % "2"
         |)
-        |libraryDependencies += "org.jsoup" % "jsoup" % "1.14.3"
+        |libraryDependencies += "d" % "e" % "3"
         |""".stripMargin)
 
     val Vector(m1, m2, m3) = moduleIds
 
-    m1.groupId.value shouldBe "com.github.scopt"
+    m1.groupId.value shouldBe "x.y"
     m1.percentsCount shouldBe 2
-    m2.groupId.value shouldBe "ch.qos.logback"
+    m2.groupId.value shouldBe "a.b.c"
     m2.percentsCount shouldBe 1
-    m3.groupId.value shouldBe "org.jsoup"
+    m3.groupId.value shouldBe "d"
     m3.percentsCount shouldBe 1
   }
 

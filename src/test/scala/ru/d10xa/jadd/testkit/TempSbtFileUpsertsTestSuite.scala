@@ -18,11 +18,11 @@ trait TempSbtFileUpsertsTestSuite extends TempFileOpsTestSuite {
   def tempSbtFileUpsertsResource[F[_]: Sync: Logger: FilesF](
     files: (String, String)*
   ): Resource[F, (Path, FileOps[F], SbtFileUpserts[F])] = for {
-    (path, fileOps) <- tempFileOpsResource[F](files: _*)
+    pathFileOps <- tempFileOpsResource[F](files: _*) // TODO better-monadic-for
     sbtFileUpserts <- Resource.eval(
-      makeSbtFileUpserts[F](fileOps)
+      makeSbtFileUpserts[F](pathFileOps._2)
     )
-  } yield (path, fileOps, sbtFileUpserts)
+  } yield (pathFileOps._1, pathFileOps._2, sbtFileUpserts)
 
   private def makeSbtFileUpserts[F[_]: Sync: FilesF](
     fileOps: FileOps[F]

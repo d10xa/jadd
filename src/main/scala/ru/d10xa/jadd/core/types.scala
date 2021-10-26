@@ -33,7 +33,7 @@ object types {
       applicativeError
   }
 
-  @newtype case class GroupId(value: String) {
+  case class GroupId(value: String) { // TODO @newtype
     def path: String =
       value.replace('.', '/')
   }
@@ -41,16 +41,16 @@ object types {
     implicit val showGroupId: Show[GroupId] = Show[GroupId](_.value)
   }
 
-  @newtype case class ScalaVersion(version: Version)
+  case class ScalaVersion(version: Version) // TODO @newtype
   object ScalaVersion {
     def fromString(str: String): ScalaVersion = ScalaVersion(Version(str))
     implicit val showScalaVersion: Show[ScalaVersion] =
       Show[ScalaVersion](_.version.repr)
   }
 
-  @newtype case class FileContent(value: String)
+  case class FileContent(value: String) // TODO @newtype
 
-  @newtype case class FileCache(value: Map[Path, FsItem])
+  case class FileCache(value: Map[Path, FsItem]) // TODO @newtype
 
   object FileCache {
     val empty: FileCache = FileCache(Map.empty[Path, FsItem])

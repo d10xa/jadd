@@ -7,6 +7,7 @@ licenses := Seq(("MIT", url("https://opensource.org/licenses/MIT")))
 description := "Command-line tool for adding dependencies to gradle/maven/sbt build files"
 
 import xerial.sbt.Sonatype._
+
 sonatypeProjectHosting := Some(
   GitHubHosting("d10xa", "jadd", "Andrey Stolyarov", "d10xa@mail.ru")
 )
@@ -27,17 +28,30 @@ lazy val root = project
       "-deprecation", // warn about use of deprecated APIs
       "-unchecked", // warn about unchecked type parameters
       "-feature", // warn about misused language features
-      "-language:higherKinds", // allow higher kinded types without `import scala.language.higherKinds`
-      "-Xlint", // enable handy linter warnings
-//      "-Xfatal-warnings", // turn compiler warnings into errors,
-      "-Ymacro-annotations" // for @newtype
-    )
+      "-language:higherKinds" // allow higher kinded types without `import scala.language.higherKinds`
+      //      "-Xlint", // enable handy linter warnings
+      //      "-Xfatal-warnings", // turn compiler warnings into errors,
+      //      "-Ymacro-annotations", // for @newtype
+      //      "-Xkind-projector"
+//      "-Ykind-projector"
+    ),
+    scalacOptions ++= Seq("-Xsource:3","-P:kind-projector:underscore-placeholders")
   )
-
+//  .settings(
+//    scalacOptions ++= {
+//      CrossVersion.partialVersion(scalaVersion.value) match {
+//        case Some((3, _)) => Seq("-Ykind-projector:underscores")
+//        case Some((2, 13)) | Some((2, 12)) => Seq("-Xsource:3", "-P:kind-projector:underscore-placeholders")
+//        case _ => ???
+//      }
+//    }
+//  )
+//ThisBuild / scalacOptions ++= Seq("-Ykind-projector")
+//ThisBuild / scalacOptions ++= Seq("-Xsource:3","-P:kind-projector:underscore-placeholders")
 addCompilerPlugin(
   ("org.typelevel" %% "kind-projector" % "0.13.2").cross(CrossVersion.full)
 )
-addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
+//addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
 
 libraryDependencies ++= Seq(
   "com.github.scopt" %% "scopt" % "4.0.1",
@@ -51,16 +65,16 @@ libraryDependencies ++= Seq(
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.6"
 libraryDependencies += "org.jsoup" % "jsoup" % "1.14.3"
 libraryDependencies += "org.typelevel" %% "cats-effect" % "3.2.9"
-libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.9.1"
+libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.9.1" cross CrossVersion.for3Use2_13
 libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.9.2"
-libraryDependencies += "io.estatico" %% "newtype" % "0.4.4"
+libraryDependencies += "io.estatico" %% "newtype" % "0.4.4" cross CrossVersion.for3Use2_13
 libraryDependencies += "eu.timepit" %% "refined" % "0.9.27"
-libraryDependencies += "com.github.julien-truffaut" %% "monocle-core" % "2.1.0"
-libraryDependencies += "com.github.julien-truffaut" %% "monocle-macro" % "2.1.0"
+libraryDependencies += "com.github.julien-truffaut" %% "monocle-core" % "2.1.0" cross CrossVersion.for3Use2_13
+libraryDependencies += "com.github.julien-truffaut" %% "monocle-macro" % "2.1.0" cross CrossVersion.for3Use2_13
 libraryDependencies += "com.47deg" %% "github4s" % "0.30.0"
-libraryDependencies += "io.lemonlabs" %% "scala-uri" % "3.6.0"
+libraryDependencies += "io.lemonlabs" %% "scala-uri" % "3.6.0" cross CrossVersion.for3Use2_13
 libraryDependencies += "org.http4s" %% "http4s-blaze-client" % "0.23.6"
-libraryDependencies += "org.scalameta" %% "scalameta" % "4.4.29"
-libraryDependencies += "io.get-coursier" %% "coursier" % "2.0.16"
-libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.16"
+libraryDependencies += "org.scalameta" %% "scalameta" % "4.4.29" cross CrossVersion.for3Use2_13
+libraryDependencies += "io.get-coursier" %% "coursier" % "2.0.16" cross CrossVersion.for3Use2_13
+libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.16" cross CrossVersion.for3Use2_13
 libraryDependencies += "com.lihaoyi" %% "pprint" % "0.6.6"

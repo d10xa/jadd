@@ -1,6 +1,6 @@
 package ru.d10xa.jadd.versions
 
-import cats.MonadError
+import cats.{MonadError, MonadThrow}
 import cats.syntax.all._
 import cats.data.IorNel
 import cats.data.NonEmptyList
@@ -13,7 +13,7 @@ import ru.d10xa.jadd.extensions.ValidatedNelStringOps
 
 object ArtifactVersionsDownloader {
 
-  def loadArtifactVersions[F[_]: MonadError[*[_], Throwable]](
+  def loadArtifactVersions[F[_]: MonadThrow](
     artifact: Artifact,
     configRepositories: Seq[String],
     versionTools: VersionTools[F]
@@ -24,7 +24,7 @@ object ArtifactVersionsDownloader {
       loadArtifactVersionsForce(artifact, configRepositories, versionTools)
     }
 
-  private def repositoriesCustomOrDefault[F[_]: MonadError[*[_], Throwable]](
+  private def repositoriesCustomOrDefault[F[_]: MonadThrow](
     artifact: Artifact,
     defaultRepositories: Seq[String]
   ): F[Seq[Repository]] =
@@ -48,7 +48,7 @@ object ArtifactVersionsDownloader {
         )
     }
 
-  def loadArtifactVersionsForce[F[_]: MonadError[*[_], Throwable]](
+  def loadArtifactVersionsForce[F[_]: MonadThrow](
     artifact: Artifact,
     configRepositories: Seq[String],
     versionTools: VersionTools[F]

@@ -1,7 +1,6 @@
 package ru.d10xa.jadd.code.scalameta
 
 import monocle.Lens
-import monocle.macros.GenLens
 
 import java.nio.file.Path
 import scala.meta.Defn
@@ -148,7 +147,8 @@ object ScalaMetaPatternMatching {
   }
 
   object UnapplyModule {
-    val termsLens: Lens[Module, List[Term]] = GenLens[Module](_.terms)
+    val termsLens: Lens[Module, List[Term]] =
+      Lens[Module, List[Term]](_.terms)(terms => module => module.copy(terms = terms))
 
     def unapply(t: Term.ApplyInfix): Option[Module] =
       t match {

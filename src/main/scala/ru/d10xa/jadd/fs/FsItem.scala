@@ -3,7 +3,6 @@ package ru.d10xa.jadd.fs
 import java.nio.file.Path
 
 import monocle.Prism
-import monocle.macros.GenPrism
 import ru.d10xa.jadd.core.types.ApplicativeThrowable
 import ru.d10xa.jadd.core.types.FileContent
 
@@ -36,6 +35,9 @@ object FsItem {
   final case object FileNotFound extends FsItem
 
   val textFilePrism: Prism[FsItem, TextFile] =
-    GenPrism[FsItem, TextFile]
+    Prism[FsItem, TextFile]{
+      case t: TextFile => Some(t)
+      case _ => None
+    }(identity)
 
 }

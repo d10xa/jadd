@@ -31,50 +31,28 @@ lazy val root = project
       "-language:higherKinds" // allow higher kinded types without `import scala.language.higherKinds`
       //      "-Xlint", // enable handy linter warnings
       //      "-Xfatal-warnings", // turn compiler warnings into errors,
-      //      "-Ymacro-annotations", // for @newtype
-      //      "-Xkind-projector"
-//      "-Ykind-projector"
     ),
-    scalacOptions ++= Seq("-Xsource:3","-P:kind-projector:underscore-placeholders")
   )
-//  .settings(
-//    scalacOptions ++= {
-//      CrossVersion.partialVersion(scalaVersion.value) match {
-//        case Some((3, _)) => Seq("-Ykind-projector:underscores")
-//        case Some((2, 13)) | Some((2, 12)) => Seq("-Xsource:3", "-P:kind-projector:underscore-placeholders")
-//        case _ => ???
-//      }
-//    }
-//  )
-//ThisBuild / scalacOptions ++= Seq("-Ykind-projector")
-//ThisBuild / scalacOptions ++= Seq("-Xsource:3","-P:kind-projector:underscore-placeholders")
-addCompilerPlugin(
-  ("org.typelevel" %% "kind-projector" % "0.13.2").cross(CrossVersion.full)
-)
-//addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
 
-libraryDependencies ++= Seq(
-  "com.github.scopt" %% "scopt" % "4.0.1",
-  "org.typelevel" %% "cats-core" % "2.6.1",
-  "org.jline" % "jline" % "3.21.0",
-  "com.lihaoyi" %% "ujson" % "1.4.2",
-  "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.8",
-  "org.scalatest" %% "scalatest" % "3.2.10" % "it,test",
-  "com.github.tomakehurst" % "wiremock" % "2.27.2" % "it,test"
-)
+libraryDependencies += "com.github.scopt" %% "scopt" % "4.0.1" cross CrossVersion.for3Use2_13
+libraryDependencies += "org.typelevel" %% "cats-core" % "2.6.1" cross CrossVersion.for3Use2_13
+libraryDependencies += "org.jline" % "jline" % "3.21.0"
+libraryDependencies += "com.lihaoyi" %% "ujson" % "1.4.2" cross CrossVersion.for3Use2_13
+libraryDependencies += "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.8"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.10" % "it,test" cross CrossVersion.for3Use2_13
+libraryDependencies += "com.github.tomakehurst" % "wiremock" % "2.27.2" % "it,test"
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.6"
 libraryDependencies += "org.jsoup" % "jsoup" % "1.14.3"
-libraryDependencies += "org.typelevel" %% "cats-effect" % "3.2.9"
+libraryDependencies += "org.typelevel" %% "cats-effect" % "3.3-393-da7c7c7" cross CrossVersion.for3Use2_13
 libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.9.1" cross CrossVersion.for3Use2_13
 libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.9.2"
 libraryDependencies += "io.estatico" %% "newtype" % "0.4.4" cross CrossVersion.for3Use2_13
-libraryDependencies += "eu.timepit" %% "refined" % "0.9.27"
-libraryDependencies += "com.github.julien-truffaut" %% "monocle-core" % "2.1.0" cross CrossVersion.for3Use2_13
-libraryDependencies += "com.github.julien-truffaut" %% "monocle-macro" % "2.1.0" cross CrossVersion.for3Use2_13
-libraryDependencies += "com.47deg" %% "github4s" % "0.30.0"
+libraryDependencies += "eu.timepit" %% "refined" % "0.9.27" cross CrossVersion.for3Use2_13
+libraryDependencies += "dev.optics" %% "monocle-core" % "3.1.0" cross CrossVersion.for3Use2_13
+libraryDependencies += "dev.optics" %% "monocle-macro" % "3.1.0" cross CrossVersion.for3Use2_13
+libraryDependencies += "com.47deg" %% "github4s" % "0.30.0" cross CrossVersion.for3Use2_13
 libraryDependencies += "io.lemonlabs" %% "scala-uri" % "3.6.0" cross CrossVersion.for3Use2_13
-libraryDependencies += "org.http4s" %% "http4s-blaze-client" % "0.23.6"
+libraryDependencies += "org.http4s" %% "http4s-blaze-client" % "0.23.6" cross CrossVersion.for3Use2_13
 libraryDependencies += "org.scalameta" %% "scalameta" % "4.4.29" cross CrossVersion.for3Use2_13
 libraryDependencies += "io.get-coursier" %% "coursier" % "2.0.16" cross CrossVersion.for3Use2_13
 libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.16" cross CrossVersion.for3Use2_13
-libraryDependencies += "com.lihaoyi" %% "pprint" % "0.6.6"

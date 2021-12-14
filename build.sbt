@@ -48,7 +48,7 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.2.10" % "it,test",
   "com.github.tomakehurst" % "wiremock" % "2.27.2" % "it,test"
 )
-libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.7"
+libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.8"
 libraryDependencies += "org.jsoup" % "jsoup" % "1.14.3"
 libraryDependencies += "org.typelevel" %% "cats-effect" % "3.3.0"
 libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.9.1"

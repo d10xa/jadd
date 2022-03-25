@@ -50,7 +50,7 @@ libraryDependencies ++= Seq(
 )
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.11"
 libraryDependencies += "org.jsoup" % "jsoup" % "1.14.3"
-libraryDependencies += "org.typelevel" %% "cats-effect" % "3.3.8"
+libraryDependencies += "org.typelevel" %% "cats-effect" % "3.3.9"
 libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.9.1"
 libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.9.3"
 libraryDependencies += "io.estatico" %% "newtype" % "0.4.4"

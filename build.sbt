@@ -43,24 +43,24 @@ libraryDependencies ++= Seq(
   "com.github.scopt" %% "scopt" % "4.0.1",
   "org.typelevel" %% "cats-core" % "2.7.0",
   "org.jline" % "jline" % "3.21.0",
-  "com.lihaoyi" %% "ujson" % "1.4.4",
+  "com.lihaoyi" %% "ujson" % "2.0.0",
   "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.8",
-  "org.scalatest" %% "scalatest" % "3.2.11" % "it,test",
+  "org.scalatest" %% "scalatest" % "3.2.12" % "it,test",
   "com.github.tomakehurst" % "wiremock" % "2.27.2" % "it,test"
 )
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.11"
-libraryDependencies += "org.jsoup" % "jsoup" % "1.14.3"
+libraryDependencies += "org.jsoup" % "jsoup" % "1.15.1"
 libraryDependencies += "org.typelevel" %% "cats-effect" % "3.3.10"
 libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.9.1"
-libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.9.3"
+libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.10.1"
 libraryDependencies += "io.estatico" %% "newtype" % "0.4.4"
-libraryDependencies += "eu.timepit" %% "refined" % "0.9.28"
+libraryDependencies += "eu.timepit" %% "refined" % "0.9.29"
 libraryDependencies += "com.github.julien-truffaut" %% "monocle-core" % "2.1.0"
 libraryDependencies += "com.github.julien-truffaut" %% "monocle-macro" % "2.1.0"
 libraryDependencies += "com.47deg" %% "github4s" % "0.31.0"
-libraryDependencies += "io.lemonlabs" %% "scala-uri" % "4.0.1"
+libraryDependencies += "io.lemonlabs" %% "scala-uri" % "4.0.2"
 libraryDependencies += "org.http4s" %% "http4s-blaze-client" % "0.23.11"
-libraryDependencies += "org.scalameta" %% "scalameta" % "4.5.2"
+libraryDependencies += "org.scalameta" %% "scalameta" % "4.5.6"
 libraryDependencies += "io.get-coursier" %% "coursier" % "2.0.16"
 libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.16"
 libraryDependencies += "com.lihaoyi" %% "pprint" % "0.7.3"

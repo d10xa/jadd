@@ -40,7 +40,7 @@ addCompilerPlugin(
 addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
 
 libraryDependencies ++= Seq(
-  "com.github.scopt" %% "scopt" % "4.0.1",
+  "com.github.scopt" %% "scopt" % "4.1.0",
   "org.typelevel" %% "cats-core" % "2.7.0",
   "org.jline" % "jline" % "3.21.0",
   "com.lihaoyi" %% "ujson" % "2.0.0",
@@ -49,18 +49,18 @@ libraryDependencies ++= Seq(
   "com.github.tomakehurst" % "wiremock" % "2.27.2" % "it,test"
 )
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.11"
-libraryDependencies += "org.jsoup" % "jsoup" % "1.15.1"
+libraryDependencies += "org.jsoup" % "jsoup" % "1.15.2"
 libraryDependencies += "org.typelevel" %% "cats-effect" % "3.3.12"
 libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.9.1"
 libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.10.1"
 libraryDependencies += "io.estatico" %% "newtype" % "0.4.4"
-libraryDependencies += "eu.timepit" %% "refined" % "0.9.29"
+libraryDependencies += "eu.timepit" %% "refined" % "0.10.1"
 libraryDependencies += "com.github.julien-truffaut" %% "monocle-core" % "2.1.0"
 libraryDependencies += "com.github.julien-truffaut" %% "monocle-macro" % "2.1.0"
 libraryDependencies += "com.47deg" %% "github4s" % "0.31.0"
 libraryDependencies += "io.lemonlabs" %% "scala-uri" % "4.0.2"
 libraryDependencies += "org.http4s" %% "http4s-blaze-client" % "0.23.12"
-libraryDependencies += "org.scalameta" %% "scalameta" % "4.5.8"
+libraryDependencies += "org.scalameta" %% "scalameta" % "4.5.9"
 libraryDependencies += "io.get-coursier" %% "coursier" % "2.0.16"
 libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.16"
 libraryDependencies += "com.lihaoyi" %% "pprint" % "0.7.3"

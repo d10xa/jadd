@@ -45,7 +45,7 @@ libraryDependencies ++= Seq(
   "org.jline" % "jline" % "3.21.0",
   "com.lihaoyi" %% "ujson" % "2.0.0",
   "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.8",
-  "org.scalatest" %% "scalatest" % "3.2.12" % "it,test",
+  "org.scalatest" %% "scalatest" % "3.2.13" % "it,test",
   "com.github.tomakehurst" % "wiremock" % "2.27.2" % "it,test"
 )
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.11"

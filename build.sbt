@@ -49,7 +49,7 @@ libraryDependencies ++= Seq(
   "com.github.tomakehurst" % "wiremock" % "2.27.2" % "it,test"
 )
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.11"
-libraryDependencies += "org.jsoup" % "jsoup" % "1.15.3"
+libraryDependencies += "org.jsoup" % "jsoup" % "1.15.2"
 libraryDependencies += "org.typelevel" %% "cats-effect" % "3.3.14"
 libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.9.1"
 libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.10.1"

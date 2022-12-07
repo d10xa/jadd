@@ -37,30 +37,29 @@ lazy val root = project
 addCompilerPlugin(
   ("org.typelevel" %% "kind-projector" % "0.13.2").cross(CrossVersion.full)
 )
-addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.3.1")
 
 libraryDependencies ++= Seq(
   "com.github.scopt" %% "scopt" % "4.1.0",
-  "org.typelevel" %% "cats-core" % "2.8.0",
+  "org.typelevel" %% "cats-core" % "2.9.0",
   "org.jline" % "jline" % "3.21.0",
   "com.lihaoyi" %% "ujson" % "2.0.0",
   "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.8",
-  "org.scalatest" %% "scalatest" % "3.2.13" % "it,test",
+  "org.scalatest" %% "scalatest" % "3.2.14" % "it,test",
   "com.github.tomakehurst" % "wiremock" % "2.27.2" % "it,test"
 )
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.11"
 libraryDependencies += "org.jsoup" % "jsoup" % "1.15.2"
-libraryDependencies += "org.typelevel" %% "cats-effect" % "3.3.14"
+libraryDependencies += "org.typelevel" %% "cats-effect" % "3.4.1"
 libraryDependencies += "com.github.pathikrit" %% "better-files" % "3.9.1"
-libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.10.1"
+libraryDependencies += "org.antlr" % "antlr4-runtime" % "4.11.1"
 libraryDependencies += "io.estatico" %% "newtype" % "0.4.4"
 libraryDependencies += "eu.timepit" %% "refined" % "0.10.1"
 libraryDependencies += "com.github.julien-truffaut" %% "monocle-core" % "2.1.0"
 libraryDependencies += "com.github.julien-truffaut" %% "monocle-macro" % "2.1.0"
-libraryDependencies += "com.47deg" %% "github4s" % "0.31.0"
-libraryDependencies += "io.lemonlabs" %% "scala-uri" % "4.0.2"
+libraryDependencies += "com.47deg" %% "github4s" % "0.31.2"
+libraryDependencies += "io.lemonlabs" %% "scala-uri" % "4.0.3"
 libraryDependencies += "org.http4s" %% "http4s-blaze-client" % "0.23.12"
-libraryDependencies += "org.scalameta" %% "scalameta" % "4.5.13"
+libraryDependencies += "org.scalameta" %% "scalameta" % "4.6.0"
 libraryDependencies += "io.get-coursier" %% "coursier" % "2.0.16"
 libraryDependencies += "io.get-coursier" %% "coursier-core" % "2.0.16"
-libraryDependencies += "com.lihaoyi" %% "pprint" % "0.7.3"
+libraryDependencies += "com.lihaoyi" %% "pprint" % "0.8.1"

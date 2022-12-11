@@ -89,8 +89,8 @@ class MainMavenTest extends WireMockTestBase with BuildFileTestBase {
     write(content)
     val userDir = System.getProperty("user.dir")
 
-    Jadd.main(
-      Array(
+    Jadd.run(
+      List(
         "install",
         "-q",
         projectDirArg,
@@ -98,7 +98,7 @@ class MainMavenTest extends WireMockTestBase with BuildFileTestBase {
         s"file://$userDir/src/test/resources/m2/repository",
         "com.example:projectname"
       )
-    )
+    ).unsafeRunSync()
 
     val expected =
       """

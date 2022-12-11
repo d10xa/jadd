@@ -15,8 +15,8 @@ class MainSbtTest extends WireMockTestBase with BuildFileTestBase {
       """.stripMargin
     )
 
-    Jadd.main(
-      Array(
+    Jadd.run(
+      List(
         "install",
         "-q",
         projectDirArg,
@@ -24,7 +24,7 @@ class MainSbtTest extends WireMockTestBase with BuildFileTestBase {
         mockedRepositoryUrl,
         "logback-core"
       )
-    )
+    ).unsafeRunSync()
 
     val actual = read()
     val expected =

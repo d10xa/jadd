@@ -8,21 +8,10 @@ import coursier.core.Version
 import eu.timepit.refined.api.RefType
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.api.Validate
-import io.estatico.newtype.macros.newtype
 import ru.d10xa.jadd.fs.FsItem
 
 import scala.language.implicitConversions
 
-/** Warnings disabled because of @newtype
-  */
-@SuppressWarnings(
-  Array(
-    "org.wartremover.warts.FinalCaseClass",
-    "org.wartremover.warts.ImplicitParameter",
-    "org.wartremover.warts.PublicInference",
-    "org.wartremover.warts.ImplicitConversion"
-  )
-)
 object types {
 
   type ApplicativeThrowable[F[_]] = ApplicativeError[F, Throwable]
@@ -33,7 +22,9 @@ object types {
       applicativeError
   }
 
-  @newtype case class GroupId(value: String) {
+
+  // TODO @newtype
+  case class GroupId(value: String) {
     def path: String =
       value.replace('.', '/')
   }
@@ -41,16 +32,19 @@ object types {
     implicit val showGroupId: Show[GroupId] = Show[GroupId](_.value)
   }
 
-  @newtype case class ScalaVersion(version: Version)
+  // TODO @newtype
+  case class ScalaVersion(version: Version)
   object ScalaVersion {
     def fromString(str: String): ScalaVersion = ScalaVersion(Version(str))
     implicit val showScalaVersion: Show[ScalaVersion] =
       Show[ScalaVersion](_.version.repr)
   }
 
-  @newtype case class FileContent(value: String)
+  // TODO @newtype
+  case class FileContent(value: String)
 
-  @newtype case class FileCache(value: Map[Path, FsItem])
+  // TODO @newtype
+  case class FileCache(value: Map[Path, FsItem])
 
   object FileCache {
     val empty: FileCache = FileCache(Map.empty[Path, FsItem])

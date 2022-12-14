@@ -18,7 +18,9 @@ trait TempSbtFileUpsertsTestSuite extends TempFileOpsTestSuite {
   def tempSbtFileUpsertsResource[F[_]: Sync: Logger: FilesF](
     files: (String, String)*
   ): Resource[F, (Path, FileOps[F], SbtFileUpserts[F])] = for {
-    (path, fileOps) <- tempFileOpsResource[F](files: _*)
+    pathAndFileOps <- tempFileOpsResource[F](files: _*)
+    path = pathAndFileOps._1
+    fileOps = pathAndFileOps._2
     sbtFileUpserts <- Resource.eval(
       makeSbtFileUpserts[F](fileOps)
     )

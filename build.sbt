@@ -32,8 +32,7 @@ lazy val root = project
 //      "-Xfatal-warnings", // turn compiler warnings into errors,
     ),
     scalacOptions ++= (if (scalaVersion.value.startsWith("3")) Seq("-explain-types", "-Ykind-projector")
-    else Seq("-explaintypes", "-Wunused")),
-    fork := true
+    else Seq("-explaintypes", "-Wunused"))
   )
 
 libraryDependencies ++= {

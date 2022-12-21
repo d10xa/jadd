@@ -33,6 +33,7 @@ lazy val root = project
     ),
     scalacOptions ++= (if (scalaVersion.value.startsWith("3")) Seq("-explain-types", "-Ykind-projector")
     else Seq("-explaintypes", "-Wunused")),
+    fork := true
   )
 
 libraryDependencies ++= {

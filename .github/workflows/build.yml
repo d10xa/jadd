@@ -16,13 +16,14 @@ jobs:
       - name: Coursier cache
         uses: coursier/cache-action@v6
       - name: Build and Test
-        run: sbt -v coverage test
-      - name: Coverage report
-        run: sbt coverageReport
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@260aa3b4b2f265b8578bc0e721e33ebf8ff53313
-        with:
-          fail_ci_if_error: true
+        # run: sbt -v coverage test
+        run: sbt -v test
+#      - name: Coverage report
+#        run: sbt coverageReport
+#      - name: Upload coverage to Codecov
+#        uses: codecov/codecov-action@260aa3b4b2f265b8578bc0e721e33ebf8ff53313
+#        with:
+#          fail_ci_if_error: true
       - name: Cleanup
         run: |
           rm -rf "$HOME/.ivy2/local" || true

@@ -47,7 +47,7 @@ libraryDependencies ++= {
 libraryDependencies ++= Seq(
   "com.github.scopt" %% "scopt" % "4.1.0",
   "org.typelevel" %% "cats-core" % "2.9.0",
-  "org.jline" % "jline" % "3.21.0",
+  "org.jline" % "jline" % "3.23.0",
   "com.lihaoyi" %% "ujson" % "2.0.0",
   "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.8",
   "org.scalatest" %% "scalatest" % "3.2.14" % "it,test",

@@ -1,0 +1,12 @@
+{
+  "id" : "62821c0b-0032-3bed-83b6-639f41cf0f71",
+  "request" : {
+    "url" : "/io/circe/circe-generic_2.12/maven-metadata.xml",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "body-io-circe-circe-generic_2.12-maven-metadata.xml-iefPC.xml"
+  },
+  "uuid" : "62821c0b-0032-3bed-83b6-639f41cf0f71"
+}

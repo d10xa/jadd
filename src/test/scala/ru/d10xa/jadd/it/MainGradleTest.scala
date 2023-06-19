@@ -32,7 +32,7 @@ class MainGradleTest extends WireMockTestBase with BuildFileTestBase {
       """
         |dependencies {
         |    compile "commons-io:commons-io:2.6"
-        |    testImplementation "junit:junit:4.13.1"
+        |    testImplementation "junit:junit:4.13.2"
         |}
       """.stripMargin
   }
@@ -61,7 +61,7 @@ class MainGradleTest extends WireMockTestBase with BuildFileTestBase {
       """
         |dependencies {
         |    implementation "commons-io:commons-io:2.6"
-        |    implementation "io.circe:circe-generic_2.12:0.13.0"
+        |    implementation "io.circe:circe-generic_2.12:0.14.5"
         |}
       """.stripMargin
   }

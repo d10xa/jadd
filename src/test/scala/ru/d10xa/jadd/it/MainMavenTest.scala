@@ -27,7 +27,7 @@ class MainMavenTest extends WireMockTestBase with BuildFileTestBase {
 
     write(content)
 
-    Jadd.main(
+    Jadd.run(
       Array(
         "install",
         "-q",
@@ -36,8 +36,8 @@ class MainMavenTest extends WireMockTestBase with BuildFileTestBase {
         mockedRepositoryUrl,
         "ch.qos.logback:logback-core",
         "org.testng:testng"
-      )
-    )
+      ).toList
+    ).unsafeRunSync()
 
     val expected =
       """
@@ -48,12 +48,12 @@ class MainMavenTest extends WireMockTestBase with BuildFileTestBase {
         |        <dependency>
         |            <groupId>ch.qos.logback</groupId>
         |            <artifactId>logback-core</artifactId>
-        |            <version>1.2.3</version>
+        |            <version>1.4.8</version>
         |        </dependency>
         |        <dependency>
         |            <groupId>org.testng</groupId>
         |            <artifactId>testng</artifactId>
-        |            <version>7.3.0</version>
+        |            <version>7.8.0</version>
         |            <scope>test</scope>
         |        </dependency>
         |        <dependency>

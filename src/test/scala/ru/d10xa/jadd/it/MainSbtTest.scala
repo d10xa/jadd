@@ -29,7 +29,7 @@ class MainSbtTest extends WireMockTestBase with BuildFileTestBase {
     val actual = read()
     val expected =
       """
-        |libraryDependencies += "ch.qos.logback" % "logback-core" % "1.2.3"
+        |libraryDependencies += "ch.qos.logback" % "logback-core" % "1.4.8"
       """.stripMargin
     actual shouldEqual expected
   }

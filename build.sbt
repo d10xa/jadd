@@ -11,11 +11,17 @@ lazy val pgpSettings = Seq(
   pgpSigningKey := sys.env.get("GPG_KEYID")
 )
 
-lazy val root = project
+lazy val `root` = project
   .in(file("."))
+  .aggregate(`jadd-cli`, `jadd-it`)
+  .settings(
+    publish / skip := true
+  )
+
+lazy val `jadd-cli` = project
+  .in(file("jadd-cli"))
   .settings(commonSettings, pgpSettings)
   .settings(
-    name := "jadd",
     Compile / mainClass := Some("ru.d10xa.jadd.Jadd"),
     description := "Command-line tool for adding dependencies to gradle/maven/sbt build files",
     publishTo := sonatypePublishTo.value,
@@ -85,7 +91,7 @@ lazy val root = project
 lazy val `jadd-it` = project
   .in(file("jadd-it"))
   .settings(commonSettings)
-  .dependsOn(root % "compile->compile;test->test")
+  .dependsOn(`jadd-cli` % "compile->compile;test->test")
   .settings(
     publish / skip := true,
     scalacOptions := Seq(
@@ -96,6 +102,5 @@ lazy val `jadd-it` = project
       "-feature", // warn about misused language features
       "-language:higherKinds", // allow higher kinded types without `import scala.language.higherKinds`
       "-Xlint" // enable handy linter warnings
-    ),
-    Test / scalaSource := (root / baseDirectory).value / "src/it/scala"
+    )
   )

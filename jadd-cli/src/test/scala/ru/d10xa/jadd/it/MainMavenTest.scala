@@ -95,7 +95,8 @@ class MainMavenTest extends WireMockTestBase with BuildFileTestBase {
         "-q",
         projectDirArg,
         "--repository",
-        s"file://$userDir/src/test/resources/m2/repository",
+        // TODO use temp dir
+        s"file://$userDir/jadd-cli/src/test/resources/m2/repository",
         "com.example:projectname"
       )
     ).unsafeRunSync()

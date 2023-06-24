@@ -1,0 +1,12 @@
+{
+  "id" : "5be45790-720d-3a67-b543-96d33e8bf05b",
+  "request" : {
+    "url" : "/ch/qos/logback/logback-core/maven-metadata.xml",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "body-ch-qos-logback-logback-core-maven-metadata.xml-BLyqg.xml"
+  },
+  "uuid" : "5be45790-720d-3a67-b543-96d33e8bf05b"
+}

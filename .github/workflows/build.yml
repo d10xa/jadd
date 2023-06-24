@@ -17,7 +17,7 @@ jobs:
         uses: coursier/cache-action@v6
       - name: Build and Test
         # run: sbt -v coverage test
-        run: sbt -v test
+        run: sbt -v jadd-cli/test
 #      - name: Coverage report
 #        run: sbt coverageReport
 #      - name: Upload coverage to Codecov

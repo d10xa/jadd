@@ -61,7 +61,7 @@ lazy val `jadd-cli` = project
       "com.47deg" %% "github4s" % "0.31.2",
       "io.lemonlabs" %% "scala-uri" % "4.0.3",
       "org.http4s" %% "http4s-blaze-client" % "0.23.13",
-      ("org.scalameta" %% "scalameta" % "4.7.0").cross(
+      ("org.scalameta" %% "scalameta" % "4.7.8").cross(
         CrossVersion.for3Use2_13
       ),
       ("io.get-coursier" %% "coursier" % "2.0.16").cross(

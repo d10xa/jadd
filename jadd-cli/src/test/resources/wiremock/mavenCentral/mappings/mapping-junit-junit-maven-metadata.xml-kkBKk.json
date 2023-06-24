@@ -1,0 +1,12 @@
+{
+  "id" : "0f8491fa-ea04-3ef3-bd1b-ca9f89b76966",
+  "request" : {
+    "url" : "/junit/junit/maven-metadata.xml",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "body-junit-junit-maven-metadata.xml-kkBKk.xml"
+  },
+  "uuid" : "0f8491fa-ea04-3ef3-bd1b-ca9f89b76966"
+}

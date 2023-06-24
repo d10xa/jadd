@@ -1,0 +1,12 @@
+{
+  "id" : "00877746-89f0-349d-bcbd-ca0c8fe985af",
+  "request" : {
+    "url" : "/org/testng/testng/maven-metadata.xml",
+    "method" : "GET"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "body-org-testng-testng-maven-metadata.xml-S7kBs.xml"
+  },
+  "uuid" : "00877746-89f0-349d-bcbd-ca0c8fe985af"
+}

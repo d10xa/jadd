@@ -64,10 +64,10 @@ lazy val `jadd-cli` = project
       ("org.scalameta" %% "scalameta" % "4.7.0").cross(
         CrossVersion.for3Use2_13
       ),
-      ("io.get-coursier" %% "coursier" % "2.0.16").cross(
+      ("io.get-coursier" %% "coursier" % "2.1.5").cross(
         CrossVersion.for3Use2_13
       ),
-      ("io.get-coursier" %% "coursier-core" % "2.0.16").cross(
+      ("io.get-coursier" %% "coursier-core" % "2.1.5").cross(
         CrossVersion.for3Use2_13
       ),
       "com.lihaoyi" %% "pprint" % "0.8.1",

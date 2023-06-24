@@ -1,0 +1,12 @@
+{
+  "id" : "92d2bf35-3d35-30a3-a3ee-e37572f6cf47",
+  "request" : {
+    "url" : "/ch/qos/logback/logback-core/maven-metadata.xml",
+    "method" : "HEAD"
+  },
+  "response" : {
+    "status" : 200,
+    "bodyFileName" : "body-ch-qos-logback-logback-core-maven-metadata.xml-UsYV9.xml"
+  },
+  "uuid" : "92d2bf35-3d35-30a3-a3ee-e37572f6cf47"
+}

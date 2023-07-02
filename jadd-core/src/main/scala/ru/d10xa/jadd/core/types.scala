@@ -3,6 +3,7 @@ package ru.d10xa.jadd.core
 import java.nio.file.Path
 import cats.syntax.all._
 import cats.ApplicativeError
+import cats.ApplicativeThrow
 import cats.Show
 import coursier.core.Version
 import eu.timepit.refined.api.RefType
@@ -13,15 +14,6 @@ import ru.d10xa.jadd.fs.FsItem
 import scala.language.implicitConversions
 
 object types {
-
-  type ApplicativeThrowable[F[_]] = ApplicativeError[F, Throwable]
-  object ApplicativeThrowable {
-    def apply[F[_]](implicit
-      applicativeError: ApplicativeError[F, Throwable]
-    ): ApplicativeThrowable[F] =
-      applicativeError
-  }
-
 
   // TODO @newtype
   case class GroupId(value: String) {
@@ -50,7 +42,7 @@ object types {
     val empty: FileCache = FileCache(Map.empty[Path, FsItem])
   }
 
-  def refineF[F[_]: ApplicativeThrowable, P, T](
+  def refineF[F[_]: ApplicativeThrow, P, T](
     p: T
   )(implicit v: Validate[T, P]): F[Refined[T, P]] =
     ApplicativeError[F, Throwable].fromEither(

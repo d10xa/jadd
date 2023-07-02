@@ -1,9 +1,9 @@
 package ru.d10xa.jadd.github
 
+import cats.ApplicativeThrow
 import cats.MonadThrow
 import cats.syntax.all._
 import io.lemonlabs.uri.Url
-import ru.d10xa.jadd.core.types.ApplicativeThrowable
 import ru.d10xa.jadd.github.GithubUrlParser.GithubUrlParts
 
 trait GithubUrlParser[F[_]] {
@@ -26,7 +26,7 @@ class LiveGithubUrlParser[F[_]: MonadThrow] private ()
     toUrl(url).flatMap(parseUrl)
 
   def toUrl(url: String): F[Url] =
-    ApplicativeThrowable[F].fromTry(Url.parseTry(url))
+    ApplicativeThrow[F].fromTry(Url.parseTry(url))
 
   def parseUrl(url: Url): F[GithubUrlParts] =
     url.path match {
@@ -49,7 +49,7 @@ class LiveGithubUrlParser[F[_]: MonadThrow] private ()
           ref = None
         ).pure[F]
       case _ =>
-        ApplicativeThrowable[F]
+        ApplicativeThrow[F]
           .raiseError(new RuntimeException("can not parse github url"))
     }
 

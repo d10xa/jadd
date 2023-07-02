@@ -4,9 +4,9 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import cats.syntax.all._
 import cats.Applicative
+import cats.ApplicativeThrow
 import cats.effect.Sync
 import ru.d10xa.jadd.fs.FsItem.TextFile
-import ru.d10xa.jadd.core.types.ApplicativeThrowable
 import ru.d10xa.jadd.core.types.FileContent
 import ru.d10xa.jadd.core.types.ScalaVersion
 import ru.d10xa.jadd.fs.FileOps
@@ -34,7 +34,7 @@ class LiveSbtScalaVersionFinder[F[_]: Sync] private (
               LiveSbtScalaVersionFinder.extractScalaVersionFromBuildSbt(content)
             )
         case _ =>
-          ApplicativeThrowable[F]
+          ApplicativeThrow[F]
             .raiseError[Option[ScalaVersion]](
               new IllegalStateException("can not read build.sbt")
             )

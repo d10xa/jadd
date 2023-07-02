@@ -19,7 +19,7 @@ class GithubFileOpsTest extends ItTestBase {
   import github4s.Github
 
   val githubResourceIO: Resource[IO, Github[IO]] =
-    BlazeClientBuilder[IO](ExecutionContext.global).resource
+    BlazeClientBuilder[IO].resource
       .map(client => Github[IO](client, None))
 
   def read(p: Path): IO[FsItem] =
@@ -40,7 +40,7 @@ class GithubFileOpsTest extends ItTestBase {
 
   test("dir") {
     val dir =
-      read(Path.of("src")).unsafeRunSync()
+      read(Path.of("jadd-cli/src")).unsafeRunSync()
     dir match {
       case Dir(_, files) =>
         (files.map(_.getFileName.show) should contain)

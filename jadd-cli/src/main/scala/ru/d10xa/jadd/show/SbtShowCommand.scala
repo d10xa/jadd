@@ -36,11 +36,6 @@ class SbtShowCommand[F[_]: Sync](
       res <- showFromTextFiles(sbtSources)
     } yield res
 
-  def parseSource(s: String): Parsed[Source] =
-    dialects
-      .Sbt1(s)
-      .parse[Source]
-
   val scalaVersionF: F[ScalaVersion] = scalaVersionFinder
     .findScalaVersion()
     .map(_.getOrElse(ScalaVersions.defaultScalaVersion))

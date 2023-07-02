@@ -1,10 +1,10 @@
 package ru.d10xa.jadd.fs
 
-import java.nio.file.Path
-
+import cats.ApplicativeThrow
 import monocle.Prism
 import monocle.macros.GenPrism
-import ru.d10xa.jadd.core.types.ApplicativeThrowable
+
+import java.nio.file.Path
 import ru.d10xa.jadd.core.types.FileContent
 
 sealed trait FsItem
@@ -18,7 +18,7 @@ object FsItem {
   object TextFile {
     def make[F[_]](
       fsItem: FsItem
-    )(implicit a: ApplicativeThrowable[F]): F[TextFile] =
+    )(implicit a: ApplicativeThrow[F]): F[TextFile] =
       fsItem match {
         case t: TextFile => a.pure(t)
         case _: Dir =>

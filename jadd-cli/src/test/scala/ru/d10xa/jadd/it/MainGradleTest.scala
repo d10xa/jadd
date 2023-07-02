@@ -17,16 +17,18 @@ class MainGradleTest extends WireMockTestBase with BuildFileTestBase {
       """.stripMargin
     )
 
-    Jadd.run(
-      List(
-        "install",
-        "-q",
-        projectDirArg,
-        "--repository",
-        mockedRepositoryUrl,
-        "junit:junit"
+    Jadd
+      .run(
+        List(
+          "install",
+          "-q",
+          projectDirArg,
+          "--repository",
+          mockedRepositoryUrl,
+          "junit:junit"
+        )
       )
-    ).unsafeRunSync()
+      .unsafeRunSync()
 
     read() shouldEqual
       """
@@ -46,16 +48,18 @@ class MainGradleTest extends WireMockTestBase with BuildFileTestBase {
       """.stripMargin
     )
 
-    Jadd.run(
-      List(
-        "install",
-        "-q",
-        projectDirArg,
-        "--repository",
-        mockedRepositoryUrl,
-        "io.circe:circe-generic%%"
+    Jadd
+      .run(
+        List(
+          "install",
+          "-q",
+          projectDirArg,
+          "--repository",
+          mockedRepositoryUrl,
+          "io.circe:circe-generic%%"
+        )
       )
-    ).unsafeRunSync()
+      .unsafeRunSync()
 
     read() shouldEqual
       """

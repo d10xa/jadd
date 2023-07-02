@@ -27,17 +27,19 @@ class MainMavenTest extends WireMockTestBase with BuildFileTestBase {
 
     write(content)
 
-    Jadd.run(
-      Array(
-        "install",
-        "-q",
-        projectDirArg,
-        "--repository",
-        mockedRepositoryUrl,
-        "ch.qos.logback:logback-core",
-        "org.testng:testng"
-      ).toList
-    ).unsafeRunSync()
+    Jadd
+      .run(
+        Array(
+          "install",
+          "-q",
+          projectDirArg,
+          "--repository",
+          mockedRepositoryUrl,
+          "ch.qos.logback:logback-core",
+          "org.testng:testng"
+        ).toList
+      )
+      .unsafeRunSync()
 
     val expected =
       """
@@ -89,17 +91,19 @@ class MainMavenTest extends WireMockTestBase with BuildFileTestBase {
     write(content)
     val userDir = System.getProperty("user.dir")
 
-    Jadd.run(
-      List(
-        "install",
-        "-q",
-        projectDirArg,
-        "--repository",
-        // TODO use temp dir
-        s"file://$userDir/jadd-cli/src/test/resources/m2/repository",
-        "com.example:projectname"
+    Jadd
+      .run(
+        List(
+          "install",
+          "-q",
+          projectDirArg,
+          "--repository",
+          // TODO use temp dir
+          s"file://$userDir/jadd-cli/src/test/resources/m2/repository",
+          "com.example:projectname"
+        )
       )
-    ).unsafeRunSync()
+      .unsafeRunSync()
 
     val expected =
       """

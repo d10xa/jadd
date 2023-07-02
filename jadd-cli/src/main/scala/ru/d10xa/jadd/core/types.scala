@@ -22,7 +22,6 @@ object types {
       applicativeError
   }
 
-
   // TODO @newtype
   case class GroupId(value: String) {
     def path: String =

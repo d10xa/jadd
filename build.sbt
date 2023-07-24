@@ -11,23 +11,61 @@ lazy val pgpSettings = Seq(
   pgpSigningKey := sys.env.get("GPG_KEYID")
 )
 
+lazy val publishSettings = Seq(
+  publishTo := sonatypePublishTo.value,
+  sonatypeProjectHosting := Some(
+    GitHubHosting("d10xa", "jadd", "Andrey Stolyarov", "d10xa@mail.ru")
+  )
+)
+
 lazy val `root` = project
   .in(file("."))
-  .aggregate(`jadd-cli`, `jadd-it`)
+  .aggregate(`jadd-cli`, `jadd-it`, `jadd-parser-sbt`.jvm)
   .settings(
     publish / skip := true
   )
 
+lazy val `jadd-parser-sbt` = crossProject(JSPlatform, JVMPlatform)
+  .in(file("jadd-parser-sbt"))
+  .dependsOn(`jadd-core`)
+  .settings(commonSettings, pgpSettings, publishSettings)
+  .settings(
+    libraryDependencies ++= Seq(
+      ("org.scalameta" %%% "scalameta" % "4.7.0").cross(CrossVersion.for3Use2_13))
+  )
+
+lazy val `jadd-core` = crossProject(JSPlatform, JVMPlatform)
+  .in(file("jadd-core"))
+  .settings(
+    commonSettings,
+    pgpSettings,
+    publishSettings,
+    libraryDependencies ++= Seq(
+      "org.typelevel" %%% "cats-core" % "2.9.0",
+      "org.typelevel" %%% "cats-effect" % "3.4.2",
+      "dev.optics" %%% "monocle-core" % "3.1.0",
+      "dev.optics" %%% "monocle-macro" % "3.1.0",
+      ("io.get-coursier" %%% "coursier-core" % "2.0.16").cross(CrossVersion.for3Use2_13),
+      "eu.timepit" %%% "refined" % "0.10.1"
+    )
+  )
+
+lazy val `jadd-js` = project
+  .in(file("jadd-js"))
+  .enablePlugins(ScalaJSPlugin)
+  .dependsOn(`jadd-core`.js)
+  .settings(commonSettings)
+  .settings(
+    scalaJSUseMainModuleInitializer := false
+  )
+
 lazy val `jadd-cli` = project
   .in(file("jadd-cli"))
-  .settings(commonSettings, pgpSettings)
+  .dependsOn(`jadd-parser-sbt`.jvm)
+  .settings(commonSettings, pgpSettings, publishSettings)
   .settings(
     Compile / mainClass := Some("ru.d10xa.jadd.Jadd"),
     description := "Command-line tool for adding dependencies to gradle/maven/sbt build files",
-    publishTo := sonatypePublishTo.value,
-    sonatypeProjectHosting := Some(
-      GitHubHosting("d10xa", "jadd", "Andrey Stolyarov", "d10xa@mail.ru")
-    ),
     libraryDependencies ++= {
       scalaVersion.value match {
         case s if s.startsWith("3") =>
@@ -44,33 +82,21 @@ lazy val `jadd-cli` = project
     },
     libraryDependencies ++= Seq(
       "com.github.scopt" %% "scopt" % "4.1.0",
-      "org.typelevel" %% "cats-core" % "2.9.0",
       "org.jline" % "jline" % "3.21.0",
       "com.lihaoyi" %% "ujson" % "2.0.0",
       "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.8",
       "org.scalatest" %% "scalatest" % "3.2.14" % Test,
       "ch.qos.logback" % "logback-classic" % "1.4.5",
       "org.jsoup" % "jsoup" % "1.15.3",
-      "org.typelevel" %% "cats-effect" % "3.4.2",
-      ("com.github.pathikrit" %% "better-files" % "3.9.1")
-        .cross(CrossVersion.for3Use2_13),
       "org.antlr" % "antlr4-runtime" % "4.11.1", // ???
-      "eu.timepit" %% "refined" % "0.10.1",
-      "dev.optics" %% "monocle-core" % "3.1.0",
-      "dev.optics" %% "monocle-macro" % "3.1.0",
       "com.47deg" %% "github4s" % "0.31.2",
       "io.lemonlabs" %% "scala-uri" % "4.0.3",
       "org.http4s" %% "http4s-blaze-client" % "0.23.13",
-      ("org.scalameta" %% "scalameta" % "4.7.0").cross(
-        CrossVersion.for3Use2_13
-      ),
       ("io.get-coursier" %% "coursier" % "2.0.16").cross(
         CrossVersion.for3Use2_13
       ),
-      ("io.get-coursier" %% "coursier-core" % "2.0.16").cross(
-        CrossVersion.for3Use2_13
-      ),
       "com.lihaoyi" %% "pprint" % "0.8.1",
+      ("com.github.pathikrit" %% "better-files" % "3.9.1").cross(CrossVersion.for3Use2_13),
       "com.github.tomakehurst" % "wiremock" % "2.27.2" % Test
     ),
     scalacOptions := Seq(
@@ -81,11 +107,11 @@ lazy val `jadd-cli` = project
       "-feature", // warn about misused language features
       "-language:higherKinds", // allow higher kinded types without `import scala.language.higherKinds`
       "-Xlint" // enable handy linter warnings
-//      "-Xfatal-warnings", // turn compiler warnings into errors,
+      //      "-Xfatal-warnings", // turn compiler warnings into errors,
     ),
     scalacOptions ++= (if (scalaVersion.value.startsWith("3"))
-                         Seq("-explain-types", "-Ykind-projector")
-                       else Seq("-explaintypes", "-Wunused"))
+      Seq("-explain-types", "-Ykind-projector")
+    else Seq("-explaintypes", "-Wunused"))
   )
 
 lazy val `jadd-it` = project

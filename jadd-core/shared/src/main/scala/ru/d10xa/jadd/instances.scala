@@ -1,8 +1,8 @@
 package ru.d10xa.jadd
 
-import java.nio.file.Path
-
 import cats.Show
+
+import java.nio.file.Path
 
 object instances {
 

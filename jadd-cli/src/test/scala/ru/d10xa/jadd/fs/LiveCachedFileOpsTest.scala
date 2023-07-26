@@ -4,7 +4,6 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import cats.effect.SyncIO
 import cats.effect.kernel.Ref
-import ru.d10xa.jadd.core.types.FileCache
 import ru.d10xa.jadd.core.types.FileContent
 import ru.d10xa.jadd.fs.FsItem.TextFile
 import ru.d10xa.jadd.testkit.TestBase

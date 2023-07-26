@@ -31,7 +31,9 @@ lazy val `jadd-parser-sbt` = crossProject(JSPlatform, JVMPlatform)
   .settings(commonSettings, pgpSettings, publishSettings)
   .settings(
     libraryDependencies ++= Seq(
-      ("org.scalameta" %%% "scalameta" % "4.7.0").cross(CrossVersion.for3Use2_13))
+      ("org.scalameta" %%% "scalameta" % "4.7.0")
+        .cross(CrossVersion.for3Use2_13)
+    )
   )
 
 lazy val `jadd-core` = crossProject(JSPlatform, JVMPlatform)
@@ -45,7 +47,8 @@ lazy val `jadd-core` = crossProject(JSPlatform, JVMPlatform)
       "org.typelevel" %%% "cats-effect" % "3.4.2",
       "dev.optics" %%% "monocle-core" % "3.1.0",
       "dev.optics" %%% "monocle-macro" % "3.1.0",
-      ("io.get-coursier" %%% "coursier-core" % "2.0.16").cross(CrossVersion.for3Use2_13),
+      ("io.get-coursier" %%% "coursier-core" % "2.0.16")
+        .cross(CrossVersion.for3Use2_13),
       "eu.timepit" %%% "refined" % "0.10.1"
     )
   )
@@ -82,7 +85,7 @@ lazy val `jadd-cli` = project
     },
     libraryDependencies ++= Seq(
       "com.github.scopt" %% "scopt" % "4.1.0",
-      "org.jline" % "jline" % "3.21.0",
+      "org.jline" % "jline" % "3.23.0",
       "com.lihaoyi" %% "ujson" % "2.0.0",
       "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.8",
       "org.scalatest" %% "scalatest" % "3.2.16" % Test,
@@ -96,7 +99,8 @@ lazy val `jadd-cli` = project
         CrossVersion.for3Use2_13
       ),
       "com.lihaoyi" %% "pprint" % "0.8.1",
-      ("com.github.pathikrit" %% "better-files" % "3.9.1").cross(CrossVersion.for3Use2_13),
+      ("com.github.pathikrit" %% "better-files" % "3.9.1")
+        .cross(CrossVersion.for3Use2_13),
       "com.github.tomakehurst" % "wiremock" % "2.27.2" % Test
     ),
     scalacOptions := Seq(
@@ -110,8 +114,8 @@ lazy val `jadd-cli` = project
       //      "-Xfatal-warnings", // turn compiler warnings into errors,
     ),
     scalacOptions ++= (if (scalaVersion.value.startsWith("3"))
-      Seq("-explain-types", "-Ykind-projector")
-    else Seq("-explaintypes", "-Wunused"))
+                         Seq("-explain-types", "-Ykind-projector")
+                       else Seq("-explaintypes", "-Wunused"))
   )
 
 lazy val `jadd-it` = project

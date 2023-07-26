@@ -60,7 +60,7 @@ lazy val `jadd-cli` = project
       "dev.optics" %% "monocle-macro" % "3.1.0",
       "com.47deg" %% "github4s" % "0.31.2",
       "io.lemonlabs" %% "scala-uri" % "4.0.3",
-      "org.http4s" %% "http4s-blaze-client" % "0.23.15",
+      "org.http4s" %% "http4s-blaze-client" % "0.23.13",
       ("org.scalameta" %% "scalameta" % "4.7.0").cross(
         CrossVersion.for3Use2_13
       ),

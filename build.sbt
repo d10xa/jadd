@@ -20,7 +20,12 @@ lazy val publishSettings = Seq(
 
 lazy val `root` = project
   .in(file("."))
-  .aggregate(`jadd-cli`, `jadd-it`, `jadd-parser-sbt`.jvm)
+  .aggregate(
+    `jadd-core`.jvm,
+    `jadd-cli`,
+    `jadd-it`,
+    `jadd-parser-sbt`.jvm
+  )
   .settings(
     publish / skip := true
   )

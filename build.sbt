@@ -56,8 +56,8 @@ lazy val `jadd-cli` = project
         .cross(CrossVersion.for3Use2_13),
       "org.antlr" % "antlr4-runtime" % "4.11.1", // ???
       "eu.timepit" %% "refined" % "0.10.1",
-      "dev.optics" %% "monocle-core" % "3.2.0",
-      "dev.optics" %% "monocle-macro" % "3.2.0",
+      "dev.optics" %% "monocle-core" % "3.1.0",
+      "dev.optics" %% "monocle-macro" % "3.1.0",
       "com.47deg" %% "github4s" % "0.31.2",
       "io.lemonlabs" %% "scala-uri" % "4.0.3",
       "org.http4s" %% "http4s-blaze-client" % "0.23.13",

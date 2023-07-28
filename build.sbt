@@ -54,7 +54,7 @@ lazy val `jadd-core` = crossProject(JSPlatform, JVMPlatform)
       "dev.optics" %%% "monocle-macro" % "3.1.0",
       ("io.get-coursier" %%% "coursier-core" % "2.0.16")
         .cross(CrossVersion.for3Use2_13),
-      "eu.timepit" %%% "refined" % "0.10.1"
+      "eu.timepit" %%% "refined" % "0.10.3"
     )
   )
 

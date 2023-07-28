@@ -51,7 +51,7 @@ lazy val `jadd-cli` = project
       "org.scalatest" %% "scalatest" % "3.2.14" % Test,
       "ch.qos.logback" % "logback-classic" % "1.4.5",
       "org.jsoup" % "jsoup" % "1.15.3",
-      "org.typelevel" %% "cats-effect" % "3.4.11",
+      "org.typelevel" %% "cats-effect" % "3.4.2",
       ("com.github.pathikrit" %% "better-files" % "3.9.1")
         .cross(CrossVersion.for3Use2_13),
       "org.antlr" % "antlr4-runtime" % "4.11.1", // ???

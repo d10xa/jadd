@@ -16,8 +16,8 @@ import ru.d10xa.jadd.core.Ctx
 import ru.d10xa.jadd.core.LiveLoader
 import ru.d10xa.jadd.core.ProjectMeta
 import ru.d10xa.jadd.core.ProxySettings
-import ru.d10xa.jadd.core.types.FileCache
 import ru.d10xa.jadd.coursier_.CoursierVersions
+import ru.d10xa.jadd.fs.FileCache
 import ru.d10xa.jadd.fs.FileOps
 import ru.d10xa.jadd.fs.LiveCachedFileOps
 import ru.d10xa.jadd.fs.LiveFileOps

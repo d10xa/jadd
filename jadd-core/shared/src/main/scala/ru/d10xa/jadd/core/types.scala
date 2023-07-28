@@ -1,14 +1,12 @@
 package ru.d10xa.jadd.core
 
-import java.nio.file.Path
-import cats.syntax.all._
 import cats.ApplicativeError
 import cats.Show
+import cats.syntax.all._
 import coursier.core.Version
 import eu.timepit.refined.api.RefType
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.api.Validate
-import ru.d10xa.jadd.fs.FsItem
 
 import scala.language.implicitConversions
 
@@ -42,13 +40,6 @@ object types {
 
   // TODO @newtype
   case class FileContent(value: String)
-
-  // TODO @newtype
-  case class FileCache(value: Map[Path, FsItem])
-
-  object FileCache {
-    val empty: FileCache = FileCache(Map.empty[Path, FsItem])
-  }
 
   def refineF[F[_]: ApplicativeThrowable, P, T](
     p: T

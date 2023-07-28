@@ -55,7 +55,7 @@ lazy val `jadd-cli` = project
       ("com.github.pathikrit" %% "better-files" % "3.9.1")
         .cross(CrossVersion.for3Use2_13),
       "org.antlr" % "antlr4-runtime" % "4.11.1", // ???
-      "eu.timepit" %% "refined" % "0.10.3",
+      "eu.timepit" %% "refined" % "0.10.1",
       "dev.optics" %% "monocle-core" % "3.1.0",
       "dev.optics" %% "monocle-macro" % "3.1.0",
       "com.47deg" %% "github4s" % "0.31.2",

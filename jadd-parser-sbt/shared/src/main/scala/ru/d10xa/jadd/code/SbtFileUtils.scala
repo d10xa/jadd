@@ -1,8 +1,8 @@
 package ru.d10xa.jadd.code
 
-import ru.d10xa.jadd.fs.FileOps
-import cats.syntax.all._
 import cats._
+import cats.syntax.all._
+import ru.d10xa.jadd.fs.FileOps
 import ru.d10xa.jadd.fs.FsItem.Dir
 
 import java.nio.file.Path

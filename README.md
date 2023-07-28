@@ -33,6 +33,12 @@ Just run `jadd` without arguments and enjoy tab completion!
 
     coursier install jadd --channel https://git.io/JvV0g
 
+## build and run from sources
+
+    sbt publishLocal
+      [info]  published ivy to ~/.ivy2/local/ru.d10xa/jadd-cli_2.13/0.1.27-RC3+133-f448e33d+20230726-0002/ivys/ivy.xml
+    coursier launch ru.d10xa:jadd_2.13:0.1.27-RC3 -- show
+
 ## examples
 
 ### maven

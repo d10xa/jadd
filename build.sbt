@@ -50,8 +50,8 @@ lazy val `jadd-core` = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       "org.typelevel" %%% "cats-core" % "2.9.0",
       "org.typelevel" %%% "cats-effect" % "3.4.2",
-      "dev.optics" %%% "monocle-core" % "3.1.0",
-      "dev.optics" %%% "monocle-macro" % "3.1.0",
+      "dev.optics" %%% "monocle-core" % "3.2.0",
+      "dev.optics" %%% "monocle-macro" % "3.2.0",
       ("io.get-coursier" %%% "coursier-core" % "2.0.16")
         .cross(CrossVersion.for3Use2_13),
       "eu.timepit" %%% "refined" % "0.10.1"

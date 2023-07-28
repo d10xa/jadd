@@ -1,7 +1,7 @@
 import scala.io.Source
 
 import $ivy.`io.circe::circe-parser:0.13.0`
-import $ivy.`com.github.pathikrit::better-files:3.9.2`
+import $ivy.`com.github.pathikrit::better-files:3.9.1`
 import io.circe._
 import io.circe.parser._
 import better.files.{File => BFile}

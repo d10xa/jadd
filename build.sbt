@@ -36,7 +36,7 @@ lazy val `jadd-parser-sbt` = crossProject(JSPlatform, JVMPlatform)
   .settings(commonSettings, pgpSettings, publishSettings)
   .settings(
     libraryDependencies ++= Seq(
-      ("org.scalameta" %%% "scalameta" % "4.7.0")
+      ("org.scalameta" %%% "scalameta" % "4.7.8")
         .cross(CrossVersion.for3Use2_13)
     )
   )
@@ -50,8 +50,8 @@ lazy val `jadd-core` = crossProject(JSPlatform, JVMPlatform)
     libraryDependencies ++= Seq(
       "org.typelevel" %%% "cats-core" % "2.9.0",
       "org.typelevel" %%% "cats-effect" % "3.4.2",
-      "dev.optics" %%% "monocle-core" % "3.1.0",
-      "dev.optics" %%% "monocle-macro" % "3.1.0",
+      "dev.optics" %%% "monocle-core" % "3.2.0",
+      "dev.optics" %%% "monocle-macro" % "3.2.0",
       ("io.get-coursier" %%% "coursier-core" % "2.0.16")
         .cross(CrossVersion.for3Use2_13),
       "eu.timepit" %%% "refined" % "0.10.1"
@@ -95,7 +95,7 @@ lazy val `jadd-cli` = project
       "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.8",
       "org.scalatest" %% "scalatest" % "3.2.16" % Test,
       "ch.qos.logback" % "logback-classic" % "1.4.8",
-      "org.jsoup" % "jsoup" % "1.15.3",
+      "org.jsoup" % "jsoup" % "1.15.4",
       "org.antlr" % "antlr4-runtime" % "4.11.1", // ???
       "com.47deg" %% "github4s" % "0.32.0",
       "io.lemonlabs" %% "scala-uri" % "4.0.3",
@@ -104,7 +104,7 @@ lazy val `jadd-cli` = project
         CrossVersion.for3Use2_13
       ),
       "com.lihaoyi" %% "pprint" % "0.8.1",
-      ("com.github.pathikrit" %% "better-files" % "3.9.1")
+      ("com.github.pathikrit" %% "better-files" % "3.9.2")
         .cross(CrossVersion.for3Use2_13),
       "com.github.tomakehurst" % "wiremock" % "2.27.2" % Test
     ),

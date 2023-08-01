@@ -36,7 +36,7 @@ lazy val `jadd-parser-sbt` = crossProject(JSPlatform, JVMPlatform)
   .settings(commonSettings, pgpSettings, publishSettings)
   .settings(
     libraryDependencies ++= Seq(
-      ("org.scalameta" %%% "scalameta" % "4.7.8")
+      ("org.scalameta" %%% "scalameta" % "4.8.6")
         .cross(CrossVersion.for3Use2_13)
     )
   )
@@ -49,7 +49,7 @@ lazy val `jadd-core` = crossProject(JSPlatform, JVMPlatform)
     publishSettings,
     libraryDependencies ++= Seq(
       "org.typelevel" %%% "cats-core" % "2.9.0",
-      "org.typelevel" %%% "cats-effect" % "3.4.2",
+      "org.typelevel" %%% "cats-effect" % "3.4.11",
       "dev.optics" %%% "monocle-core" % "3.2.0",
       "dev.optics" %%% "monocle-macro" % "3.2.0",
       ("io.get-coursier" %%% "coursier-core" % "2.0.16")
@@ -96,7 +96,7 @@ lazy val `jadd-cli` = project
       "org.scalatest" %% "scalatest" % "3.2.16" % Test,
       "ch.qos.logback" % "logback-classic" % "1.4.8",
       "org.jsoup" % "jsoup" % "1.15.4",
-      "org.antlr" % "antlr4-runtime" % "4.11.1", // ???
+      "org.antlr" % "antlr4-runtime" % "4.13.0", // ???
       "com.47deg" %% "github4s" % "0.32.0",
       "io.lemonlabs" %% "scala-uri" % "4.0.3",
       "org.http4s" %% "http4s-blaze-client" % "0.23.15",

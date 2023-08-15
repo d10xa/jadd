@@ -48,7 +48,7 @@ lazy val `jadd-core` = crossProject(JSPlatform, JVMPlatform)
     pgpSettings,
     publishSettings,
     libraryDependencies ++= Seq(
-      "org.typelevel" %%% "cats-core" % "2.9.0",
+      "org.typelevel" %%% "cats-core" % "2.10.0",
       "org.typelevel" %%% "cats-effect" % "3.5.1",
       "dev.optics" %%% "monocle-core" % "3.2.0",
       "dev.optics" %%% "monocle-macro" % "3.2.0",

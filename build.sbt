@@ -106,7 +106,7 @@ lazy val `jadd-cli` = project
       "com.lihaoyi" %% "pprint" % "0.8.1",
       ("com.github.pathikrit" %% "better-files" % "3.9.2")
         .cross(CrossVersion.for3Use2_13),
-      "com.github.tomakehurst" % "wiremock" % "3.0.0" % Test
+      "com.github.tomakehurst" % "wiremock" % "3.0.1" % Test
     ),
     scalacOptions := Seq(
       "-encoding",

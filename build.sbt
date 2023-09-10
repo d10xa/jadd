@@ -52,7 +52,7 @@ lazy val `jadd-core` = crossProject(JSPlatform, JVMPlatform)
       "org.typelevel" %%% "cats-effect" % "3.5.1",
       "dev.optics" %%% "monocle-core" % "3.2.0",
       "dev.optics" %%% "monocle-macro" % "3.2.0",
-      ("io.get-coursier" %%% "coursier-core" % "2.0.16")
+      ("io.get-coursier" %%% "coursier-core" % "2.1.7")
         .cross(CrossVersion.for3Use2_13),
       "eu.timepit" %%% "refined" % "0.10.1"
     )
@@ -100,7 +100,7 @@ lazy val `jadd-cli` = project
       "com.47deg" %% "github4s" % "0.32.0",
       "io.lemonlabs" %% "scala-uri" % "4.0.3",
       "org.http4s" %% "http4s-blaze-client" % "0.23.15",
-      ("io.get-coursier" %% "coursier" % "2.0.16").cross(
+      ("io.get-coursier" %% "coursier" % "2.1.7").cross(
         CrossVersion.for3Use2_13
       ),
       "com.lihaoyi" %% "pprint" % "0.8.1",

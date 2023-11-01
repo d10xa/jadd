@@ -97,7 +97,7 @@ lazy val `jadd-cli` = project
       "ch.qos.logback" % "logback-classic" % "1.4.11",
       "org.jsoup" % "jsoup" % "1.16.2",
       "org.antlr" % "antlr4-runtime" % "4.13.1", // ???
-      "com.47deg" %% "github4s" % "0.32.0",
+      "com.47deg" %% "github4s" % "0.32.1",
       "io.lemonlabs" %% "scala-uri" % "4.0.3",
       "org.http4s" %% "http4s-blaze-client" % "0.23.15",
       ("io.get-coursier" %% "coursier" % "2.0.16").cross(

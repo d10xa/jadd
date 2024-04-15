@@ -103,7 +103,7 @@ lazy val `jadd-cli` = project
       ("io.get-coursier" %% "coursier" % "2.0.16").cross(
         CrossVersion.for3Use2_13
       ),
-      "com.lihaoyi" %% "pprint" % "0.8.1",
+      "com.lihaoyi" %% "pprint" % "0.9.0",
       ("com.github.pathikrit" %% "better-files" % "3.9.2")
         .cross(CrossVersion.for3Use2_13),
       "com.github.tomakehurst" % "wiremock" % "3.0.1" % Test

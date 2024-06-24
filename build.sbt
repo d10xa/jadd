@@ -36,7 +36,7 @@ lazy val `jadd-parser-sbt` = crossProject(JSPlatform, JVMPlatform)
   .settings(commonSettings, pgpSettings, publishSettings)
   .settings(
     libraryDependencies ++= Seq(
-      ("org.scalameta" %%% "scalameta" % "4.9.6")
+      ("org.scalameta" %%% "scalameta" % "4.9.7")
         .cross(CrossVersion.for3Use2_13)
     )
   )

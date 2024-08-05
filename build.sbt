@@ -96,7 +96,7 @@ lazy val `jadd-cli` = project
       "org.scalatest" %% "scalatest" % "3.2.19" % Test,
       "ch.qos.logback" % "logback-classic" % "1.5.6",
       "org.jsoup" % "jsoup" % "1.18.1",
-      "org.antlr" % "antlr4-runtime" % "4.13.1", // ???
+      "org.antlr" % "antlr4-runtime" % "4.13.2", // ???
       "com.47deg" %% "github4s" % "0.32.1",
       "io.lemonlabs" %% "scala-uri" % "4.0.3",
       "org.http4s" %% "http4s-blaze-client" % "0.23.15",

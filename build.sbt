@@ -2,7 +2,7 @@ import xerial.sbt.Sonatype._
 
 lazy val commonSettings = Seq(
   organization := "ru.d10xa",
-  scalaVersion := "2.13.12",
+  scalaVersion := "2.13.15",
   licenses := Seq(("MIT", url("https://opensource.org/licenses/MIT")))
 )
 

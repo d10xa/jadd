@@ -90,7 +90,7 @@ lazy val `jadd-cli` = project
     },
     libraryDependencies ++= Seq(
       "com.github.scopt" %% "scopt" % "4.1.0",
-      "org.jline" % "jline" % "3.30.4",
+      "org.jline" % "jline" % "3.30.5",
       "com.lihaoyi" %% "ujson" % "4.2.1",
       "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.8",
       "org.scalatest" %% "scalatest" % "3.2.19" % Test,

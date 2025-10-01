@@ -81,7 +81,7 @@ lazy val `jadd-cli` = project
         case _ =>
           List(
             compilerPlugin(
-              ("org.typelevel" % "kind-projector" % "0.13.3").cross(
+              ("org.typelevel" % "kind-projector" % "0.13.4").cross(
                 CrossVersion.full
               )
             )

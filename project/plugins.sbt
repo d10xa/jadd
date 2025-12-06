@@ -2,6 +2,6 @@
 addSbtPlugin("com.github.sbt" % "sbt-dynver" % "5.1.1")
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.12.2")
 addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.3.1")
-addSbtPlugin("ch.epfl.scala" % "sbt-scala3-migrate" % "0.7.2")
+addSbtPlugin("ch.epfl.scala" % "sbt-scala3-migrate" % "0.7.3")
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % "1.20.1")
 addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.3.2")

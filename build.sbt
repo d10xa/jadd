@@ -98,7 +98,7 @@ lazy val `jadd-cli` = project
       "org.jsoup" % "jsoup" % "1.22.1",
       "org.antlr" % "antlr4-runtime" % "4.13.2", // ???
       "com.47deg" %% "github4s" % "0.32.1",
-      "io.lemonlabs" %% "scala-uri" % "4.0.3",
+      "com.indoorvivants" %% "scala-uri" % "4.2.0",
       "org.http4s" %% "http4s-blaze-client" % "0.23.15",
       ("io.get-coursier" %% "coursier" % "2.0.16").cross(
         CrossVersion.for3Use2_13

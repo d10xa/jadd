@@ -95,7 +95,7 @@ lazy val `jadd-cli` = project
       "ru.lanwen.verbalregex" % "java-verbal-expressions" % "1.8",
       "org.scalatest" %% "scalatest" % "3.2.20" % Test,
       "ch.qos.logback" % "logback-classic" % "1.6.6",
-      "org.jsoup" % "jsoup" % "1.23.2",
+      "org.jsoup" % "jsoup" % "1.24.1",
       "org.antlr" % "antlr4-runtime" % "4.13.2", // ???
       "com.47deg" %% "github4s" % "0.32.1",
       "io.lemonlabs" %% "scala-uri" % "4.0.3",
